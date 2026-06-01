@@ -1,0 +1,14 @@
+.build/
+.build-tests/
+.swiftpm/
+/.home/
+/.swift-cache/
+/.swift-home/
+/.tmp-home/
+/.codex-clang-cache/
+DerivedData/
+.DerivedData/
+*.xcuserstate
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+.DS_Store

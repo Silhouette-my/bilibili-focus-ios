@@ -1,0 +1,491 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		000000000000000000000201 /* FocusCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 000000000000000000000317 /* FocusCore.framework */; };
+		000000000000000000000202 /* FocusCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 000000000000000000000317 /* FocusCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		000000000000000000000203 /* BilibiliFocusApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000301 /* BilibiliFocusApp.swift */; };
+		000000000000000000000204 /* FocusBrowserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000302 /* FocusBrowserView.swift */; };
+		000000000000000000000205 /* FocusBrowserViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000303 /* FocusBrowserViewModel.swift */; };
+		000000000000000000000206 /* FocusSettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000304 /* FocusSettingsStore.swift */; };
+		000000000000000000000207 /* FocusWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000305 /* FocusWebView.swift */; };
+		000000000000000000000208 /* FocusBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000306 /* FocusBundle.swift */; };
+		000000000000000000000209 /* FocusEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000307 /* FocusEntry.swift */; };
+		000000000000000000000210 /* FocusFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000308 /* FocusFeature.swift */; };
+		000000000000000000000211 /* FocusPageRule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000309 /* FocusPageRule.swift */; };
+		000000000000000000000212 /* FocusRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000310 /* FocusRouter.swift */; };
+		000000000000000000000213 /* FocusRuleCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000311 /* FocusRuleCatalog.swift */; };
+		000000000000000000000214 /* FocusScriptBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000312 /* FocusScriptBuilder.swift */; };
+		000000000000000000000215 /* FocusScriptSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000313 /* FocusScriptSource.swift */; };
+		000000000000000000000216 /* FocusSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000314 /* FocusSettings.swift */; };
+		000000000000000000000217 /* focus-runtime.js in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000315 /* focus-runtime.js */; };
+		000000000000000000000218 /* FocusNavigationPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000318 /* FocusNavigationPolicy.swift */; };
+		000000000000000000000219 /* FocusUserAgent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000319 /* FocusUserAgent.swift */; };
+		000000000000000000000220 /* AppRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000320 /* AppRoute.swift */; };
+		000000000000000000000221 /* SearchQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000321 /* SearchQuery.swift */; };
+		000000000000000000000222 /* CookieSnapshotProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000322 /* CookieSnapshotProvider.swift */; };
+		000000000000000000000223 /* DynamicCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000323 /* DynamicCard.swift */; };
+		000000000000000000000224 /* DynamicFeedService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000324 /* DynamicFeedService.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		000000000000000000000008 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 000000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 000000000000000000000005;
+			remoteInfo = FocusCore;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		000000000000000000000104 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				000000000000000000000202 /* FocusCore.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		000000000000000000000301 /* BilibiliFocusApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BilibiliFocusApp.swift; sourceTree = "<group>"; };
+		000000000000000000000302 /* FocusBrowserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusBrowserView.swift; sourceTree = "<group>"; };
+		000000000000000000000303 /* FocusBrowserViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusBrowserViewModel.swift; sourceTree = "<group>"; };
+		000000000000000000000304 /* FocusSettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusSettingsStore.swift; sourceTree = "<group>"; };
+		000000000000000000000305 /* FocusWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusWebView.swift; sourceTree = "<group>"; };
+		000000000000000000000306 /* FocusBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusBundle.swift; sourceTree = "<group>"; };
+		000000000000000000000307 /* FocusEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusEntry.swift; sourceTree = "<group>"; };
+		000000000000000000000308 /* FocusFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusFeature.swift; sourceTree = "<group>"; };
+		000000000000000000000309 /* FocusPageRule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusPageRule.swift; sourceTree = "<group>"; };
+		000000000000000000000310 /* FocusRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusRouter.swift; sourceTree = "<group>"; };
+		000000000000000000000311 /* FocusRuleCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusRuleCatalog.swift; sourceTree = "<group>"; };
+		000000000000000000000312 /* FocusScriptBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusScriptBuilder.swift; sourceTree = "<group>"; };
+		000000000000000000000313 /* FocusScriptSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusScriptSource.swift; sourceTree = "<group>"; };
+		000000000000000000000314 /* FocusSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusSettings.swift; sourceTree = "<group>"; };
+		000000000000000000000315 /* focus-runtime.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "focus-runtime.js"; sourceTree = "<group>"; };
+		000000000000000000000316 /* BilibiliFocus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BilibiliFocus.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		000000000000000000000317 /* FocusCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FocusCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		000000000000000000000318 /* FocusNavigationPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusNavigationPolicy.swift; sourceTree = "<group>"; };
+		000000000000000000000319 /* FocusUserAgent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusUserAgent.swift; sourceTree = "<group>"; };
+		000000000000000000000320 /* AppRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRoute.swift; sourceTree = "<group>"; };
+		000000000000000000000321 /* SearchQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchQuery.swift; sourceTree = "<group>"; };
+		000000000000000000000322 /* CookieSnapshotProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CookieSnapshotProvider.swift; sourceTree = "<group>"; };
+		000000000000000000000323 /* DynamicCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicCard.swift; sourceTree = "<group>"; };
+		000000000000000000000324 /* DynamicFeedService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicFeedService.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		000000000000000000000102 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				000000000000000000000201 /* FocusCore.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		000000000000000000000106 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		000000000000000000000002 = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000401 /* BilibiliFocus */,
+				000000000000000000000402 /* FocusCore */,
+				000000000000000000000003 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		000000000000000000000003 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000316 /* BilibiliFocus.app */,
+				000000000000000000000317 /* FocusCore.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		000000000000000000000401 /* BilibiliFocus */ = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000301 /* BilibiliFocusApp.swift */,
+				000000000000000000000302 /* FocusBrowserView.swift */,
+				000000000000000000000303 /* FocusBrowserViewModel.swift */,
+				000000000000000000000304 /* FocusSettingsStore.swift */,
+				000000000000000000000319 /* FocusUserAgent.swift */,
+				000000000000000000000305 /* FocusWebView.swift */,
+			);
+			path = App/BilibiliFocus;
+			sourceTree = "<group>";
+		};
+		000000000000000000000402 /* FocusCore */ = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000320 /* AppRoute.swift */,
+				000000000000000000000321 /* SearchQuery.swift */,
+				000000000000000000000322 /* CookieSnapshotProvider.swift */,
+				000000000000000000000323 /* DynamicCard.swift */,
+				000000000000000000000324 /* DynamicFeedService.swift */,
+				000000000000000000000306 /* FocusBundle.swift */,
+				000000000000000000000307 /* FocusEntry.swift */,
+				000000000000000000000308 /* FocusFeature.swift */,
+				000000000000000000000309 /* FocusPageRule.swift */,
+				000000000000000000000310 /* FocusRouter.swift */,
+				000000000000000000000311 /* FocusRuleCatalog.swift */,
+				000000000000000000000318 /* FocusNavigationPolicy.swift */,
+				000000000000000000000312 /* FocusScriptBuilder.swift */,
+				000000000000000000000313 /* FocusScriptSource.swift */,
+				000000000000000000000314 /* FocusSettings.swift */,
+				000000000000000000000403 /* Resources */,
+			);
+			path = Sources/FocusCore;
+			sourceTree = "<group>";
+		};
+		000000000000000000000403 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000315 /* focus-runtime.js */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		000000000000000000000004 /* BilibiliFocus */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 000000000000000000000501 /* Build configuration list for PBXNativeTarget "BilibiliFocus" */;
+			buildPhases = (
+				000000000000000000000101 /* Sources */,
+				000000000000000000000102 /* Frameworks */,
+				000000000000000000000103 /* Resources */,
+				000000000000000000000104 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				000000000000000000000007 /* PBXTargetDependency */,
+			);
+			name = BilibiliFocus;
+			productName = BilibiliFocus;
+			productReference = 000000000000000000000316 /* BilibiliFocus.app */;
+			productType = "com.apple.product-type.application";
+		};
+		000000000000000000000005 /* FocusCore */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 000000000000000000000502 /* Build configuration list for PBXNativeTarget "FocusCore" */;
+			buildPhases = (
+				000000000000000000000105 /* Sources */,
+				000000000000000000000106 /* Frameworks */,
+				000000000000000000000107 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FocusCore;
+			productName = FocusCore;
+			productReference = 000000000000000000000317 /* FocusCore.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		000000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2600;
+				LastUpgradeCheck = 2600;
+				TargetAttributes = {
+					000000000000000000000004 = {
+						CreatedOnToolsVersion = 26.0;
+					};
+					000000000000000000000005 = {
+						CreatedOnToolsVersion = 26.0;
+					};
+				};
+			};
+			buildConfigurationList = 000000000000000000000006 /* Build configuration list for PBXProject "BilibiliFocus" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 000000000000000000000002;
+			productRefGroup = 000000000000000000000003 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				000000000000000000000004 /* BilibiliFocus */,
+				000000000000000000000005 /* FocusCore */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		000000000000000000000103 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		000000000000000000000107 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				000000000000000000000217 /* focus-runtime.js in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		000000000000000000000101 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				000000000000000000000203 /* BilibiliFocusApp.swift in Sources */,
+				000000000000000000000204 /* FocusBrowserView.swift in Sources */,
+				000000000000000000000205 /* FocusBrowserViewModel.swift in Sources */,
+				000000000000000000000206 /* FocusSettingsStore.swift in Sources */,
+				000000000000000000000219 /* FocusUserAgent.swift in Sources */,
+				000000000000000000000207 /* FocusWebView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		000000000000000000000105 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				000000000000000000000220 /* AppRoute.swift in Sources */,
+				000000000000000000000221 /* SearchQuery.swift in Sources */,
+				000000000000000000000222 /* CookieSnapshotProvider.swift in Sources */,
+				000000000000000000000223 /* DynamicCard.swift in Sources */,
+				000000000000000000000224 /* DynamicFeedService.swift in Sources */,
+				000000000000000000000208 /* FocusBundle.swift in Sources */,
+				000000000000000000000209 /* FocusEntry.swift in Sources */,
+				000000000000000000000210 /* FocusFeature.swift in Sources */,
+				000000000000000000000211 /* FocusPageRule.swift in Sources */,
+				000000000000000000000212 /* FocusRouter.swift in Sources */,
+				000000000000000000000213 /* FocusRuleCatalog.swift in Sources */,
+				000000000000000000000218 /* FocusNavigationPolicy.swift in Sources */,
+				000000000000000000000214 /* FocusScriptBuilder.swift in Sources */,
+				000000000000000000000215 /* FocusScriptSource.swift in Sources */,
+				000000000000000000000216 /* FocusSettings.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		000000000000000000000007 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 000000000000000000000005 /* FocusCore */;
+			targetProxy = 000000000000000000000008 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		000000000000000000000601 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		000000000000000000000602 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		000000000000000000000603 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Bilibili Focus";
+				INFOPLIST_KEY_LSRequiresIPhoneOS = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.michaeltan.BilibiliFocus;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		000000000000000000000604 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Bilibili Focus";
+				INFOPLIST_KEY_LSRequiresIPhoneOS = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.michaeltan.BilibiliFocus;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		000000000000000000000605 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = "";
+				DYLIB_CURRENT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.michaeltan.BilibiliFocus.FocusCore;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		000000000000000000000606 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = "";
+				DYLIB_CURRENT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.michaeltan.BilibiliFocus.FocusCore;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		000000000000000000000006 /* Build configuration list for PBXProject "BilibiliFocus" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				000000000000000000000601 /* Debug */,
+				000000000000000000000602 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		000000000000000000000501 /* Build configuration list for PBXNativeTarget "BilibiliFocus" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				000000000000000000000603 /* Debug */,
+				000000000000000000000604 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		000000000000000000000502 /* Build configuration list for PBXNativeTarget "FocusCore" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				000000000000000000000605 /* Debug */,
+				000000000000000000000606 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 000000000000000000000001 /* Project object */;
+}

@@ -1,0 +1,202 @@
+#if canImport(WebKit)
+import FocusCore
+import Foundation
+import Testing
+import WebKit
+
+@MainActor
+struct FocusDOMIntegrationTests {
+    @Test
+    func dynamicFixtureAppliesPruneAndRepairRules() async throws {
+        let webView = try await loadFixture(named: "dynamic", url: URL(string: "https://t.bilibili.com/")!)
+
+        let sidebarDisplay = try await evaluate(
+            "getComputedStyle(document.querySelector('.bili-dyn-sidebar')).display",
+            in: webView
+        )
+        let overflowX = try await evaluate(
+            "getComputedStyle(document.documentElement).overflowX",
+            in: webView
+        )
+        let mainWidth = try await evaluate(
+            "getComputedStyle(document.querySelector('main')).width",
+            in: webView
+        )
+
+        #expect(sidebarDisplay == "none")
+        #expect(overflowX == "hidden")
+        #expect(!mainWidth.isEmpty)
+    }
+
+    @Test
+    func searchFixtureHidesRecommendationsButKeepsResults() async throws {
+        let webView = try await loadFixture(named: "search", url: URL(string: "https://search.bilibili.com/all")!)
+
+        let recommendationDisplay = try await evaluate(
+            "getComputedStyle(document.querySelector('.search-recommend')).display",
+            in: webView
+        )
+        let resultText = try await evaluate(
+            "document.querySelector('.search-list').textContent.trim()",
+            in: webView
+        )
+        let rewrittenHref = try await evaluate(
+            "document.querySelector('.video-link').href",
+            in: webView
+        )
+        let videoGridDisplay = try await evaluate(
+            "getComputedStyle(document.querySelector('.video-list')).display",
+            in: webView
+        )
+        let videoGridColumns = try await evaluate(
+            "getComputedStyle(document.querySelector('.video-list')).gridTemplateColumns",
+            in: webView
+        )
+        let markedVideoCards = try await evaluate(
+            "document.querySelectorAll('[data-focus-search-video-card=\"true\"]').length",
+            in: webView
+        )
+        let contentRootTag = try await evaluate(
+            "document.querySelector('[data-focus-search-video-content-root=\"true\"]').tagName",
+            in: webView
+        )
+        let coverClassName = try await evaluate(
+            "document.querySelector('[data-focus-search-video-cover=\"true\"]').className",
+            in: webView
+        )
+        let titleText = try await evaluate(
+            "document.querySelector('[data-focus-search-video-title=\"true\"]').textContent.trim()",
+            in: webView
+        )
+        #expect(recommendationDisplay == "none")
+        #expect(resultText.contains("Core Search Results"))
+        #expect(rewrittenHref == "https://www.bilibili.com/video/BV1xx411c7mD")
+        #expect(videoGridDisplay == "grid")
+        #expect(videoGridColumns.contains(" "))
+        #expect(markedVideoCards == "2")
+        #expect(contentRootTag == "A")
+        #expect(coverClassName.contains("video-cover"))
+        #expect(titleText == "Video Result One")
+    }
+
+    @Test
+    func videoFixtureReflowsDesktopPlaybackPage() async throws {
+        let webView = try await loadFixture(named: "video", url: URL(string: "https://www.bilibili.com/video/BV1xx411c7mD")!)
+
+        let titleDisplay = try await evaluate(
+            "getComputedStyle(document.querySelector('#viewbox_report')).display",
+            in: webView
+        )
+        let playerText = try await evaluate(
+            "document.querySelector('.player-container').textContent.trim()",
+            in: webView
+        )
+        let toolbarItems = try await evaluate(
+            """
+            Array.from(document.querySelectorAll('#arc_toolbar_report .video-toolbar-left > *'))
+              .filter((node) => getComputedStyle(node).display !== 'none')
+              .map((node) => node.textContent.trim())
+              .join('|')
+            """,
+            in: webView
+        )
+        let coinDisplay = try await evaluate(
+            "getComputedStyle(document.querySelector('.toolbar-left-item-wrap')).display",
+            in: webView
+        )
+        let partText = try await evaluate(
+            "Array.from(document.querySelectorAll('.video-pod__item')).map((node) => node.textContent.trim()).join('|')",
+            in: webView
+        )
+        let recommendationDisplay = try await evaluate(
+            "getComputedStyle(document.querySelector('.rec-list')).display",
+            in: webView
+        )
+        let overflowFree = try await evaluate(
+            "(document.documentElement.scrollWidth <= document.documentElement.clientWidth) ? 'true' : 'false'",
+            in: webView
+        )
+
+        #expect(titleDisplay == "none")
+        #expect(playerText == "Core Player")
+        #expect(toolbarItems == "Like|Favorite|Share")
+        #expect(coinDisplay == "none")
+        #expect(partText == "P1|P2")
+        #expect(recommendationDisplay == "none")
+        #expect(overflowFree == "true")
+    }
+
+    private func loadFixture(named name: String, url: URL) async throws -> WKWebView {
+        let htmlURL = try #require(Bundle.module.url(forResource: name, withExtension: "html"))
+        let html = try String(contentsOf: htmlURL, encoding: .utf8)
+
+        let controller = WKUserContentController()
+        controller.addUserScript(
+            WKUserScript(
+                source: try FocusScriptBuilder.makeUserScript(for: .documentStart, settings: .defaults),
+                injectionTime: .atDocumentStart,
+                forMainFrameOnly: true
+            )
+        )
+        controller.addUserScript(
+            WKUserScript(
+                source: try FocusScriptBuilder.makeUserScript(for: .documentEnd, settings: .defaults),
+                injectionTime: .atDocumentEnd,
+                forMainFrameOnly: true
+            )
+        )
+
+        let configuration = WKWebViewConfiguration()
+        configuration.userContentController = controller
+        let webView = WKWebView(frame: .zero, configuration: configuration)
+        let delegate = NavigationDelegate()
+        webView.navigationDelegate = delegate
+
+        try await delegate.load {
+            webView.loadHTMLString(html, baseURL: url)
+        }
+
+        return webView
+    }
+
+    private func evaluate(_ script: String, in webView: WKWebView) async throws -> String {
+        try await withCheckedThrowingContinuation { continuation in
+            webView.evaluateJavaScript(script) { value, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+
+                continuation.resume(returning: value.map(String.init(describing:)) ?? "")
+            }
+        }
+    }
+}
+
+@MainActor
+private final class NavigationDelegate: NSObject, WKNavigationDelegate {
+    private var continuation: CheckedContinuation<Void, Error>?
+
+    func load(_ action: () -> Void) async throws {
+        try await withCheckedThrowingContinuation { continuation in
+            self.continuation = continuation
+            action()
+        }
+    }
+
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        continuation?.resume(returning: ())
+        continuation = nil
+    }
+
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        continuation?.resume(throwing: error)
+        continuation = nil
+    }
+
+    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        continuation?.resume(throwing: error)
+        continuation = nil
+    }
+}
+#endif
