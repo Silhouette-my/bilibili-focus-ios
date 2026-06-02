@@ -149,6 +149,10 @@ struct FocusDOMIntegrationTests {
             "getComputedStyle(document.querySelector('.rec-list')).display",
             in: webView
         )
+        let autoplayEnabled = try await evaluate(
+            "document.querySelector('.continuous-btn .switch-btn').classList.contains('on') ? 'true' : 'false'",
+            in: webView
+        )
         let overflowFree = try await evaluate(
             "(document.documentElement.scrollWidth <= document.documentElement.clientWidth) ? 'true' : 'false'",
             in: webView
@@ -160,6 +164,7 @@ struct FocusDOMIntegrationTests {
         #expect(coinDisplay == "none")
         #expect(partText == "P1|P2")
         #expect(recommendationDisplay == "none")
+        #expect(autoplayEnabled == "false")
         #expect(overflowFree == "true")
     }
 

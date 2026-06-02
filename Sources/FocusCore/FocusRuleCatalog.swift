@@ -3488,6 +3488,11 @@ public enum FocusRuleCatalog {
                     };
 
                     state.videoPodCollapsed = state.videoPodCollapsed !== false;
+                    const pageKey = `${location.pathname}${location.search}`;
+                    if (state.autoplayPageKey !== pageKey) {
+                      state.autoplayPageKey = pageKey;
+                      state.autoplayDefaultHandled = false;
+                    }
 
                     const trackedVideo = () => {
                       const candidate = window.__FOCUS_ACTIVE_VIDEO__;
@@ -3556,6 +3561,92 @@ public enum FocusRuleCatalog {
                         deduped.push(item);
                       });
                       return deduped;
+                    };
+
+                    const findAutoplayToggle = () => {
+                      const selectors = [
+                        '.continuous-btn',
+                        '[class*="continuous"]',
+                        '[class*="autoplay"]',
+                        '[class*="auto-play"]'
+                      ];
+                      for (const selector of selectors) {
+                        const node = Array.from(document.querySelectorAll(selector)).find((candidate) => {
+                          const text = String(candidate?.textContent || '').replace(/\\s+/g, '');
+                          return text.includes('自动连播') || text.includes('连播');
+                        });
+                        if (node) {
+                          return node;
+                        }
+                      }
+                      return null;
+                    };
+
+                    const isAutoplayEnabled = (toggle) => {
+                      if (!toggle) {
+                        return false;
+                      }
+
+                      const switchNode = toggle.querySelector('.switch-btn, [role="switch"], [role="checkbox"], input[type="checkbox"]') || toggle;
+                      if ('checked' in switchNode && typeof switchNode.checked === 'boolean') {
+                        return !!switchNode.checked;
+                      }
+
+                      const ariaChecked = String(switchNode.getAttribute?.('aria-checked') || toggle.getAttribute?.('aria-checked') || '').toLowerCase();
+                      const ariaPressed = String(switchNode.getAttribute?.('aria-pressed') || toggle.getAttribute?.('aria-pressed') || '').toLowerCase();
+                      const dataState = String(switchNode.getAttribute?.('data-state') || toggle.getAttribute?.('data-state') || '').toLowerCase();
+                      const className = String(switchNode.className || toggle.className || '').toLowerCase();
+
+                      if (ariaChecked === 'true' || ariaPressed === 'true') {
+                        return true;
+                      }
+
+                      if (dataState === 'on' || dataState === 'checked' || dataState === 'active' || dataState === 'enabled') {
+                        return true;
+                      }
+
+                      return /(^|\\s)(on|active|checked|selected|enabled)(\\s|$)/.test(className);
+                    };
+
+                    const normalizeAutoplayDisabled = (toggle) => {
+                      if (!toggle) {
+                        return;
+                      }
+
+                      const switchNode = toggle.querySelector('.switch-btn, [role="switch"], [role="checkbox"], input[type="checkbox"]') || toggle;
+                      switchNode.classList?.remove?.('on', 'active', 'checked', 'selected', 'enabled');
+                      toggle.classList?.remove?.('on', 'active', 'checked', 'selected', 'enabled');
+                      switchNode.setAttribute?.('aria-checked', 'false');
+                      switchNode.setAttribute?.('aria-pressed', 'false');
+                      switchNode.setAttribute?.('data-state', 'off');
+                      toggle.setAttribute?.('aria-checked', 'false');
+                      toggle.setAttribute?.('aria-pressed', 'false');
+                      toggle.setAttribute?.('data-state', 'off');
+
+                      if ('checked' in switchNode && typeof switchNode.checked === 'boolean') {
+                        switchNode.checked = false;
+                      }
+                    };
+
+                    const disableAutoplayByDefault = () => {
+                      if (state.autoplayDefaultHandled) {
+                        return;
+                      }
+
+                      const toggle = findAutoplayToggle();
+                      if (!toggle) {
+                        return;
+                      }
+
+                      state.autoplayDefaultHandled = true;
+
+                      if (!isAutoplayEnabled(toggle)) {
+                        return;
+                      }
+
+                      const clickTarget = toggle.querySelector('.switch-btn, [role="switch"], [role="checkbox"], input[type="checkbox"]') || toggle;
+                      clickTarget.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+                      normalizeAutoplayDisabled(toggle);
                     };
 
                     const refreshVideoPods = () => {
@@ -3708,6 +3799,7 @@ public enum FocusRuleCatalog {
                     };
 
                     window.__FOCUS_SNAPSHOT_PLAYER_STATE__ = snapshotPlayerState;
+                    disableAutoplayByDefault();
                     snapshotPlayerState();
 
                     if (!state.playerHooksInstalled) {
@@ -3715,6 +3807,7 @@ public enum FocusRuleCatalog {
 
                       let snapshotTimer = null;
                       let videoPodRefreshTimer = null;
+                      let autoplayRefreshTimer = null;
                       const scheduleSnapshot = (delay = 80) => {
                         clearTimeout(snapshotTimer);
                         snapshotTimer = setTimeout(() => {
@@ -3725,6 +3818,12 @@ public enum FocusRuleCatalog {
                         clearTimeout(videoPodRefreshTimer);
                         videoPodRefreshTimer = setTimeout(() => {
                           refreshVideoPods();
+                        }, delay);
+                      };
+                      const scheduleAutoplayRefresh = (delay = 90) => {
+                        clearTimeout(autoplayRefreshTimer);
+                        autoplayRefreshTimer = setTimeout(() => {
+                          disableAutoplayByDefault();
                         }, delay);
                       };
 
@@ -3775,6 +3874,7 @@ public enum FocusRuleCatalog {
                       }, true);
 
                       const observer = new MutationObserver(() => {
+                        scheduleAutoplayRefresh(60);
                         scheduleSnapshot(120);
                         scheduleVideoPodRefresh(120);
                       });
@@ -3786,6 +3886,7 @@ public enum FocusRuleCatalog {
                       });
                     }
 
+                    disableAutoplayByDefault();
                     refreshVideoPods();
                     """,
                     settingKey: .playerMaskEnabled
