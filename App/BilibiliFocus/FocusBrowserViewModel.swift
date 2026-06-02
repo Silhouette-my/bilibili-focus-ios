@@ -15,6 +15,7 @@ final class FocusAppViewModel: ObservableObject {
     private static let loginURL = URL(string: "https://passport.bilibili.com/login")!
 
     @Published private(set) var route: AppRoute = .dynamicFeed
+    @Published private(set) var hasInstantiatedBrowser = false
     @Published var showSettings = false
     @Published var showSearch = false
     @Published var searchKeyword = ""
@@ -22,6 +23,7 @@ final class FocusAppViewModel: ObservableObject {
     let settingsStore: FocusSettingsStore
     let browserViewModel: FocusBrowserViewModel
     let dynamicFeedViewModel: FocusDynamicFeedViewModel
+    let searchResultsViewModel: FocusSearchResultsViewModel
 
     private var didHandleLaunchEntry = false
     private var lastNonBrowserRoute: AppRoute = .dynamicFeed
@@ -35,9 +37,13 @@ final class FocusAppViewModel: ObservableObject {
         let dynamicFeedViewModel = FocusDynamicFeedViewModel(
             service: DynamicFeedService(cookieProvider: cookieProvider)
         )
+        let searchResultsViewModel = FocusSearchResultsViewModel(
+            service: SearchResultService(cookieProvider: cookieProvider)
+        )
 
         self.browserViewModel = browserViewModel
         self.dynamicFeedViewModel = dynamicFeedViewModel
+        self.searchResultsViewModel = searchResultsViewModel
 
         browserViewModel.onEntryRequest = { [weak self] entry in
             Task { @MainActor [weak self] in
@@ -56,23 +62,28 @@ final class FocusAppViewModel: ObservableObject {
         switch route {
         case .dynamicFeed:
             return "动态"
+        case let .searchResults(query):
+            return query.keyword.isEmpty ? "搜索" : query.keyword
         case .browser:
             return browserViewModel.navigationTitle
         }
     }
 
     var activePrimaryTab: PrimaryTab {
-        guard isBrowserActive else {
+        switch route {
+        case .dynamicFeed:
             return .dynamic
-        }
-
-        switch browserViewModel.entryContext {
-        case .dynamic:
-            return .dynamic
-        case .search:
+        case .searchResults:
             return .search
-        case .login:
-            return .login
+        case .browser:
+            switch browserViewModel.entryContext {
+            case .dynamic:
+                return .dynamic
+            case .search:
+                return .search
+            case .login:
+                return .login
+            }
         }
     }
 
@@ -116,6 +127,14 @@ final class FocusAppViewModel: ObservableObject {
         openBrowser(card.videoURL ?? card.targetURL, context: .dynamic)
     }
 
+    func open(searchItem: SearchResultItem) {
+        openBrowser(searchItem.targetURL, context: .search)
+    }
+
+    func open(searchPreview: SearchResultItem.PreviewVideo) {
+        openBrowser(searchPreview.targetURL, context: .search)
+    }
+
     func submitSearch() {
         let query = SearchQuery(keyword: searchKeyword)
         guard !query.keyword.isEmpty else {
@@ -123,7 +142,9 @@ final class FocusAppViewModel: ObservableObject {
         }
 
         showSearch = false
-        openBrowser(query.resultURL, context: .search)
+        route = .searchResults(query)
+        lastNonBrowserRoute = route
+        searchResultsViewModel.search(query)
     }
 
     func openLogin() {
@@ -134,6 +155,8 @@ final class FocusAppViewModel: ObservableObject {
         switch route {
         case .dynamicFeed:
             dynamicFeedViewModel.reload()
+        case .searchResults:
+            searchResultsViewModel.reload()
         case .browser:
             browserViewModel.reload()
         }
@@ -172,6 +195,8 @@ final class FocusAppViewModel: ObservableObject {
         case .dynamicFeed:
             route = .dynamicFeed
             dynamicFeedViewModel.loadIfNeeded()
+        case .searchResults:
+            route = lastNonBrowserRoute
         case .browser:
             route = .dynamicFeed
             dynamicFeedViewModel.loadIfNeeded()
@@ -180,8 +205,12 @@ final class FocusAppViewModel: ObservableObject {
 
     private func openBrowser(_ url: URL, context: FocusBrowserViewModel.EntryContext) {
         let canonicalURL = FocusNavigationPolicy.canonicalWebURL(for: url)
-        if case .dynamicFeed = route {
+        hasInstantiatedBrowser = true
+        switch route {
+        case .dynamicFeed, .searchResults:
             lastNonBrowserRoute = route
+        case .browser:
+            break
         }
         route = .browser(canonicalURL)
         browserViewModel.open(canonicalURL, context: context)
@@ -1635,6 +1664,282 @@ final class FocusBrowserViewModel: ObservableObject {
         @unknown default:
             return "unknown"
         }
+    }
+}
+
+@MainActor
+final class FocusSearchResultsViewModel: ObservableObject {
+    enum State: Equatable {
+        case idle
+        case loading
+        case loaded([SearchResultSection])
+        case failed(String)
+    }
+
+    @Published private(set) var state: State = .idle
+    @Published private(set) var selectedFilter: SearchResultFilter = .all
+    @Published private(set) var selectedVideoSort: SearchVideoSortOption = .default
+    @Published private(set) var currentQuery: SearchQuery?
+    @Published private(set) var isLoadingMore = false
+
+    let availableFilters = SearchResultFilter.defaultOrder
+    let availableVideoSortOptions = SearchVideoSortOption.allCases
+
+    private let service: SearchResultService
+    private var task: Task<Void, Never>?
+    private var loadMoreTask: Task<Void, Never>?
+    private var cache: [SearchResultFilter: SearchResultPage] = [:]
+    private var nextPageByFilter: [SearchResultFilter: Int] = [:]
+
+    init(service: SearchResultService) {
+        self.service = service
+    }
+
+    deinit {
+        task?.cancel()
+        loadMoreTask?.cancel()
+    }
+
+    func search(_ query: SearchQuery) {
+        currentQuery = query
+        selectedFilter = .all
+        selectedVideoSort = .default
+        cache.removeAll()
+        nextPageByFilter.removeAll()
+        reload()
+    }
+
+    func reload() {
+        guard let query = currentQuery, !query.keyword.isEmpty else {
+            state = .idle
+            return
+        }
+
+        task?.cancel()
+        let filter = selectedFilter
+        let videoSort = filter == .video ? selectedVideoSort : .default
+        state = .loading
+        task = Task { [weak self] in
+            guard let self else {
+                return
+            }
+
+            do {
+                let page = try await service.fetchPage(
+                    for: query,
+                    filter: filter,
+                    page: 1,
+                    videoSort: videoSort
+                )
+                guard !Task.isCancelled else {
+                    return
+                }
+
+                cachePage(page, for: filter)
+                state = .loaded(page.sections)
+            } catch let error as SearchResultService.ServiceError {
+                guard !Task.isCancelled else {
+                    return
+                }
+                state = .failed(error.localizedDescription)
+            } catch {
+                guard !Task.isCancelled else {
+                    return
+                }
+                state = .failed(error.localizedDescription)
+            }
+        }
+    }
+
+    func refresh() async {
+        cache[selectedFilter] = nil
+        nextPageByFilter[selectedFilter] = nil
+        reload()
+    }
+
+    func selectFilter(_ filter: SearchResultFilter) {
+        guard selectedFilter != filter else {
+            return
+        }
+
+        selectedFilter = filter
+        if let cachedPage = cache[filter] {
+            cachePage(cachedPage, for: filter)
+            state = .loaded(cachedPage.sections)
+            return
+        }
+
+        reload()
+    }
+
+    func selectVideoSort(_ sort: SearchVideoSortOption) {
+        guard selectedVideoSort != sort else {
+            return
+        }
+
+        selectedVideoSort = sort
+        cache[.video] = nil
+        nextPageByFilter[.video] = nil
+
+        if selectedFilter == .video {
+            reload()
+        }
+    }
+
+    func loadMoreIfNeeded(currentItemID: String, in section: SearchResultSection) {
+        guard
+            let query = currentQuery,
+            case let .loaded(sections) = state,
+            let activeSection = sections.first(where: { $0.id == section.id }),
+            shouldLoadMore(after: currentItemID, in: activeSection.items),
+            !isLoadingMore
+        else {
+            return
+        }
+
+        let pagingFilter = selectedFilter == .all ? section.filter : selectedFilter
+        guard pagingFilter == .video,
+              let nextPage = nextPageByFilter[pagingFilter]
+        else {
+            return
+        }
+
+        isLoadingMore = true
+        loadMoreTask?.cancel()
+        loadMoreTask = Task { [weak self] in
+            guard let self else {
+                return
+            }
+
+            do {
+                let currentVideoSort = pagingFilter == .video ? selectedVideoSort : .default
+                let extraPage = try await service.fetchPage(
+                    for: query,
+                    filter: pagingFilter,
+                    page: nextPage,
+                    videoSort: currentVideoSort
+                )
+                guard !Task.isCancelled else {
+                    return
+                }
+
+                let mergedSections = merge(
+                    currentSections: sections,
+                    extraSections: extraPage.sections,
+                    targetFilter: pagingFilter
+                )
+                let mergedVideoSections = mergedSectionsForCache(
+                    existing: cache[pagingFilter]?.sections ?? [],
+                    incoming: extraPage.sections,
+                    targetFilter: pagingFilter
+                )
+                cachePage(
+                    SearchResultPage(
+                        sections: mergedVideoSections,
+                        nextPage: extraPage.nextPage
+                    ),
+                    for: pagingFilter
+                )
+
+                if selectedFilter == .all {
+                    cachePage(
+                        SearchResultPage(
+                            sections: mergedSections,
+                            nextPage: extraPage.nextPage
+                        ),
+                        for: .all
+                    )
+                }
+                state = .loaded(mergedSections)
+            } catch {
+                guard !Task.isCancelled else {
+                    return
+                }
+            }
+
+            if !Task.isCancelled {
+                isLoadingMore = false
+            }
+        }
+    }
+
+    private func shouldLoadMore(after currentItemID: String, in items: [SearchResultItem]) -> Bool {
+        guard let currentIndex = items.firstIndex(where: { $0.id == currentItemID }) else {
+            return false
+        }
+
+        return currentIndex >= max(items.count - 4, 0)
+    }
+
+    private func merge(
+        currentSections: [SearchResultSection],
+        extraSections: [SearchResultSection],
+        targetFilter: SearchResultFilter
+    ) -> [SearchResultSection] {
+        currentSections.map { section in
+            guard section.filter == targetFilter,
+                  let incomingSection = extraSections.first(where: { $0.filter == targetFilter })
+            else {
+                return section
+            }
+
+            return SearchResultSection(
+                filter: section.filter,
+                items: mergeItems(existing: section.items, incoming: incomingSection.items)
+            )
+        }
+    }
+
+    private func mergedSectionsForCache(
+        existing: [SearchResultSection],
+        incoming: [SearchResultSection],
+        targetFilter: SearchResultFilter
+    ) -> [SearchResultSection] {
+        if existing.isEmpty {
+            return incoming
+        }
+
+        return existing.map { section in
+            guard section.filter == targetFilter,
+                  let incomingSection = incoming.first(where: { $0.filter == targetFilter })
+            else {
+                return section
+            }
+
+            return SearchResultSection(
+                filter: section.filter,
+                items: mergeItems(existing: section.items, incoming: incomingSection.items)
+            )
+        }
+    }
+
+    private func mergeItems(existing: [SearchResultItem], incoming: [SearchResultItem]) -> [SearchResultItem] {
+        var merged = existing
+        var seen = Set(existing.map(\.id))
+
+        for item in incoming where seen.insert(item.id).inserted {
+            merged.append(item)
+        }
+
+        return merged
+    }
+
+    private func cachePage(_ page: SearchResultPage, for filter: SearchResultFilter) {
+        cache[filter] = page
+        nextPageByFilter[filter] = page.nextPage
+
+        guard filter == .all,
+              let videoSection = page.sections.first(where: { $0.filter == .video })
+        else {
+            return
+        }
+
+        let videoPage = SearchResultPage(
+            sections: [videoSection],
+            nextPage: page.nextPage
+        )
+        cache[.video] = videoPage
+        nextPageByFilter[.video] = page.nextPage
     }
 }
 

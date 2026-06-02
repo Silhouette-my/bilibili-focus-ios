@@ -170,7 +170,6 @@ public enum FocusRuleCatalog {
                     .left-wrap,
                     .video-list,
                     .media-list,
-                    .live-list,
                     .up-list,
                     .user-list,
                     .bangumi-list,
@@ -196,8 +195,8 @@ public enum FocusRuleCatalog {
                     .search-list,
                     .result-wrap,
                     .left-wrap {
-                      padding-left: 10px !important;
-                      padding-right: 10px !important;
+                      padding-left: 16px !important;
+                      padding-right: 16px !important;
                       padding-top: 0 !important;
                     }
 
@@ -205,15 +204,16 @@ public enum FocusRuleCatalog {
                       display: flex !important;
                       align-items: center !important;
                       gap: 10px !important;
-                      width: calc(100% - 20px) !important;
+                      width: 100% !important;
                       min-width: 0 !important;
-                      margin: 4px 10px 4px !important;
-                      padding: 7px !important;
+                      margin: 6px 0 8px !important;
+                      padding: 4px 0 4px 14px !important;
                       box-sizing: border-box !important;
-                      border: 1px solid #d8e2ee !important;
-                      border-radius: 18px !important;
-                      background: #ffffff !important;
-                      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05) !important;
+                      border: 0 !important;
+                      overflow: hidden !important;
+                      border-radius: 20px !important;
+                      background: rgba(255, 255, 255, 0.98) !important;
+                      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06) !important;
                     }
 
                     [data-focus-search-input-shell] input,
@@ -223,22 +223,23 @@ public enum FocusRuleCatalog {
                       min-width: 0 !important;
                       min-height: 42px !important;
                       margin: 0 !important;
-                      padding: 0 14px !important;
-                      border: 1px solid #d5dfeb !important;
-                      border-radius: 14px !important;
-                      background: #fbfcfe !important;
-                      box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+                      padding: 0 10px !important;
+                      border: 0 !important;
+                      border-radius: 0 !important;
+                      background: transparent !important;
+                      box-shadow: none !important;
                       color: #111827 !important;
                       font-size: 17px !important;
+                      outline: none !important;
                     }
 
                     [data-focus-search-input-shell] button,
                     [data-focus-search-input-shell] [role="button"] {
-                      min-height: 42px !important;
+                      min-height: 44px !important;
                       margin: 0 !important;
-                      padding: 0 18px !important;
+                      padding: 0 22px !important;
                       border: 0 !important;
-                      border-radius: 14px !important;
+                      border-radius: 0 20px 20px 0 !important;
                       background: #21a6e8 !important;
                       color: #ffffff !important;
                       font-weight: 700 !important;
@@ -409,14 +410,14 @@ public enum FocusRuleCatalog {
                       display: flex !important;
                       flex-direction: column !important;
                       gap: 8px !important;
-                      width: calc(100% - 20px) !important;
-                      max-width: calc(100% - 20px) !important;
+                      width: 100% !important;
+                      max-width: 100% !important;
                       min-width: 0 !important;
-                      margin: 0 10px 8px !important;
-                      padding: 9px !important;
+                      margin: 0 0 10px !important;
+                      padding: 8px 10px !important;
                       box-sizing: border-box !important;
                       border: 1px solid #e5ebf4 !important;
-                      border-radius: 18px !important;
+                      border-radius: 16px !important;
                       background: #ffffff !important;
                       box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06) !important;
                     }
@@ -465,8 +466,22 @@ public enum FocusRuleCatalog {
                     .suggest-wrap,
                     .search-footer-app,
                     .brand-ad-list.search-all-list,
+                    .search-game-card,
+                    .search-special-card,
+                    .search-topic-card,
+                    .search-activity-card,
+                    .search-brand-card,
+                    .search-ad-card,
                     .video-page-special-card,
-                    .video-page-special-card-small {
+                    .video-page-special-card-small,
+                    [class*="brand-ad"],
+                    [class*="search-game"],
+                    [class*="game-card"],
+                    [class*="special-card"],
+                    [class*="topic-card"],
+                    [class*="activity-card"],
+                    [class*="promote-card"],
+                    [class*="advert-card"] {
                       display: none !important;
                     }
 
@@ -493,7 +508,12 @@ public enum FocusRuleCatalog {
                     .film-list {
                       display: flex !important;
                       flex-direction: column !important;
-                      gap: 10px !important;
+                      gap: 12px !important;
+                    }
+
+                    .up-list,
+                    .user-list {
+                      margin-bottom: 16px !important;
                     }
 
                     .bangumi-pgc-list.search-all-list {
@@ -530,6 +550,244 @@ public enum FocusRuleCatalog {
                       border-radius: 18px !important;
                       background: #ffffff !important;
                       box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05) !important;
+                    }
+
+                    .live-list {
+                      display: grid !important;
+                      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                      gap: 8px !important;
+                      align-items: start !important;
+                    }
+
+                    .live-list .live-item {
+                      display: flex !important;
+                      flex-direction: column !important;
+                      gap: 0 !important;
+                      padding: 0 !important;
+                      min-height: 210px !important;
+                    }
+
+                    .live-list .live-item > :first-child {
+                      grid-row: auto !important;
+                      width: 100% !important;
+                      min-width: 100% !important;
+                      max-width: 100% !important;
+                      aspect-ratio: 16 / 10 !important;
+                      border-radius: 0 !important;
+                    }
+
+                    .live-list .live-item > :not(:first-child) {
+                      grid-column: auto !important;
+                      width: 100% !important;
+                      min-width: 0 !important;
+                      padding-left: 12px !important;
+                      padding-right: 12px !important;
+                    }
+
+                    .live-list .live-item [class*="cover"],
+                    .live-list .live-item [class*="image"],
+                    .live-list .live-item [class*="img"],
+                    .live-list .live-item [class*="pic"] {
+                      width: 100% !important;
+                      min-width: 0 !important;
+                      aspect-ratio: 16 / 10 !important;
+                      overflow: hidden !important;
+                      border-radius: 0 !important;
+                      background: #eef2f7 !important;
+                    }
+
+                    .live-list .live-item [class*="cover"] img,
+                    .live-list .live-item [class*="image"] img,
+                    .live-list .live-item [class*="img"] img,
+                    .live-list .live-item [class*="pic"] img,
+                    .live-list .live-item [class*="cover"] picture,
+                    .live-list .live-item [class*="image"] picture,
+                    .live-list .live-item [class*="img"] picture,
+                    .live-list .live-item [class*="pic"] picture {
+                      width: 100% !important;
+                      height: 100% !important;
+                      object-fit: cover !important;
+                      border-radius: 0 !important;
+                    }
+
+                    .live-list .live-item button,
+                    .live-list .live-item [role="button"],
+                    .live-list .live-item [class*="button"],
+                    .live-list .live-item [class*="btn"],
+                    .live-list .live-item [class*="follow"],
+                    .live-list .live-item [class*="reserve"],
+                    .live-list .live-item [class*="appointment"],
+                    .live-list .live-item [class*="progress"],
+                    .live-list .live-item [class*="action"],
+                    .live-list .live-item [class*="interact"],
+                    .live-list .live-item [class*="lottery"],
+                    .live-list .live-item [class*="pk"] {
+                      display: none !important;
+                    }
+
+                    .live-list .live-item [class*="button"]::before,
+                    .live-list .live-item [class*="button"]::after,
+                    .live-list .live-item [class*="btn"]::before,
+                    .live-list .live-item [class*="btn"]::after,
+                    .live-list .live-item [class*="follow"]::before,
+                    .live-list .live-item [class*="follow"]::after,
+                    .live-list .live-item [class*="reserve"]::before,
+                    .live-list .live-item [class*="reserve"]::after,
+                    .live-list .live-item [class*="appointment"]::before,
+                    .live-list .live-item [class*="appointment"]::after,
+                    .live-list .live-item [class*="progress"]::before,
+                    .live-list .live-item [class*="progress"]::after {
+                      display: none !important;
+                      content: none !important;
+                    }
+
+                    .live-list .live-item [class*="progress"],
+                    .live-list .live-item [class*="reserve"],
+                    .live-list .live-item [class*="follow"],
+                    .live-list .live-item [class*="button"],
+                    .live-list .live-item [class*="btn"] {
+                      min-height: 0 !important;
+                      max-height: 0 !important;
+                      border: 0 !important;
+                      opacity: 0 !important;
+                      overflow: hidden !important;
+                    }
+
+                    [data-focus-search-up-card="true"] {
+                      display: grid !important;
+                      grid-template-columns: 72px minmax(0, 1fr) !important;
+                      grid-auto-rows: min-content !important;
+                      align-content: start !important;
+                      align-items: start !important;
+                      column-gap: 12px !important;
+                      row-gap: 6px !important;
+                      padding: 16px !important;
+                    }
+
+                    [data-focus-search-up-card="true"] > :first-child {
+                      grid-row: 1 / span 4 !important;
+                      width: 72px !important;
+                      min-width: 72px !important;
+                      max-width: 72px !important;
+                      overflow: hidden !important;
+                      border-radius: 18px !important;
+                    }
+
+                    [data-focus-search-up-card="true"] > :not(:first-child) {
+                      grid-column: 2 !important;
+                      width: 100% !important;
+                      min-width: 0 !important;
+                      padding-left: 0 !important;
+                      padding-right: 0 !important;
+                    }
+
+                    [data-focus-search-up-card="true"] [data-focus-search-up-strip="true"] {
+                      grid-column: 1 / -1 !important;
+                      display: flex !important;
+                      gap: 10px !important;
+                      overflow-x: auto !important;
+                      padding-top: 8px !important;
+                      padding-bottom: 2px !important;
+                      margin-top: 2px !important;
+                      scroll-snap-type: x proximity !important;
+                    }
+
+                    [data-focus-search-up-card="true"] [data-focus-search-up-strip="true"]::-webkit-scrollbar {
+                      display: none !important;
+                    }
+
+                    .up-list .up-item > div:has(a[href*="/video/"]):has(img),
+                    .up-list .up-item > section:has(a[href*="/video/"]):has(img),
+                    .up-list .up-item > ul:has(a[href*="/video/"]):has(img),
+                    .user-list .user-item > div:has(a[href*="/video/"]):has(img),
+                    .user-list .user-item > section:has(a[href*="/video/"]):has(img),
+                    .user-list .user-item > ul:has(a[href*="/video/"]):has(img) {
+                      grid-column: 1 / -1 !important;
+                      display: flex !important;
+                      gap: 10px !important;
+                      overflow-x: auto !important;
+                      padding-top: 8px !important;
+                      padding-bottom: 2px !important;
+                      margin-top: 2px !important;
+                      scroll-snap-type: x proximity !important;
+                    }
+
+                    .up-list .up-item > div:has(a[href*="/video/"]):has(img)::-webkit-scrollbar,
+                    .up-list .up-item > section:has(a[href*="/video/"]):has(img)::-webkit-scrollbar,
+                    .up-list .up-item > ul:has(a[href*="/video/"]):has(img)::-webkit-scrollbar,
+                    .user-list .user-item > div:has(a[href*="/video/"]):has(img)::-webkit-scrollbar,
+                    .user-list .user-item > section:has(a[href*="/video/"]):has(img)::-webkit-scrollbar,
+                    .user-list .user-item > ul:has(a[href*="/video/"]):has(img)::-webkit-scrollbar {
+                      display: none !important;
+                    }
+
+                    .up-list .up-item > div:has(a[href*="/video/"]):has(img) > *,
+                    .up-list .up-item > section:has(a[href*="/video/"]):has(img) > *,
+                    .up-list .up-item > ul:has(a[href*="/video/"]):has(img) > *,
+                    .user-list .user-item > div:has(a[href*="/video/"]):has(img) > *,
+                    .user-list .user-item > section:has(a[href*="/video/"]):has(img) > *,
+                    .user-list .user-item > ul:has(a[href*="/video/"]):has(img) > * {
+                      flex: 0 0 148px !important;
+                      width: 148px !important;
+                      min-width: 148px !important;
+                      overflow: hidden !important;
+                      border-radius: 16px !important;
+                      background: #f8fafc !important;
+                      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05) !important;
+                      scroll-snap-align: start !important;
+                    }
+
+                    [data-focus-search-up-card="true"] [data-focus-search-up-video="true"] {
+                      flex: 0 0 148px !important;
+                      width: 148px !important;
+                      min-width: 148px !important;
+                      overflow: hidden !important;
+                      border-radius: 16px !important;
+                      background: #f8fafc !important;
+                      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05) !important;
+                      scroll-snap-align: start !important;
+                    }
+
+                    [data-focus-search-up-card="true"] [data-focus-search-up-video-cover="true"] {
+                      position: relative !important;
+                      width: 100% !important;
+                      min-width: 0 !important;
+                      aspect-ratio: 16 / 10 !important;
+                      overflow: hidden !important;
+                      background: #eef2f7 !important;
+                    }
+
+                    [data-focus-search-up-card="true"] [data-focus-search-up-video-cover="true"] img,
+                    [data-focus-search-up-card="true"] [data-focus-search-up-video-cover="true"] picture,
+                    [data-focus-search-up-card="true"] [data-focus-search-up-video-cover="true"] video,
+                    [data-focus-search-up-card="true"] [data-focus-search-up-video-cover="true"] canvas {
+                      width: 100% !important;
+                      height: 100% !important;
+                      object-fit: cover !important;
+                      border-radius: 0 !important;
+                    }
+
+                    [data-focus-search-up-card="true"] [data-focus-search-up-video-title="true"] {
+                      display: -webkit-box !important;
+                      margin: 8px 10px 0 !important;
+                      line-height: 1.45 !important;
+                      font-size: 13px !important;
+                      font-weight: 600 !important;
+                      color: #111827 !important;
+                      -webkit-box-orient: vertical !important;
+                      -webkit-line-clamp: 2 !important;
+                      overflow: hidden !important;
+                    }
+
+                    [data-focus-search-up-card="true"] [data-focus-search-up-video-meta="true"] {
+                      display: block !important;
+                      margin: 4px 10px 10px !important;
+                      line-height: 1.35 !important;
+                      font-size: 12px !important;
+                      color: #6b7280 !important;
+                      white-space: nowrap !important;
+                      overflow: hidden !important;
+                      text-overflow: ellipsis !important;
                     }
 
                     [data-focus-search-video-content-root="true"] {
@@ -593,7 +851,6 @@ public enum FocusRuleCatalog {
                     .media-list .media-item,
                     .bangumi-list .bangumi-item,
                     .film-list .film-item,
-                    .live-list .live-item,
                     .up-list .up-item,
                     .user-list .user-item {
                       display: grid !important;
@@ -605,10 +862,17 @@ public enum FocusRuleCatalog {
                       row-gap: 6px !important;
                     }
 
+                    .up-list .up-item,
+                    .user-list .user-item {
+                      grid-template-columns: 88px minmax(0, 1fr) !important;
+                      column-gap: 12px !important;
+                      row-gap: 8px !important;
+                      padding: 16px !important;
+                    }
+
                     .media-list .media-item > :first-child,
                     .bangumi-list .bangumi-item > :first-child,
                     .film-list .film-item > :first-child,
-                    .live-list .live-item > :first-child,
                     .up-list .up-item > :first-child,
                     .user-list .user-item > :first-child {
                       grid-row: 1 / span 10 !important;
@@ -620,15 +884,43 @@ public enum FocusRuleCatalog {
                       border-radius: 16px !important;
                     }
 
+                    .up-list .up-item > :first-child,
+                    .user-list .user-item > :first-child {
+                      width: 88px !important;
+                      min-width: 88px !important;
+                      max-width: 88px !important;
+                      border-radius: 20px !important;
+                    }
+
                     .media-list .media-item > :not(:first-child),
                     .bangumi-list .bangumi-item > :not(:first-child),
                     .film-list .film-item > :not(:first-child),
-                    .live-list .live-item > :not(:first-child),
                     .up-list .up-item > :not(:first-child),
                     .user-list .user-item > :not(:first-child) {
                       grid-column: 2 !important;
                       width: 100% !important;
                       min-width: 0 !important;
+                    }
+
+                    .up-list .up-item > :not(:first-child),
+                    .user-list .user-item > :not(:first-child) {
+                      padding-left: 0 !important;
+                      padding-right: 0 !important;
+                    }
+
+                    .up-list .up-item button,
+                    .up-list .up-item [role="button"],
+                    .up-list .up-item [class*="follow"],
+                    .user-list .user-item button,
+                    .user-list .user-item [role="button"],
+                    .user-list .user-item [class*="follow"] {
+                      justify-self: start !important;
+                      width: auto !important;
+                      max-width: 100% !important;
+                      min-height: 36px !important;
+                      margin-top: 2px !important;
+                      padding: 0 14px !important;
+                      border-radius: 12px !important;
                     }
 
                     .bangumi-item [class*="badge"],
@@ -659,6 +951,12 @@ public enum FocusRuleCatalog {
                       font-size: 17px !important;
                       font-weight: 600 !important;
                       color: #111827 !important;
+                    }
+
+                    .up-item [class*="title"],
+                    .user-item [class*="title"] {
+                      margin-top: 0 !important;
+                      font-size: 18px !important;
                     }
 
                     .video-item [class*="desc"],
@@ -696,6 +994,16 @@ public enum FocusRuleCatalog {
                       color: #6b7280 !important;
                     }
 
+                    .up-item [class*="desc"],
+                    .up-item [class*="info"],
+                    .up-item [class*="meta"],
+                    .user-item [class*="desc"],
+                    .user-item [class*="info"],
+                    .user-item [class*="meta"] {
+                      padding-left: 0 !important;
+                      padding-right: 0 !important;
+                    }
+
                     [data-focus-search-video-content-root="true"] > [data-focus-search-video-cover="true"] {
                       order: 0 !important;
                     }
@@ -705,7 +1013,7 @@ public enum FocusRuleCatalog {
                       display: flex !important;
                       flex-direction: column !important;
                       gap: 4px !important;
-                      padding: 10px 10px 12px !important;
+                      padding: 10px 12px 12px !important;
                     }
 
                     [data-focus-search-video-content-root="true"] [data-focus-search-video-cover="true"] {
@@ -760,14 +1068,14 @@ public enum FocusRuleCatalog {
 
                     [data-focus-search-video-content-root="true"] > [data-focus-search-video-title="true"] {
                       order: 1 !important;
-                      padding-left: 10px !important;
-                      padding-right: 10px !important;
+                      padding-left: 12px !important;
+                      padding-right: 12px !important;
                     }
 
                     [data-focus-search-video-content-root="true"] > [data-focus-search-video-meta="true"] {
                       order: 2 !important;
-                      padding-left: 10px !important;
-                      padding-right: 10px !important;
+                      padding-left: 12px !important;
+                      padding-right: 12px !important;
                     }
 
                     [data-focus-search-video-content-root="true"] [data-focus-search-video-info-shell="true"] [data-focus-search-video-title="true"] {
@@ -843,12 +1151,31 @@ public enum FocusRuleCatalog {
                     const durationFilterLabels = ['全部时长', '10分钟以下', '10-30分钟', '30-60分钟', '60分钟以上'];
                     const searchFilterKeywords = primaryFilterLabels.concat(dateFilterLabels, durationFilterLabels);
                     const searchTypeLabels = ['综合', '视频', '番剧', '影视', '直播', '用户', '专栏'];
+                    const promotedSearchKeywords = ['广告', '立即预约', '立即下载', '游戏下载', '打开app', '打开应用', '福利', '礼包', '攻略站', '游戏中心'];
                     const debugSearch = (message, extra) => {
                       helpers.postDebug(message, extra || null);
                     };
                     const incrementDebugCounter = (key) => {
                       state[key] = (state[key] || 0) + 1;
                       return state[key];
+                    };
+                    const installSearchScrollGuard = () => {
+                      if (state.searchScrollGuardInstalled) {
+                        return;
+                      }
+
+                      state.searchScrollGuardInstalled = true;
+                      const markScroll = () => {
+                        state.lastSearchScrollAt = Date.now();
+                      };
+
+                      window.addEventListener('scroll', markScroll, { passive: true, capture: true });
+                      document.addEventListener('touchmove', markScroll, { passive: true, capture: true });
+                      document.addEventListener('wheel', markScroll, { passive: true, capture: true });
+                    };
+
+                    const wasRecentScrollGesture = () => {
+                      return Date.now() - (state.lastSearchScrollAt || 0) < 240;
                     };
 
                     const extractCanonicalFromParsedURL = (parsedURL) => {
@@ -1092,6 +1419,44 @@ public enum FocusRuleCatalog {
                       }
                     };
 
+                    const promotedSearchRootSelector = '.video-list, .media-list, .live-list, .up-list, .user-list, .bangumi-list, .film-list';
+
+                    const hidePromotedSearchBlocks = () => {
+                      Array.from(document.querySelectorAll('.search-list, .search-all-list, .result-wrap, .left-wrap, main'))
+                        .filter(isRenderableContainer)
+                        .forEach((root) => {
+                          Array.from(root.children || []).forEach((node) => {
+                            if (!node || node.nodeType !== 1) {
+                              return;
+                            }
+
+                            if (node.matches?.(promotedSearchRootSelector) || node.querySelector?.(promotedSearchRootSelector)) {
+                              return;
+                            }
+
+                            if (node.hasAttribute?.('data-focus-search-filter-shell')
+                              || node.hasAttribute?.('data-focus-search-input-shell')
+                              || node.querySelector?.('[data-focus-search-filter-shell], [data-focus-search-input-shell]')) {
+                              return;
+                            }
+
+                            const className = String(node.className || '').toLowerCase();
+                            const normalizedText = normalizeLabel(node.textContent);
+                            const hasLargeMedia = Array.from(node.querySelectorAll?.('img, picture, video, canvas') || []).some((mediaNode) => {
+                              const rect = mediaNode.getBoundingClientRect?.();
+                              return rect && rect.width >= 120 && rect.height >= 72;
+                            });
+                            const promotedByClass = /(?:^|\\s|-|_)(?:ad|advert|game|special|topic|activity|brand|promote)(?:$|\\s|-|_)/i.test(className);
+                            const promotedByText = promotedSearchKeywords.some((keyword) => normalizedText.includes(normalizeLabel(keyword)));
+
+                            if ((promotedByClass || promotedByText) && hasLargeMedia) {
+                              node.setAttribute('data-focus-search-promoted', 'true');
+                              node.style.setProperty('display', 'none', 'important');
+                            }
+                          });
+                        });
+                    };
+
                     const searchVideoMarkerAttributes = [
                       'data-focus-search-video-grid',
                       'data-focus-search-video-cell',
@@ -1102,7 +1467,14 @@ public enum FocusRuleCatalog {
                       'data-focus-search-video-secondary-stat',
                       'data-focus-search-video-info-shell',
                       'data-focus-search-video-title',
-                      'data-focus-search-video-meta'
+                      'data-focus-search-video-meta',
+                      'data-focus-search-up-card',
+                      'data-focus-search-up-strip',
+                      'data-focus-search-up-video',
+                      'data-focus-search-up-video-target',
+                      'data-focus-search-up-video-cover',
+                      'data-focus-search-up-video-title',
+                      'data-focus-search-up-video-meta'
                     ];
                     const searchVideoCardSelector = '.video-item, .bili-video-card, .result-item, article, li, [class*="video-card"]';
 
@@ -1162,6 +1534,7 @@ public enum FocusRuleCatalog {
                         return;
                       }
 
+                      installSearchScrollGuard();
                       document.addEventListener('click', (event) => {
                         const trigger = event.target?.closest?.('[data-focus-search-video-target]');
                         const targetURL = trigger?.getAttribute?.('data-focus-search-video-target');
@@ -1170,6 +1543,10 @@ public enum FocusRuleCatalog {
                         }
 
                         if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+                          return;
+                        }
+
+                        if (wasRecentScrollGesture()) {
                           return;
                         }
 
@@ -1450,6 +1827,53 @@ public enum FocusRuleCatalog {
                       return result;
                     };
 
+                    const resolveVisibleCoverNode = (root) => {
+                      const rawCoverNode = Array.from(root.querySelectorAll('img, picture, video, canvas')).find((node) => {
+                        return isNodeVisible(node) || String(node.tagName || '').toLowerCase() === 'img';
+                      }) || Array.from(root.querySelectorAll('[class*="cover"], [class*="image"], [class*="img"], [class*="pic"]')).find(isNodeVisible);
+
+                      return rawCoverNode?.closest('[class*="cover"], [class*="image"], [class*="img"], [class*="pic"], figure, picture')
+                        || rawCoverNode
+                        || null;
+                    };
+
+                    const resolvePrimaryTitleNode = (root, coverShell) => {
+                      return Array.from(root.querySelectorAll('[class*="title"], h3, h4, strong, a'))
+                        .filter((node) => node !== root)
+                        .filter((node) => node !== coverShell && !coverShell?.contains(node))
+                        .filter((node) => !node.querySelector('img, picture, video, canvas'))
+                        .filter((node) => {
+                          const normalizedText = normalizeLabel(node.textContent);
+                          return normalizedText.length >= 4 && normalizedText.length <= 80;
+                        })
+                        .sort((left, right) => {
+                          const topOffset = left.getBoundingClientRect().top - right.getBoundingClientRect().top;
+                          if (Math.abs(topOffset) > 1) {
+                            return topOffset;
+                          }
+
+                          return normalizeLabel(left.textContent).length - normalizeLabel(right.textContent).length;
+                        })[0] || null;
+                    };
+
+                    const markVideoLikeMetaNodes = (root, titleNode, coverShell, attributeName, limit = 2) => {
+                      Array.from(root.querySelectorAll('[class*="desc"], [class*="info"], [class*="meta"], [class*="stats"], [class*="play"], [class*="view"], [class*="count"], [class*="duration"], .time, .up-name, .author, span, div'))
+                        .filter((node) => node !== titleNode && node !== coverShell && !coverShell?.contains(node))
+                        .filter((node) => {
+                          const normalizedText = normalizeLabel(node.textContent);
+                          if (!normalizedText || normalizedText.length > 40) {
+                            return false;
+                          }
+
+                          return /播放|观看|弹幕|点赞|收藏|投币|分享|小时前|分钟前|昨天|:[0-5]\\d|万|亿|arcraiders/i.test(normalizedText);
+                        })
+                        .sort((left, right) => left.getBoundingClientRect().top - right.getBoundingClientRect().top)
+                        .slice(0, limit)
+                        .forEach((node) => {
+                          node.setAttribute(attributeName, 'true');
+                        });
+                    };
+
                     const markVideoCell = (cell) => {
                       if (!cell) {
                         return;
@@ -1457,13 +1881,7 @@ public enum FocusRuleCatalog {
 
                       cell.setAttribute('data-focus-search-video-card', 'true');
 
-                      const rawCoverNode = Array.from(cell.querySelectorAll('img, picture, video, canvas')).find((node) => {
-                        return isNodeVisible(node) || String(node.tagName || '').toLowerCase() === 'img';
-                      }) || Array.from(cell.querySelectorAll('[class*="cover"], [class*="image"], [class*="img"], [class*="pic"]')).find(isNodeVisible);
-                      const coverNode = rawCoverNode?.closest('[class*="cover"], [class*="image"], [class*="img"], [class*="pic"], figure, picture')
-                        || rawCoverNode
-                        || null;
-
+                      const coverNode = resolveVisibleCoverNode(cell);
                       const contentRoot = resolveSearchVideoContentRoot(cell, coverNode, null);
                       contentRoot?.setAttribute('data-focus-search-video-content-root', 'true');
                       const canonicalTargetURL = extractCanonicalVideoURL(contentRoot || cell);
@@ -1479,22 +1897,7 @@ public enum FocusRuleCatalog {
                         markSecondaryCoverStats(coverShell);
                       }
 
-                      const titleNode = Array.from((contentRoot || cell).querySelectorAll('[class*="title"], h3, h4, strong, a'))
-                        .filter((node) => node !== contentRoot)
-                        .filter((node) => node !== coverShell && !coverShell?.contains(node))
-                        .filter((node) => !node.querySelector('img, picture, video, canvas'))
-                        .filter((node) => {
-                          const normalizedText = normalizeLabel(node.textContent);
-                          return normalizedText.length >= 4 && normalizedText.length <= 80;
-                        })
-                        .sort((left, right) => {
-                          const topOffset = left.getBoundingClientRect().top - right.getBoundingClientRect().top;
-                          if (Math.abs(topOffset) > 1) {
-                            return topOffset;
-                          }
-
-                          return normalizeLabel(left.textContent).length - normalizeLabel(right.textContent).length;
-                        })[0] || null;
+                      const titleNode = resolvePrimaryTitleNode(contentRoot || cell, coverShell);
 
                       const titleShell = titleNode && contentRoot && contentRoot.contains(titleNode)
                         ? (findChildWithinContainer(contentRoot, titleNode) || titleNode)
@@ -1506,21 +1909,7 @@ public enum FocusRuleCatalog {
                         titleNode.setAttribute('data-focus-search-video-title', 'true');
                       }
 
-                      Array.from((contentRoot || cell).querySelectorAll('[class*="desc"], [class*="info"], [class*="meta"], [class*="stats"], [class*="play"], [class*="view"], [class*="count"], [class*="duration"], .time, .up-name, .author, span, div'))
-                        .filter((node) => node !== titleNode && node !== coverShell && !coverShell?.contains(node))
-                        .filter((node) => {
-                          const normalizedText = normalizeLabel(node.textContent);
-                          if (!normalizedText || normalizedText.length > 40) {
-                            return false;
-                          }
-
-                          return /播放|观看|弹幕|点赞|收藏|投币|分享|小时前|分钟前|昨天|:[0-5]\\d|万|亿|arcraiders/i.test(normalizedText);
-                        })
-                        .sort((left, right) => left.getBoundingClientRect().top - right.getBoundingClientRect().top)
-                        .slice(0, 2)
-                        .forEach((node) => {
-                          node.setAttribute('data-focus-search-video-meta', 'true');
-                        });
+                      markVideoLikeMetaNodes(contentRoot || cell, titleNode, coverShell, 'data-focus-search-video-meta', 2);
 
                       if (canonicalTargetURL) {
                         const debugIndex = incrementDebugCounter('searchVideoCardMarkCount');
@@ -1544,6 +1933,104 @@ public enum FocusRuleCatalog {
                           });
                         }
                       }
+                    };
+
+                    const findSearchProfilePreviewContainer = (item) => {
+                      const itemRect = item.getBoundingClientRect();
+                      return Array.from(item.querySelectorAll('div, section, ul, ol'))
+                        .map((node) => {
+                          const strictVideoCells = collectVideoCells(node).filter(({ cell }) => {
+                            return !!cell.querySelector('img, picture, video, canvas');
+                          });
+                          const fallbackCells = Array.from(node.children || [])
+                            .filter((child) => child && child.nodeType === 1)
+                            .filter((child) => child.querySelector('img, picture, video, canvas'))
+                            .filter((child) => child.querySelector(searchVideoInteractiveSelector));
+                          const cells = strictVideoCells.length >= 2
+                            ? strictVideoCells.map(({ cell }) => ({ cell }))
+                            : fallbackCells.map((cell) => ({ cell }));
+                          return {
+                            node,
+                            videoCells: cells,
+                            strictVideoCellCount: strictVideoCells.length,
+                            rect: node.getBoundingClientRect(),
+                            depth: node.querySelectorAll('*').length,
+                            childCount: node.children.length
+                          };
+                        })
+                        .filter(({ node, videoCells, rect, childCount }) => {
+                          if (videoCells.length < 2) {
+                            return false;
+                          }
+
+                          if (!node.parentElement || !item.contains(node)) {
+                            return false;
+                          }
+
+                          const widthMatches = itemRect.width < 40 || rect.width < 40 || rect.width >= Math.min(itemRect.width * 0.52, 180);
+                          const heightMatches = rect.height >= 72 || !!node.querySelector('img, picture, video, canvas');
+                          const topMatches = itemRect.top === 0 || rect.top >= itemRect.top - 4;
+
+                          return widthMatches && heightMatches && topMatches && childCount >= 2;
+                        })
+                        .sort((left, right) => {
+                          if (left.strictVideoCellCount !== right.strictVideoCellCount) {
+                            return right.strictVideoCellCount - left.strictVideoCellCount;
+                          }
+                          if (left.videoCells.length !== right.videoCells.length) {
+                            return right.videoCells.length - left.videoCells.length;
+                          }
+                          if (left.depth !== right.depth) {
+                            return left.depth - right.depth;
+                          }
+                          return left.rect.top - right.rect.top;
+                        })[0] || null;
+                    };
+
+                    const markSearchProfileVideoCell = (cell) => {
+                      if (!cell) {
+                        return;
+                      }
+
+                      cell.setAttribute('data-focus-search-up-video', 'true');
+
+                      const coverNode = resolveVisibleCoverNode(cell);
+                      const contentRoot = resolveSearchVideoContentRoot(cell, coverNode, null);
+                      const canonicalTargetURL = extractCanonicalVideoURL(contentRoot || cell);
+                      if (canonicalTargetURL) {
+                        cell.setAttribute('data-focus-search-video-target', canonicalTargetURL);
+                        contentRoot?.setAttribute('data-focus-search-video-target', canonicalTargetURL);
+                        contentRoot?.setAttribute('data-focus-search-up-video-target', 'true');
+                      }
+
+                      let coverShell = null;
+                      if (coverNode && contentRoot && contentRoot.contains(coverNode)) {
+                        coverShell = findChildWithinContainer(contentRoot, coverNode) || coverNode;
+                        coverShell.setAttribute('data-focus-search-up-video-cover', 'true');
+                        markSecondaryCoverStats(coverShell);
+                      }
+
+                      const titleNode = resolvePrimaryTitleNode(contentRoot || cell, coverShell);
+                      if (titleNode) {
+                        titleNode.setAttribute('data-focus-search-up-video-title', 'true');
+                      }
+
+                      markVideoLikeMetaNodes(contentRoot || cell, titleNode, coverShell, 'data-focus-search-up-video-meta', 1);
+                    };
+
+                    const applySearchProfileCards = () => {
+                      Array.from(document.querySelectorAll('.up-list .up-item, .user-list .user-item')).forEach((item) => {
+                        item.setAttribute('data-focus-search-up-card', 'true');
+                        const preview = findSearchProfilePreviewContainer(item);
+                        if (!preview) {
+                          return;
+                        }
+
+                        preview.node.setAttribute('data-focus-search-up-strip', 'true');
+                        preview.videoCells.forEach(({ cell }) => {
+                          markSearchProfileVideoCell(cell);
+                        });
+                      });
                     };
 
                     const applySearchVideoGrid = () => {
@@ -1571,6 +2058,8 @@ public enum FocusRuleCatalog {
                           markVideoCell(cell);
                         });
                       });
+
+                      applySearchProfileCards();
 
                       const gridSummarySignature = [
                         explicitContainers.length,
@@ -1873,6 +2362,7 @@ public enum FocusRuleCatalog {
                         rewriteAll();
                         decorateSearchInput();
                         applySearchVideoGrid();
+                        hidePromotedSearchBlocks();
                         hideSearchTypeNav();
                         mirrorSearchFilterBoard();
                       }, 18);
@@ -1881,6 +2371,7 @@ public enum FocusRuleCatalog {
                         rewriteAll();
                         decorateSearchInput();
                         applySearchVideoGrid();
+                        hidePromotedSearchBlocks();
                         hideSearchTypeNav();
                         mirrorSearchFilterBoard();
                       }, 96);
@@ -2034,6 +2525,7 @@ public enum FocusRuleCatalog {
                     rewriteAll();
                     decorateSearchInput();
                     applySearchVideoGrid();
+                    hidePromotedSearchBlocks();
                     hideSearchTypeNav();
                     mirrorSearchFilterBoard();
 
@@ -2059,6 +2551,10 @@ public enum FocusRuleCatalog {
                         }
 
                         if (event.type === 'keydown' && event.key !== 'Enter' && event.key !== ' ') {
+                          return;
+                        }
+
+                        if (event.type === 'click' && wasRecentScrollGesture()) {
                           return;
                         }
 
@@ -2137,9 +2633,8 @@ public enum FocusRuleCatalog {
 
                     if (!state.clickInstalled) {
                       state.clickInstalled = true;
+                      installSearchScrollGuard();
                       installNavigationInterceptor('click');
-                      installNavigationInterceptor('pointerup');
-                      installNavigationInterceptor('touchend');
                       installNavigationInterceptor('keydown');
                     }
 
@@ -2193,9 +2688,6 @@ public enum FocusRuleCatalog {
                     .opus-aside,
                     .aside-container,
                     .side-toolbar,
-                    .comment-container,
-                    .comment-wrap,
-                    .recomment-container,
                     .recommend-container,
                     .open-app-btn,
                     .m-bottom-app-download,
@@ -2382,6 +2874,188 @@ public enum FocusRuleCatalog {
                     }
                     """,
                     settingKey: .dynamicMaskEnabled
+                ),
+            ]
+        ),
+        FocusPageRule(
+            id: "live-prune",
+            hosts: ["live.bilibili.com"],
+            runPhase: .documentEnd,
+            features: [
+                FocusFeature(
+                    featureId: "live-mask",
+                    action: .prune,
+                    css: """
+                    #link-footer-vm,
+                    .link-footer-ctnr,
+                    .right-ctnr,
+                    .right-area,
+                    .link-navbar-ctnr,
+                    .search-block,
+                    .shortcuts-ctnr,
+                    .room-bg-ctnr,
+                    .z-room-background,
+                    .aside-area,
+                    #aside-area-vm,
+                    .rank-list-ctnr,
+                    .gift-control-panel,
+                    .gift-panel,
+                    .chat-control-panel,
+                    .chat-history-list,
+                    .chat-history-panel,
+                    #chat-control-panel-vm,
+                    #chat-history-list-vm,
+                    .hot-rank-wrap,
+                    .room-popular-rank,
+                    .activity-banner-ctnr,
+                    .guard-ent,
+                    .user-panel-ctnr,
+                    .sidebar-btn,
+                    .slot-ctnr,
+                    .recommend-area,
+                    .recommend-card,
+                    .link-popup-ctnr,
+                    .lite-pay-ctnr,
+                    .recharge-stores-ctnr,
+                    .user-title-using-cntr,
+                    .user-title-sending-cntr,
+                    [class*="chat-history"],
+                    [class*="aside-area"],
+                    [class*="gift-panel"],
+                    [class*="right-ctnr"],
+                    [class*="rank-list"],
+                    [class*="footer-ctnr"] {
+                      display: none !important;
+                    }
+                    """,
+                    settingKey: .playerMaskEnabled
+                ),
+            ]
+        ),
+        FocusPageRule(
+            id: "live-repair",
+            hosts: ["live.bilibili.com"],
+            runPhase: .documentEnd,
+            features: [
+                FocusFeature(
+                    featureId: "live-layout",
+                    action: .repair,
+                    css: """
+                    html,
+                    body,
+                    #app,
+                    #live-app,
+                    main,
+                    .app-content,
+                    .live-room-app,
+                    .app-body,
+                    .room-page,
+                    .player-and-aside-area,
+                    .player-ctnr,
+                    .left-container,
+                    #player-ctnr,
+                    #live-player {
+                      width: 100% !important;
+                      min-width: 0 !important;
+                      max-width: 100vw !important;
+                      margin: 0 !important;
+                      padding: 0 !important;
+                      overflow-x: hidden !important;
+                      box-sizing: border-box !important;
+                      background: #ffffff !important;
+                    }
+
+                    body {
+                      padding-bottom: 148px !important;
+                    }
+
+                    .top-nav-ctnr,
+                    .top-nav,
+                    .web-player-nav,
+                    .room-header-ctnr,
+                    .head-info-ctnr,
+                    .left-entry,
+                    .right-entry,
+                    #right-part,
+                    .user-info {
+                      display: none !important;
+                    }
+
+                    .room-player-wrap,
+                    .live-room-app,
+                    .live-room-wrapper,
+                    .room-ctnr,
+                    .left-ctnr,
+                    .left-container,
+                    .player-and-aside-area,
+                    .player-ctnr,
+                    .web-player-controller-wrap,
+                    #live-player {
+                      width: 100% !important;
+                      min-width: 0 !important;
+                      max-width: 100% !important;
+                      margin: 0 !important;
+                      padding: 0 !important;
+                      box-sizing: border-box !important;
+                    }
+
+                    .room-player-wrap,
+                    .room-ctnr,
+                    .live-room-wrapper,
+                    .player-and-aside-area,
+                    .player-ctnr {
+                      display: block !important;
+                    }
+
+                    .left-ctnr,
+                    .left-container {
+                      flex: 1 1 auto !important;
+                    }
+
+                    .player-ctnr,
+                    #live-player,
+                    video {
+                      border-radius: 0 !important;
+                    }
+
+                    .player-and-aside-area,
+                    .player-ctnr,
+                    #player-ctnr {
+                      height: auto !important;
+                    }
+
+                    .room-info-ctnr,
+                    .room-info-down-row,
+                    .room-info-up-row,
+                    .live-skin-normal-a-text,
+                    .upper-row,
+                    .lower-row {
+                      width: 100% !important;
+                      min-width: 0 !important;
+                      max-width: 100% !important;
+                      box-sizing: border-box !important;
+                    }
+
+                    .room-info-ctnr,
+                    .room-info-up-row,
+                    .room-info-down-row {
+                      padding-left: 12px !important;
+                      padding-right: 12px !important;
+                    }
+
+                    .head-info-section,
+                    .header-info-ctnr,
+                    #head-info-vm {
+                      width: 100% !important;
+                      min-width: 0 !important;
+                      max-width: 100% !important;
+                      margin: 0 !important;
+                      padding: 12px 14px !important;
+                      box-sizing: border-box !important;
+                      border-radius: 0 !important;
+                    }
+                    """,
+                    settingKey: .playerMaskEnabled
                 ),
             ]
         ),
@@ -2691,10 +3365,10 @@ public enum FocusRuleCatalog {
                     }
 
                     .video-pod {
-                      margin: 0 12px 16px !important;
-                      padding: 14px !important;
+                      margin: 0 12px 14px !important;
+                      padding: 12px !important;
                       border: 1px solid #e4e9f2 !important;
-                      border-radius: 20px !important;
+                      border-radius: 18px !important;
                       background: #f5f7fb !important;
                       box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06) !important;
                     }
@@ -2702,15 +3376,16 @@ public enum FocusRuleCatalog {
                     .video-pod__header {
                       display: flex !important;
                       align-items: center !important;
-                      justify-content: flex-start !important;
-                      margin: 0 0 10px !important;
+                      justify-content: space-between !important;
+                      gap: 10px !important;
+                      flex-wrap: wrap !important;
+                      margin: 0 0 8px !important;
                       padding: 0 !important;
                       font-size: 17px !important;
                       font-weight: 700 !important;
                       color: #111827 !important;
                     }
 
-                    .video-pod__header > :not(:first-child),
                     .video-pod__body > :not(.video-pod__slide):not(.video-pod__list):not(:has(.video-pod__list)) {
                       display: none !important;
                     }
@@ -2719,7 +3394,7 @@ public enum FocusRuleCatalog {
                     .video-pod__list.multip.list {
                       display: flex !important;
                       flex-direction: column !important;
-                      gap: 8px !important;
+                      gap: 7px !important;
                       max-height: none !important;
                       overflow: visible !important;
                     }
@@ -2727,13 +3402,67 @@ public enum FocusRuleCatalog {
                     .video-pod__item,
                     .video-pod__list .video-pod__item,
                     .video-pod__list .pod-item {
+                      display: flex !important;
+                      align-items: center !important;
+                      justify-content: space-between !important;
+                      gap: 12px !important;
                       width: 100% !important;
                       margin: 0 !important;
-                      padding: 12px 14px !important;
+                      padding: 10px 12px !important;
                       border: 1px solid #dbe3ef !important;
                       border-radius: 14px !important;
                       background: #fff !important;
                       box-shadow: 0 6px 16px rgba(15, 23, 42, 0.05) !important;
+                    }
+
+                    .video-pod__item > *,
+                    .video-pod__list .video-pod__item > *,
+                    .video-pod__list .pod-item > * {
+                      min-width: 0 !important;
+                    }
+
+                    .video-pod__item [class*="title"],
+                    .video-pod__item .title,
+                    .video-pod__item .part,
+                    .video-pod__list .video-pod__item [class*="title"],
+                    .video-pod__list .pod-item [class*="title"] {
+                      flex: 1 1 auto !important;
+                      min-width: 0 !important;
+                      overflow: hidden !important;
+                      text-overflow: ellipsis !important;
+                      white-space: nowrap !important;
+                    }
+
+                    .video-pod__item [class*="duration"],
+                    .video-pod__item [class*="time"],
+                    .video-pod__item .duration,
+                    .video-pod__item .time,
+                    .video-pod__list .pod-item [class*="duration"],
+                    .video-pod__list .pod-item [class*="time"] {
+                      flex: 0 0 auto !important;
+                      color: #6b7280 !important;
+                      font-weight: 600 !important;
+                    }
+
+                    [data-focus-video-pod-toggle] {
+                      display: inline-flex !important;
+                      align-items: center !important;
+                      justify-content: center !important;
+                      width: 100% !important;
+                      min-height: 42px !important;
+                      margin: 10px 0 0 !important;
+                      padding: 0 14px !important;
+                      border: 0 !important;
+                      border-radius: 14px !important;
+                      background: #eaf2ff !important;
+                      color: #126fd6 !important;
+                      font-size: 14px !important;
+                      font-weight: 700 !important;
+                    }
+
+                    [data-focus-video-pod-toggle][data-expanded="true"] {
+                      background: #eef2f7 !important;
+                      color: #4b5563 !important;
                     }
 
                     .video-pod__item.active,
@@ -2757,6 +3486,8 @@ public enum FocusRuleCatalog {
                       playbackRateNode: '.bpx-player-ctrl-playbackrate-result, .bpx-player-ctrl-playbackrate [class*="name"], .bpx-player-ctrl-playbackrate [class*="text"], .bpx-player-ctrl-playbackrate-menu .active, [class*="playbackrate"] [class*="name"], [class*="playbackrate"] [class*="text"], [class*="playbackrate"], [class*="speed"] .active, [class*="speed"] [aria-checked="true"]',
                       subtitleLayer: '.bpx-player-subtitle-wrap, [class*="subtitle-panel"], [class*="subtitle-item"], [class*="subtitle-wrap"]'
                     };
+
+                    state.videoPodCollapsed = state.videoPodCollapsed !== false;
 
                     const trackedVideo = () => {
                       const candidate = window.__FOCUS_ACTIVE_VIDEO__;
@@ -2808,6 +3539,84 @@ public enum FocusRuleCatalog {
 
                       const rankedVideos = rankVideos();
                       return rememberActiveVideo(rankedVideos[0]?.video || null);
+                    };
+
+                    const collectVideoPodItems = (pod) => {
+                      const items = Array.from(pod.querySelectorAll('.video-pod__item, .pod-item'));
+                      const deduped = [];
+                      const seen = new Set();
+                      items.forEach((item) => {
+                        if (!(item instanceof HTMLElement)) {
+                          return;
+                        }
+                        if (seen.has(item)) {
+                          return;
+                        }
+                        seen.add(item);
+                        deduped.push(item);
+                      });
+                      return deduped;
+                    };
+
+                    const refreshVideoPods = () => {
+                      document.querySelectorAll('.video-pod').forEach((pod) => {
+                        if (!(pod instanceof HTMLElement)) {
+                          return;
+                        }
+
+                        const items = collectVideoPodItems(pod);
+                        if (items.length === 0) {
+                          pod.querySelector('[data-focus-video-pod-toggle]')?.remove();
+                          return;
+                        }
+
+                        const collapsed = state.videoPodCollapsed !== false;
+                        const keepIndices = new Set([0, 1, 2]);
+                        const activeIndex = items.findIndex((item) =>
+                          item.classList.contains('active')
+                          || item.classList.contains('on')
+                          || item.classList.contains('is-active')
+                          || item.getAttribute('aria-current') === 'true'
+                        );
+                        if (activeIndex >= 0) {
+                          keepIndices.add(activeIndex);
+                        }
+
+                        items.forEach((item, index) => {
+                          if (collapsed && index >= 3 && !keepIndices.has(index)) {
+                            item.style.setProperty('display', 'none', 'important');
+                          } else {
+                            item.style.removeProperty('display');
+                          }
+                        });
+
+                        let toggle = pod.querySelector('[data-focus-video-pod-toggle]');
+                        if (items.length <= 3) {
+                          toggle?.remove();
+                          pod.dataset.focusVideoPodCollapsed = 'false';
+                          return;
+                        }
+
+                        if (!(toggle instanceof HTMLButtonElement)) {
+                          toggle = document.createElement('button');
+                          toggle.type = 'button';
+                          toggle.setAttribute('data-focus-video-pod-toggle', 'true');
+                          toggle.addEventListener('click', (event) => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            state.videoPodCollapsed = !(state.videoPodCollapsed !== false);
+                            refreshVideoPods();
+                          });
+                          const body = pod.querySelector('.video-pod__body');
+                          (body instanceof HTMLElement ? body : pod).appendChild(toggle);
+                        }
+
+                        toggle.dataset.expanded = collapsed ? 'false' : 'true';
+                        toggle.textContent = collapsed
+                          ? `展开全部 ${items.length} 条`
+                          : '收起分P列表';
+                        pod.dataset.focusVideoPodCollapsed = collapsed ? 'true' : 'false';
+                      });
                     };
 
                     const snapshotPlayerState = () => {
@@ -2905,10 +3714,17 @@ public enum FocusRuleCatalog {
                       state.playerHooksInstalled = true;
 
                       let snapshotTimer = null;
+                      let videoPodRefreshTimer = null;
                       const scheduleSnapshot = (delay = 80) => {
                         clearTimeout(snapshotTimer);
                         snapshotTimer = setTimeout(() => {
                           snapshotPlayerState();
+                        }, delay);
+                      };
+                      const scheduleVideoPodRefresh = (delay = 90) => {
+                        clearTimeout(videoPodRefreshTimer);
+                        videoPodRefreshTimer = setTimeout(() => {
+                          refreshVideoPods();
                         }, delay);
                       };
 
@@ -2951,9 +3767,17 @@ public enum FocusRuleCatalog {
                           scheduleSnapshot(60);
                           scheduleSnapshot(180);
                         }
+
+                        if (target.closest('.video-pod')) {
+                          scheduleVideoPodRefresh(40);
+                          scheduleVideoPodRefresh(180);
+                        }
                       }, true);
 
-                      const observer = new MutationObserver(() => scheduleSnapshot(120));
+                      const observer = new MutationObserver(() => {
+                        scheduleSnapshot(120);
+                        scheduleVideoPodRefresh(120);
+                      });
                       observer.observe(document.documentElement, {
                         childList: true,
                         subtree: true,
@@ -2961,6 +3785,8 @@ public enum FocusRuleCatalog {
                         attributeFilter: ['class', 'aria-selected', 'aria-checked', 'aria-pressed', 'style']
                       });
                     }
+
+                    refreshVideoPods();
                     """,
                     settingKey: .playerMaskEnabled
                 ),

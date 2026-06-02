@@ -8,6 +8,9 @@
 /.codex-clang-cache/
 DerivedData/
 .DerivedData/
+.DerivedData*/
+Build/
+.tmp-build-*.log
 *.xcuserstate
 *.xcworkspace/xcuserdata/
 *.xcodeproj/xcuserdata/

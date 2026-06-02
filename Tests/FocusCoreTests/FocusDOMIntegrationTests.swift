@@ -80,6 +80,43 @@ struct FocusDOMIntegrationTests {
     }
 
     @Test
+    func searchRichFixtureBuildsProfileStripAndLiveGrid() async throws {
+        let webView = try await loadFixture(named: "search-rich", url: URL(string: "https://search.bilibili.com/all")!)
+
+        let inputShellExists = try await evaluate(
+            "document.querySelector('[data-focus-search-input-shell=\"true\"]') ? 'true' : 'false'",
+            in: webView
+        )
+        let filterShellExists = try await evaluate(
+            "document.querySelector('[data-focus-search-filter-shell=\"true\"]') ? 'true' : 'false'",
+            in: webView
+        )
+        let upCardCount = try await evaluate(
+            "document.querySelectorAll('[data-focus-search-up-card=\"true\"]').length",
+            in: webView
+        )
+        let upVideoCount = try await evaluate(
+            "document.querySelectorAll('[data-focus-search-up-video=\"true\"]').length",
+            in: webView
+        )
+        let liveGridDisplay = try await evaluate(
+            "getComputedStyle(document.querySelector('.live-list')).display",
+            in: webView
+        )
+        let reserveButtonDisplay = try await evaluate(
+            "getComputedStyle(document.querySelector('.reserve-btn')).display",
+            in: webView
+        )
+
+        #expect(inputShellExists == "true")
+        #expect(filterShellExists == "true")
+        #expect(upCardCount == "1")
+        #expect(upVideoCount == "2")
+        #expect(liveGridDisplay == "grid")
+        #expect(reserveButtonDisplay == "none")
+    }
+
+    @Test
     func videoFixtureReflowsDesktopPlaybackPage() async throws {
         let webView = try await loadFixture(named: "video", url: URL(string: "https://www.bilibili.com/video/BV1xx411c7mD")!)
 

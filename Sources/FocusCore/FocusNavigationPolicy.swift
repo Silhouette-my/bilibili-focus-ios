@@ -75,6 +75,15 @@ public struct FocusNavigationPolicy: Sendable {
             }
         }
 
+        if host == "live.bilibili.com", let roomID = canonicalLiveRoomID(from: components) {
+            components?.scheme = "https"
+            components?.host = "live.bilibili.com"
+            components?.path = "/\(roomID)"
+            components?.queryItems = nil
+            components?.fragment = nil
+            return components?.url ?? url
+        }
+
         return url
     }
 
@@ -144,5 +153,28 @@ public struct FocusNavigationPolicy: Sendable {
 
         let filtered = (items ?? []).filter { preservedNames.contains($0.name.lowercased()) }
         return filtered.isEmpty ? nil : filtered
+    }
+
+    private static func canonicalLiveRoomID(from components: URLComponents?) -> String? {
+        let pathComponents = (components?.path ?? "")
+            .split(separator: "/")
+            .map(String.init)
+
+        if let numericPathComponent = pathComponents.reversed().first(where: { !$0.isEmpty && $0.allSatisfy(\.isNumber) }) {
+            return numericPathComponent
+        }
+
+        let queryItems = components?.queryItems ?? []
+        let liveRoomKeys: Set<String> = [
+            "room_id",
+            "roomid",
+            "id",
+        ]
+
+        return queryItems.first(where: { liveRoomKeys.contains($0.name.lowercased()) })?.value
+            .flatMap { value in
+                let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+                return trimmed.isEmpty ? nil : trimmed
+            }
     }
 }

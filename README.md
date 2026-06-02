@@ -1,39 +1,49 @@
-# Bilibili Focus iOS v3
+# Bilibili Focus iOS
 
-这一版不再把 `t.bilibili.com` 和空白搜索首页硬修成主界面，而是改成：
+自用的 iOS 版 Bilibili 容器，核心思路是：
 
-- `动态`：原生 SwiftUI 卡片流，数据源是登录用户的关注动态
-- `搜索`：原生关键词输入，提交后直接打开官方移动端结果页
-- `浏览`：继续复用 `WKWebView`，承接搜索结果、动态详情和视频播放
+- `动态` 使用原生 SwiftUI 关注流
+- `搜索` 使用原生关键词入口
+- `播放 / 详情 / 结果页` 继续由 `WKWebView` 承接
+- JS 注入只做去干扰、导流拦截和小范围布局修复
 
-## 结构
+这个公开仓库只保留 iOS 主线，不包含 Safari userscript 版。
 
-- `Sources/FocusCore`
-  - 设置、入口路由、搜索 URL 生成
-  - Bilibili 页面拦截与去干扰规则
-  - 动态卡片模型、Cookie 协议、动态拉取服务
+## 当前范围
+
+- 原生动态流，数据源为已登录用户的关注动态
+- 原生搜索入口，提交后进入官方结果页
+- 视频页、动态详情页、搜索结果页的页面裁剪与重排
+- Cookie 桥接，保证 `WKWebView` 登录态与原生请求共用
+- 原生底栏、顶栏和基础导航路由
+
+当前不包含：
+
+- Safari / Userscripts 分发版本
+- 评论区恢复
+- `space.bilibili.com` 个人主页移动化
+
+## 目录结构
+
 - `App/BilibiliFocus`
-  - 原生动态页、原生搜索入口、浏览容器
-  - `WKWebsiteDataStore.default().httpCookieStore` 到原生请求的 Cookie 桥接
+  - SwiftUI 应用入口
+  - 浏览容器、原生动态页、原生搜索入口
+  - Cookie 持久化与 WebView 宿主逻辑
+- `Sources/FocusCore`
+  - 路由、设置、导航策略
+  - 动态数据模型与服务
+  - 页面规则、注入脚本和运行时
+- `Scripts`
+  - 本地构建和 unsigned IPA 打包脚本
+- `Tests/FocusCoreTests`
+  - 规则、路由、配置和 fixture 测试
 
-## 当前行为
-
-- 默认入口仍然支持 `动态` / `搜索`
-  - `动态`：进入原生动态流
-  - `搜索`：启动后直接弹原生搜索输入
-- 首页重定向不再跳网页 URL，而是回到原生入口语义
-- JS 注入层只保留搜索结果页、动态详情页、播放页的去干扰
-- 动态卡片第一版只保：
-  - 正文
-  - 封面
-  - 点击跳详情 / 播放
-
-## 在 Xcode 里运行
+## 本地运行
 
 1. 打开 `BilibiliFocus.xcodeproj`
 2. 选择 `BilibiliFocus` scheme
-3. 在 `Signing & Capabilities` 里填你的个人开发 Team
-4. 选择真机或 iPhone Simulator 运行
+3. 在 `Signing & Capabilities` 中设置个人开发 Team
+4. 选择真机或模拟器运行
 
 命令行构建：
 
@@ -47,26 +57,39 @@ xcodebuild -project BilibiliFocus.xcodeproj \
   CODE_SIGNING_ALLOWED=NO build
 ```
 
-## 验证
+## 打包 unsigned IPA
 
-动态 / 搜索 / 路由逻辑的 core 校验：
+仓库内置脚本会先构建 `iphoneos` 产物，再导出未签名 IPA：
 
 ```bash
-FOCUS_INCLUDE_TESTS=1 swift test --scratch-path .build-tests
+./Scripts/build_unsigned_ipa.sh
 ```
 
-运行时注入校验：
+默认输出在：
+
+```text
+build/BilibiliFocus-unsigned.ipa
+```
+
+后续可自行配合 AltStore、SideStore 或重签名工具安装。
+
+## 测试
+
+规则与核心逻辑测试：
 
 ```bash
-swift run --scratch-path .build FocusVerifier
+FOCUS_INCLUDE_TESTS=1 swift test
+```
+
+Web 注入验证：
+
+```bash
+swift run FocusVerifier
 ```
 
 ## 已知取舍
 
-- 动态接口使用 Bilibili 当前网页关注流接口；未登录或 Cookie 失效时直接报登录失效，不降级热门流
-- 搜索第一版只有关键词提交，没有搜索历史、联想和原生结果列表
-- 动态详情仍然走官方网页 DOM，只做最小去干扰
-
-## 旧脚本
-
-根目录的 `bilibili-FOCUS.js` 只作为原型参考，当前实现不再依赖 `GM_*` 运行时。
+- 动态流只服务关注动态，不做热门流兜底
+- 搜索目前仍落到官方结果页，首版不做完整原生结果列表
+- 播放页和详情页仍依赖 Bilibili 当前网页结构，规则需要随网页变动维护
+- 默认按自用侧载方案设计，不以 App Store 审核兼容为目标

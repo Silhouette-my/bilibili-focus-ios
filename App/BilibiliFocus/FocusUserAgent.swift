@@ -27,6 +27,10 @@ enum FocusUserAgent {
             return true
         }
 
+        if shouldUseDesktopLiveRoom(for: url) {
+            return true
+        }
+
         guard let host = url.host?.lowercased() else {
             return false
         }
@@ -70,6 +74,20 @@ enum FocusUserAgent {
             && path.hasPrefix("/opus/")
 
         return isNumericDynamicPath || isOpusPath
+    }
+
+    private static func shouldUseDesktopLiveRoom(for url: URL) -> Bool {
+        guard let host = url.host?.lowercased(), host == "live.bilibili.com" else {
+            return false
+        }
+
+        let pathComponents = url.path.split(separator: "/")
+        if pathComponents.contains(where: { !$0.isEmpty && $0.allSatisfy(\.isNumber) }) {
+            return true
+        }
+
+        let query = url.query?.lowercased() ?? ""
+        return query.contains("room_id=") || query.contains("roomid=")
     }
 }
 #endif

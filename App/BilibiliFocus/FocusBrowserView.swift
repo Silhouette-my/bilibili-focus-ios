@@ -19,16 +19,7 @@ struct FocusBrowserView: View {
         NavigationStack {
             ZStack {
                 browserLayer
-                FocusDynamicFeedView(
-                    viewModel: viewModel.dynamicFeedViewModel,
-                    onOpenCard: { card in
-                        viewModel.open(card: card)
-                    },
-                    onOpenLogin: viewModel.openLogin
-                )
-                .opacity(viewModel.isBrowserActive ? 0 : 1)
-                .allowsHitTesting(!viewModel.isBrowserActive)
-                .accessibilityHidden(viewModel.isBrowserActive)
+                nativeContentLayer
             }
             .padding(.bottom, bottomChromeContentInset(safeAreaBottom: FocusWindowMetrics.safeAreaBottom))
             .overlay(alignment: .leading) {
@@ -96,10 +87,66 @@ struct FocusBrowserView: View {
     }
 
     private var browserLayer: some View {
-        FocusWebView(viewModel: viewModel.browserViewModel, settingsStore: settingsStore)
-            .opacity(viewModel.isBrowserActive ? 1 : 0)
-            .allowsHitTesting(viewModel.isBrowserActive)
-            .accessibilityHidden(!viewModel.isBrowserActive)
+        Group {
+            if viewModel.hasInstantiatedBrowser {
+                FocusWebView(viewModel: viewModel.browserViewModel, settingsStore: settingsStore)
+                    .opacity(viewModel.isBrowserActive ? 1 : 0)
+                    .allowsHitTesting(viewModel.isBrowserActive)
+                    .accessibilityHidden(!viewModel.isBrowserActive)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var nativeContentLayer: some View {
+        ZStack {
+            FocusDynamicFeedView(
+                viewModel: viewModel.dynamicFeedViewModel,
+                searchPrompt: viewModel.searchKeyword.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                    ? "搜索视频、UP主、直播"
+                    : viewModel.searchKeyword,
+                onOpenCard: { card in
+                    viewModel.open(card: card)
+                },
+                onOpenLogin: viewModel.openLogin,
+                onSearch: {
+                    viewModel.showSearch = true
+                }
+            )
+            .opacity(isDynamicRouteActive ? 1 : 0)
+            .allowsHitTesting(isDynamicRouteActive)
+            .accessibilityHidden(!isDynamicRouteActive)
+
+            FocusSearchResultsView(
+                viewModel: viewModel.searchResultsViewModel,
+                onOpenItem: { item in
+                    viewModel.open(searchItem: item)
+                },
+                onOpenPreview: { preview in
+                    viewModel.open(searchPreview: preview)
+                },
+                onEditQuery: {
+                    viewModel.showSearch = true
+                }
+            )
+            .opacity(isSearchRouteActive ? 1 : 0)
+            .allowsHitTesting(isSearchRouteActive)
+            .accessibilityHidden(!isSearchRouteActive)
+        }
+    }
+
+    private var isDynamicRouteActive: Bool {
+        if case .dynamicFeed = viewModel.route {
+            return true
+        }
+        return false
+    }
+
+    private var isSearchRouteActive: Bool {
+        if case .searchResults = viewModel.route {
+            return true
+        }
+        return false
     }
 
     private func bottomChrome(safeAreaBottom: CGFloat) -> some View {
@@ -487,15 +534,15 @@ private struct FocusRemoteImageWebFallback: UIViewRepresentable {
 private final class FocusRemoteImageLoader: ObservableObject {
     private static let cache: NSCache<NSURL, UIImage> = {
         let cache = NSCache<NSURL, UIImage>()
-        cache.countLimit = 768
-        cache.totalCostLimit = 192 * 1024 * 1024
+        cache.countLimit = 192
+        cache.totalCostLimit = 48 * 1024 * 1024
         return cache
     }()
     private static let session: URLSession = {
         let configuration = URLSessionConfiguration.default
         configuration.urlCache = URLCache(
-            memoryCapacity: 192 * 1024 * 1024,
-            diskCapacity: 768 * 1024 * 1024,
+            memoryCapacity: 48 * 1024 * 1024,
+            diskCapacity: 256 * 1024 * 1024,
             diskPath: "FocusRemoteImageCache"
         )
         configuration.requestCachePolicy = .returnCacheDataElseLoad
@@ -620,14 +667,23 @@ private final class FocusRemoteImageLoader: ObservableObject {
     }
 
     private static func decodeImage(from data: Data) -> UIImage? {
-        if let image = UIImage(data: data) {
-            return image
+        guard
+            let source = CGImageSourceCreateWithData(data as CFData, nil)
+        else {
+            return nil
         }
 
-        guard
-            let source = CGImageSourceCreateWithData(data as CFData, nil),
-            let cgImage = CGImageSourceCreateImageAtIndex(source, 0, nil)
-        else {
+        let options: [CFString: Any] = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceThumbnailMaxPixelSize: 1280,
+        ]
+
+        if let thumbnail = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) {
+            return UIImage(cgImage: thumbnail)
+        }
+
+        guard let cgImage = CGImageSourceCreateImageAtIndex(source, 0, nil) else {
             return nil
         }
 
@@ -652,6 +708,7 @@ private final class FocusRemoteImageLoader: ObservableObject {
         var candidates: [URL] = [url]
         let absoluteString = url.absoluteString
         let isHDSlbImage = (url.host?.lowercased().contains("hdslb.com") == true)
+        var squareFallbackURL: URL?
 
         if let atIndex = absoluteString.lastIndex(of: "@"),
            let slashIndex = absoluteString[absoluteString.startIndex...].lastIndex(of: "/"),
@@ -665,7 +722,7 @@ private final class FocusRemoteImageLoader: ObservableObject {
            !absoluteString.contains("@"),
            let optimizedURL = URL(string: absoluteString + "@480w_480h_1c.webp")
         {
-            candidates.insert(optimizedURL, at: 0)
+            squareFallbackURL = optimizedURL
         }
 
         if var components = URLComponents(url: url, resolvingAgainstBaseURL: false),
@@ -693,6 +750,10 @@ private final class FocusRemoteImageLoader: ObservableObject {
             }
         }
 
+        if let squareFallbackURL {
+            candidates.append(squareFallbackURL)
+        }
+
         var deduplicated: [URL] = []
         var seen = Set<String>()
         for candidate in candidates {
@@ -707,8 +768,10 @@ private final class FocusRemoteImageLoader: ObservableObject {
 
 private struct FocusDynamicFeedView: View {
     @ObservedObject var viewModel: FocusDynamicFeedViewModel
+    let searchPrompt: String
     let onOpenCard: (DynamicCard) -> Void
     let onOpenLogin: () -> Void
+    let onSearch: () -> Void
 
     var body: some View {
         content
@@ -735,6 +798,12 @@ private struct FocusDynamicFeedView: View {
             } else {
                 ScrollView {
                     LazyVStack(spacing: 12) {
+                        FocusSearchQueryButton(
+                            title: searchPrompt,
+                            inactiveAccessorySystemImage: "chevron.right",
+                            action: onSearch
+                        )
+
                         ForEach(cards) { card in
                             Button {
                                 onOpenCard(card)
@@ -754,7 +823,7 @@ private struct FocusDynamicFeedView: View {
                         }
                     }
                     .padding(.horizontal, 16)
-                    .padding(.top, 16)
+                    .padding(.top, 14)
                     .padding(.bottom, 126)
                 }
                 .background(Color(uiColor: .systemGroupedBackground))
@@ -792,8 +861,8 @@ private struct FocusDynamicFeedView: View {
     }
 
     private func prefetchImages(for cards: [DynamicCard]) {
-        for card in cards {
-            let urls = ([card.author.avatarURL] + card.coverURLs).compactMap { $0 }
+        for card in cards.prefix(8) {
+            let urls = ([card.author.avatarURL] + Array(card.coverURLs.prefix(2))).compactMap { $0 }
             guard !urls.isEmpty else {
                 continue
             }
@@ -962,6 +1031,641 @@ private struct FocusStateView: View {
         }
         .padding(24)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+private struct FocusSearchResultsView: View {
+    @ObservedObject var viewModel: FocusSearchResultsViewModel
+    let onOpenItem: (SearchResultItem) -> Void
+    let onOpenPreview: (SearchResultItem.PreviewVideo) -> Void
+    let onEditQuery: () -> Void
+
+    var body: some View {
+        content
+            .background(Color(uiColor: .systemGroupedBackground))
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        switch viewModel.state {
+        case .idle:
+            FocusStateView(
+                title: "还没有搜索内容",
+                message: "点底栏里的“搜索”输入关键词。",
+                buttonTitle: "开始搜索",
+                action: onEditQuery
+            )
+
+        case .loading:
+            ProgressView("加载搜索结果…")
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+        case let .loaded(sections):
+            if sections.isEmpty {
+                FocusStateView(
+                    title: "没有找到结果",
+                    message: "换个关键词试试，或者稍后再搜一次。",
+                    buttonTitle: "重新搜索",
+                    action: onEditQuery
+                )
+            } else {
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: 14) {
+                        FocusSearchQueryButton(
+                            title: viewModel.currentQuery?.keyword ?? "搜索",
+                            isVideoSortEnabled: viewModel.selectedFilter == .video,
+                            selectedVideoSort: viewModel.selectedVideoSort,
+                            availableVideoSortOptions: viewModel.availableVideoSortOptions,
+                            onSelectVideoSort: viewModel.selectVideoSort,
+                            action: onEditQuery
+                        )
+
+                        FocusSearchFilterStrip(
+                            filters: viewModel.availableFilters,
+                            selectedFilter: viewModel.selectedFilter,
+                            onSelect: viewModel.selectFilter
+                        )
+
+                        ForEach(sections) { section in
+                            FocusSearchSectionView(
+                                section: section,
+                                isLoadingMore: viewModel.isLoadingMore && section.filter == .video,
+                                onOpenItem: onOpenItem,
+                                onOpenPreview: onOpenPreview,
+                                onLoadMoreTrigger: { item in
+                                    viewModel.loadMoreIfNeeded(currentItemID: item.id, in: section)
+                                }
+                            )
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 16)
+                    .padding(.bottom, 126)
+                }
+                .refreshable {
+                    await viewModel.refresh()
+                }
+                .task(id: prefetchSignature(for: sections)) {
+                    prefetchImages(for: sections)
+                }
+            }
+
+        case let .failed(message):
+            FocusStateView(
+                title: "搜索加载失败",
+                message: message,
+                buttonTitle: "重试",
+                action: viewModel.reload
+            )
+        }
+    }
+
+    private func prefetchSignature(for sections: [SearchResultSection]) -> String {
+        sections
+            .flatMap(\.items)
+            .prefix(12)
+            .map(\.id)
+            .joined(separator: "|")
+    }
+
+    private func prefetchImages(for sections: [SearchResultSection]) {
+        for item in sections.flatMap(\.items).prefix(10) {
+            let urls = ([item.coverURL, item.avatarURL] + item.previews.prefix(3).map(\.coverURL)).compactMap { $0 }
+            guard !urls.isEmpty else {
+                continue
+            }
+
+            FocusRemoteImageLoader.prefetch(
+                urls: urls,
+                referer: item.targetURL.absoluteString
+            )
+        }
+    }
+}
+
+private struct FocusSearchQueryButton: View {
+    let title: String
+    let isVideoSortEnabled: Bool
+    let selectedVideoSort: SearchVideoSortOption
+    let availableVideoSortOptions: [SearchVideoSortOption]
+    let onSelectVideoSort: (SearchVideoSortOption) -> Void
+    var inactiveAccessorySystemImage: String = "slider.horizontal.3"
+    let action: () -> Void
+
+    init(
+        title: String,
+        isVideoSortEnabled: Bool = false,
+        selectedVideoSort: SearchVideoSortOption = .default,
+        availableVideoSortOptions: [SearchVideoSortOption] = [],
+        onSelectVideoSort: @escaping (SearchVideoSortOption) -> Void = { _ in },
+        inactiveAccessorySystemImage: String = "slider.horizontal.3",
+        action: @escaping () -> Void
+    ) {
+        self.title = title
+        self.isVideoSortEnabled = isVideoSortEnabled
+        self.selectedVideoSort = selectedVideoSort
+        self.availableVideoSortOptions = availableVideoSortOptions
+        self.onSelectVideoSort = onSelectVideoSort
+        self.inactiveAccessorySystemImage = inactiveAccessorySystemImage
+        self.action = action
+    }
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Button(action: action) {
+                HStack(spacing: 10) {
+                    Image(systemName: "magnifyingglass")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(.secondary)
+
+                    Text(title)
+                        .font(.body.weight(.medium))
+                        .foregroundStyle(.primary)
+                        .lineLimit(1)
+
+                    Spacer(minLength: 0)
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+
+            Rectangle()
+                .fill(Color.primary.opacity(0.08))
+                .frame(width: 1, height: 24)
+
+            if isVideoSortEnabled {
+                Menu {
+                    ForEach(availableVideoSortOptions) { option in
+                        Button {
+                            onSelectVideoSort(option)
+                        } label: {
+                            if option == selectedVideoSort {
+                                Label(option.title, systemImage: "checkmark")
+                            } else {
+                                Text(option.title)
+                            }
+                        }
+                    }
+                } label: {
+                    filterLabel(accented: selectedVideoSort != .default)
+                }
+                .buttonStyle(.plain)
+            } else {
+                inactiveAccessoryLabel
+                    .opacity(0.48)
+            }
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(Color(uiColor: .secondarySystemGroupedBackground))
+        )
+    }
+
+    private func filterLabel(accented: Bool) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: "slider.horizontal.3")
+                .font(.system(size: 14, weight: .semibold))
+
+            if isVideoSortEnabled {
+                Text(selectedVideoSort.title)
+                    .font(.caption.weight(.semibold))
+                    .lineLimit(1)
+            }
+        }
+        .foregroundStyle(accented ? Color.accentColor : .secondary)
+    }
+
+    private var inactiveAccessoryLabel: some View {
+        Image(systemName: inactiveAccessorySystemImage)
+            .font(.system(size: 14, weight: .semibold))
+            .foregroundStyle(.secondary)
+    }
+}
+
+private struct FocusSearchFilterStrip: View {
+    let filters: [SearchResultFilter]
+    let selectedFilter: SearchResultFilter
+    let onSelect: (SearchResultFilter) -> Void
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 10) {
+                ForEach(filters) { filter in
+                    Button(filter.title) {
+                        onSelect(filter)
+                    }
+                    .buttonStyle(.plain)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(selectedFilter == filter ? Color.accentColor : .primary)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 10)
+                    .background(
+                        Capsule()
+                            .fill(selectedFilter == filter ? Color.accentColor.opacity(0.12) : Color(uiColor: .secondarySystemGroupedBackground))
+                    )
+                    .overlay {
+                        Capsule()
+                            .stroke(selectedFilter == filter ? Color.accentColor.opacity(0.22) : Color.clear, lineWidth: 1)
+                    }
+                }
+            }
+            .padding(.vertical, 2)
+        }
+    }
+}
+
+private struct FocusSearchSectionView: View {
+    let section: SearchResultSection
+    let isLoadingMore: Bool
+    let onOpenItem: (SearchResultItem) -> Void
+    let onOpenPreview: (SearchResultItem.PreviewVideo) -> Void
+    let onLoadMoreTrigger: (SearchResultItem) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(section.title)
+                .font(.headline.weight(.semibold))
+                .padding(.horizontal, 2)
+
+            switch section.filter {
+            case .video:
+                LazyVGrid(columns: videoColumns, spacing: 10) {
+                    ForEach(section.items) { item in
+                        Button {
+                            onOpenItem(item)
+                        } label: {
+                            FocusSearchVideoCard(item: item)
+                        }
+                        .buttonStyle(.plain)
+                        .onAppear {
+                            onLoadMoreTrigger(item)
+                        }
+                    }
+                }
+
+            case .users:
+                LazyVStack(spacing: 10) {
+                    ForEach(section.items) { item in
+                        FocusSearchUserCard(
+                            item: item,
+                            onOpenItem: onOpenItem,
+                            onOpenPreview: onOpenPreview
+                        )
+                    }
+                }
+
+            case .live:
+                LazyVGrid(columns: videoColumns, spacing: 10) {
+                    ForEach(section.items) { item in
+                        Button {
+                            onOpenItem(item)
+                        } label: {
+                            FocusSearchLiveCard(item: item)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+
+            case .bangumi, .film:
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 10) {
+                        ForEach(section.items) { item in
+                            Button {
+                                onOpenItem(item)
+                            } label: {
+                                FocusSearchMediaCard(item: item)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(.vertical, 2)
+                }
+
+            case .all:
+                EmptyView()
+            }
+
+            if isLoadingMore {
+                ProgressView()
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, 4)
+            }
+        }
+    }
+
+    private var videoColumns: [GridItem] {
+        Array(repeating: GridItem(.flexible(), spacing: 10), count: 2)
+    }
+}
+
+private struct FocusSearchVideoCard: View {
+    let item: SearchResultItem
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            FocusSearchCover(
+                url: item.coverURL,
+                referer: item.targetURL.absoluteString,
+                height: 104,
+                badgeText: item.badgeText,
+                cornerRadius: 12
+            )
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text(item.title)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.primary)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
+                    .frame(height: 44, alignment: .topLeading)
+
+                Text(item.subtitle.isEmpty ? " " : item.subtitle)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .frame(height: 16, alignment: .topLeading)
+
+                Text(item.metadataText.isEmpty ? " " : item.metadataText)
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .frame(height: 14, alignment: .topLeading)
+            }
+            .padding(.horizontal, 12)
+            .padding(.top, 10)
+            .padding(.bottom, 12)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(Color(uiColor: .secondarySystemGroupedBackground))
+        )
+    }
+}
+
+private struct FocusSearchUserCard: View {
+    let item: SearchResultItem
+    let onOpenItem: (SearchResultItem) -> Void
+    let onOpenPreview: (SearchResultItem.PreviewVideo) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Button {
+                onOpenItem(item)
+            } label: {
+                HStack(spacing: 12) {
+                    avatar
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(item.title)
+                            .font(.headline)
+                            .foregroundStyle(.primary)
+                            .lineLimit(1)
+
+                        if !item.subtitle.isEmpty {
+                            Text(item.subtitle)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(2)
+                                .multilineTextAlignment(.leading)
+                        }
+
+                        if !item.metadataText.isEmpty {
+                            Text(item.metadataText)
+                                .font(.caption2.weight(.medium))
+                                .foregroundStyle(.secondary)
+                                .lineLimit(1)
+                        }
+                    }
+
+                    Spacer(minLength: 0)
+                }
+            }
+            .buttonStyle(.plain)
+
+            if !item.previews.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    LazyHStack(spacing: 8) {
+                        ForEach(item.previews) { preview in
+                            Button {
+                                onOpenPreview(preview)
+                            } label: {
+                                FocusSearchPreviewCard(preview: preview)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+            }
+        }
+        .padding(14)
+        .background(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(Color(uiColor: .secondarySystemGroupedBackground))
+        )
+    }
+
+    @ViewBuilder
+    private var avatar: some View {
+        if let avatarURL = item.avatarURL {
+            FocusRemoteImage(url: avatarURL, referer: item.targetURL.absoluteString) { phase in
+                switch phase {
+                case let .success(image):
+                    image
+                        .resizable()
+                        .scaledToFill()
+                case .failure:
+                    FocusRemoteImageWebFallback(url: avatarURL, referer: item.targetURL.absoluteString)
+                case .empty:
+                    Circle()
+                        .fill(Color(uiColor: .tertiarySystemFill))
+                        .overlay(Image(systemName: "person.fill").foregroundStyle(.secondary))
+                }
+            }
+            .frame(width: 48, height: 48)
+            .clipShape(Circle())
+        } else {
+            Circle()
+                .fill(Color(uiColor: .tertiarySystemFill))
+                .frame(width: 48, height: 48)
+                .overlay(Image(systemName: "person.fill").foregroundStyle(.secondary))
+        }
+    }
+}
+
+private struct FocusSearchPreviewCard: View {
+    let preview: SearchResultItem.PreviewVideo
+
+    private let cardWidth: CGFloat = 132
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            FocusSearchCover(
+                url: preview.coverURL,
+                referer: preview.targetURL.absoluteString,
+                height: 76,
+                badgeText: preview.badgeText,
+                cornerRadius: 12
+            )
+            .frame(width: cardWidth)
+
+            Text(preview.title)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.primary)
+                .lineLimit(2)
+                .multilineTextAlignment(.leading)
+                .frame(width: cardWidth, alignment: .leading)
+
+            if !preview.metadataText.isEmpty {
+                Text(preview.metadataText)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+        }
+        .frame(width: cardWidth, alignment: .leading)
+    }
+}
+
+private struct FocusSearchLiveCard: View {
+    let item: SearchResultItem
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            FocusSearchCover(
+                url: item.coverURL,
+                referer: item.targetURL.absoluteString,
+                height: 104,
+                badgeText: item.badgeText,
+                cornerRadius: 12
+            )
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text(item.title)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.primary)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
+                    .frame(height: 44, alignment: .topLeading)
+
+                Text(item.subtitle.isEmpty ? " " : item.subtitle)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .frame(height: 16, alignment: .topLeading)
+
+                Text(item.metadataText.isEmpty ? " " : item.metadataText)
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .frame(height: 14, alignment: .topLeading)
+            }
+            .padding(.horizontal, 12)
+            .padding(.top, 10)
+            .padding(.bottom, 12)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(Color(uiColor: .secondarySystemGroupedBackground))
+        )
+    }
+}
+
+private struct FocusSearchMediaCard: View {
+    let item: SearchResultItem
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            FocusSearchCover(
+                url: item.coverURL,
+                referer: item.targetURL.absoluteString,
+                height: 186,
+                badgeText: item.badgeText,
+                cornerRadius: 14
+            )
+            .frame(width: 138)
+
+            Text(item.title)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.primary)
+                .lineLimit(2)
+                .multilineTextAlignment(.leading)
+
+            if !item.subtitle.isEmpty {
+                Text(item.subtitle)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
+
+            if !item.metadataText.isEmpty || !item.descriptionText.isEmpty {
+                Text(!item.metadataText.isEmpty ? item.metadataText : item.descriptionText)
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
+        }
+        .frame(width: 138, alignment: .leading)
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(Color(uiColor: .secondarySystemGroupedBackground))
+        )
+    }
+}
+
+private struct FocusSearchCover: View {
+    let url: URL?
+    let referer: String
+    let height: CGFloat
+    let badgeText: String
+    let cornerRadius: CGFloat
+
+    var body: some View {
+        ZStack(alignment: .bottomTrailing) {
+            Group {
+                if let url {
+                    FocusRemoteImage(url: url, referer: referer) { phase in
+                        switch phase {
+                        case let .success(image):
+                            image
+                                .resizable()
+                                .scaledToFill()
+                        case .failure:
+                            FocusRemoteImageWebFallback(url: url, referer: referer)
+                        case .empty:
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 0)
+                                    .fill(Color(uiColor: .tertiarySystemFill))
+                                ProgressView()
+                            }
+                        }
+                    }
+                } else {
+                    RoundedRectangle(cornerRadius: 0)
+                        .fill(Color(uiColor: .tertiarySystemFill))
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: height)
+            .clipped()
+
+            if !badgeText.isEmpty {
+                Text(badgeText)
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 5)
+                    .background(Color.black.opacity(0.62))
+                    .clipShape(Capsule())
+                    .padding(8)
+            }
+        }
+        .background(Color(uiColor: .tertiarySystemFill))
+        .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
     }
 }
 

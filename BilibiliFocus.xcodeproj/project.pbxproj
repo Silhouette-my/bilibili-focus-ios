@@ -31,6 +31,17 @@
 		000000000000000000000222 /* CookieSnapshotProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000322 /* CookieSnapshotProvider.swift */; };
 		000000000000000000000223 /* DynamicCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000323 /* DynamicCard.swift */; };
 		000000000000000000000224 /* DynamicFeedService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000324 /* DynamicFeedService.swift */; };
+		000000000000000000000226 /* AppIcon20x20@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000326 /* AppIcon20x20@2x.png */; };
+		000000000000000000000227 /* AppIcon20x20@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000327 /* AppIcon20x20@3x.png */; };
+		000000000000000000000228 /* AppIcon29x29@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000328 /* AppIcon29x29@2x.png */; };
+		000000000000000000000229 /* AppIcon29x29@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000329 /* AppIcon29x29@3x.png */; };
+		000000000000000000000230 /* AppIcon40x40@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000330 /* AppIcon40x40@2x.png */; };
+		000000000000000000000231 /* AppIcon40x40@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000331 /* AppIcon40x40@3x.png */; };
+		000000000000000000000232 /* AppIcon60x60@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000332 /* AppIcon60x60@2x.png */; };
+		000000000000000000000233 /* AppIcon60x60@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000333 /* AppIcon60x60@3x.png */; };
+		000000000000000000000234 /* AppIcon76x76.png in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000334 /* AppIcon76x76.png */; };
+		000000000000000000000235 /* AppIcon76x76@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000335 /* AppIcon76x76@2x.png */; };
+		000000000000000000000236 /* AppIcon83.5x83.5@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000336 /* AppIcon83.5x83.5@2x.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -82,6 +93,19 @@
 		000000000000000000000322 /* CookieSnapshotProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CookieSnapshotProvider.swift; sourceTree = "<group>"; };
 		000000000000000000000323 /* DynamicCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicCard.swift; sourceTree = "<group>"; };
 		000000000000000000000324 /* DynamicFeedService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicFeedService.swift; sourceTree = "<group>"; };
+		000000000000000000000325 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		000000000000000000000326 /* AppIcon20x20@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon20x20@2x.png"; sourceTree = "<group>"; };
+		000000000000000000000327 /* AppIcon20x20@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon20x20@3x.png"; sourceTree = "<group>"; };
+		000000000000000000000328 /* AppIcon29x29@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon29x29@2x.png"; sourceTree = "<group>"; };
+		000000000000000000000329 /* AppIcon29x29@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon29x29@3x.png"; sourceTree = "<group>"; };
+		000000000000000000000330 /* AppIcon40x40@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon40x40@2x.png"; sourceTree = "<group>"; };
+		000000000000000000000331 /* AppIcon40x40@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon40x40@3x.png"; sourceTree = "<group>"; };
+		000000000000000000000332 /* AppIcon60x60@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon60x60@2x.png"; sourceTree = "<group>"; };
+		000000000000000000000333 /* AppIcon60x60@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon60x60@3x.png"; sourceTree = "<group>"; };
+		000000000000000000000334 /* AppIcon76x76.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon76x76.png"; sourceTree = "<group>"; };
+		000000000000000000000335 /* AppIcon76x76@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon76x76@2x.png"; sourceTree = "<group>"; };
+		000000000000000000000336 /* AppIcon83.5x83.5@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon83.5x83.5@2x.png"; sourceTree = "<group>"; };
+		000000000000000000000338 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -124,6 +148,9 @@
 		000000000000000000000401 /* BilibiliFocus */ = {
 			isa = PBXGroup;
 			children = (
+				000000000000000000000325 /* Assets.xcassets */,
+				000000000000000000000338 /* Info.plist */,
+				000000000000000000000404 /* Icons */,
 				000000000000000000000301 /* BilibiliFocusApp.swift */,
 				000000000000000000000302 /* FocusBrowserView.swift */,
 				000000000000000000000303 /* FocusBrowserViewModel.swift */,
@@ -163,6 +190,24 @@
 				000000000000000000000315 /* focus-runtime.js */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		000000000000000000000404 /* Icons */ = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000326 /* AppIcon20x20@2x.png */,
+				000000000000000000000327 /* AppIcon20x20@3x.png */,
+				000000000000000000000328 /* AppIcon29x29@2x.png */,
+				000000000000000000000329 /* AppIcon29x29@3x.png */,
+				000000000000000000000330 /* AppIcon40x40@2x.png */,
+				000000000000000000000331 /* AppIcon40x40@3x.png */,
+				000000000000000000000332 /* AppIcon60x60@2x.png */,
+				000000000000000000000333 /* AppIcon60x60@3x.png */,
+				000000000000000000000334 /* AppIcon76x76.png */,
+				000000000000000000000335 /* AppIcon76x76@2x.png */,
+				000000000000000000000336 /* AppIcon83.5x83.5@2x.png */,
+			);
+			path = Icons;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -246,6 +291,17 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				000000000000000000000226 /* AppIcon20x20@2x.png in Resources */,
+				000000000000000000000227 /* AppIcon20x20@3x.png in Resources */,
+				000000000000000000000228 /* AppIcon29x29@2x.png in Resources */,
+				000000000000000000000229 /* AppIcon29x29@3x.png in Resources */,
+				000000000000000000000230 /* AppIcon40x40@2x.png in Resources */,
+				000000000000000000000231 /* AppIcon40x40@3x.png in Resources */,
+				000000000000000000000232 /* AppIcon60x60@2x.png in Resources */,
+				000000000000000000000233 /* AppIcon60x60@3x.png in Resources */,
+				000000000000000000000234 /* AppIcon76x76.png in Resources */,
+				000000000000000000000235 /* AppIcon76x76@2x.png in Resources */,
+				000000000000000000000236 /* AppIcon83.5x83.5@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -354,13 +410,8 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Bilibili Focus";
-				INFOPLIST_KEY_LSRequiresIPhoneOS = YES;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = App/BilibiliFocus/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -383,13 +434,8 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Bilibili Focus";
-				INFOPLIST_KEY_LSRequiresIPhoneOS = YES;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = App/BilibiliFocus/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -412,9 +458,11 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = "";
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				DYLIB_CURRENT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				INSTALL_PATH = "@rpath";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -437,9 +485,11 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = "";
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				DYLIB_CURRENT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				INSTALL_PATH = "@rpath";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
