@@ -1,0 +1,42 @@
+package org.bilibilifocus.core.routing
+
+import kotlin.test.Test
+import kotlin.test.assertEquals
+
+class FocusNavigationPolicyTests {
+
+    @Test
+    fun `canonicalize dynamic detail to desktop opus page`() {
+        val url = "https://t.bilibili.com/123456789"
+        val result = FocusNavigationPolicy.canonicalWebURL(url)
+        assertEquals("https://www.bilibili.com/opus/123456789", result)
+    }
+
+    @Test
+    fun `canonicalize mobile opus page to desktop host`() {
+        val url = "https://m.bilibili.com/opus/987654321"
+        val result = FocusNavigationPolicy.canonicalWebURL(url)
+        assertEquals("https://www.bilibili.com/opus/987654321", result)
+    }
+
+    @Test
+    fun `block bilibili custom scheme`() {
+        val policy = FocusNavigationPolicy()
+        val decision = policy.decision("bilibili://video/12345")
+        assert(decision is FocusNavigationPolicy.Decision.Cancel)
+    }
+
+    @Test
+    fun `normalize video page to www host`() {
+        val url = "https://m.bilibili.com/video/BV1xx411c7mD"
+        val result = FocusNavigationPolicy.canonicalWebURL(url)
+        assertEquals("https://www.bilibili.com/video/BV1xx411c7mD", result)
+    }
+
+    @Test
+    fun `block openapp URL`() {
+        val policy = FocusNavigationPolicy()
+        val decision = policy.decision("https://www.bilibili.com/video/BV1xx/?openapp=1")
+        assertEquals(FocusNavigationPolicy.Decision.Cancel::class, decision::class)
+    }
+}
