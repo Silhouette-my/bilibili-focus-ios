@@ -1,17 +1,24 @@
-.build/
-.build-tests/
-.swiftpm/
-/.home/
-/.swift-cache/
-/.swift-home/
-/.tmp-home/
-/.codex-clang-cache/
-DerivedData/
-.DerivedData/
-.DerivedData*/
-Build/
-.tmp-build-*.log
-*.xcuserstate
-*.xcworkspace/xcuserdata/
-*.xcodeproj/xcuserdata/
+# Gradle
+.gradle/
+build/
+*/build/
+!gradle-wrapper.jar
+
+# Android
+*.apk
+*.ap_
+*.aab
+local.properties
+.idea/
+*.iml
 .DS_Store
+captures/
+.externalNativeBuild
+.cxx
+
+# KMP
+.kotlin/
+
+# Logs
+*.log
+
