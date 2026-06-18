@@ -5,6 +5,14 @@ import SwiftUI
 import UIKit
 import WebKit
 
+private enum FocusDesign {
+    static let primary = Color(red: 0.984, green: 0.447, blue: 0.600) // Bilibili pink #FB7299
+    static let primaryLight = primary.opacity(0.12)
+    static let primaryStroke = primary.opacity(0.22)
+    static let tabInactive = Color(red: 0.55, green: 0.58, blue: 0.63) // #8C94A1
+    static let videoControlForeground = Color(red: 0.18, green: 0.21, blue: 0.27) // #2E3645
+}
+
 struct FocusBrowserView: View {
     @StateObject private var settingsStore: FocusSettingsStore
     @StateObject private var viewModel: FocusAppViewModel
@@ -363,7 +371,7 @@ private struct FocusVideoControlButton: View {
                         .font(.subheadline.weight(.semibold))
                 }
             }
-            .foregroundStyle(Color(red: 0.18, green: 0.21, blue: 0.27))
+            .foregroundStyle(FocusDesign.videoControlForeground)
             .frame(maxWidth: .infinity, minHeight: 42)
             .background(
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
@@ -393,8 +401,8 @@ private struct FocusPrimaryTabButton: View {
             }
             .foregroundStyle(
                 isSelected
-                    ? Color(red: 0.28, green: 0.56, blue: 1.0)
-                    : Color(red: 0.55, green: 0.58, blue: 0.63)
+                    ? FocusDesign.primary
+                    : FocusDesign.tabInactive
             )
             .padding(.top, 5)
             .frame(maxWidth: .infinity)
@@ -1004,8 +1012,8 @@ private struct FocusKindBadge: View {
             .font(.caption2.weight(.semibold))
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
-            .background(Color.accentColor.opacity(0.12))
-            .foregroundStyle(Color.accentColor)
+            .background(FocusDesign.primary.opacity(0.12))
+            .foregroundStyle(FocusDesign.primary)
             .clipShape(Capsule())
     }
 }
@@ -1234,7 +1242,7 @@ private struct FocusSearchQueryButton: View {
                     .lineLimit(1)
             }
         }
-        .foregroundStyle(accented ? Color.accentColor : .secondary)
+        .foregroundStyle(accented ? FocusDesign.primary : .secondary)
     }
 
     private var inactiveAccessoryLabel: some View {
@@ -1258,16 +1266,16 @@ private struct FocusSearchFilterStrip: View {
                     }
                     .buttonStyle(.plain)
                     .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(selectedFilter == filter ? Color.accentColor : .primary)
+                    .foregroundStyle(selectedFilter == filter ? FocusDesign.primary : .primary)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 10)
                     .background(
                         Capsule()
-                            .fill(selectedFilter == filter ? Color.accentColor.opacity(0.12) : Color(uiColor: .secondarySystemGroupedBackground))
+                            .fill(selectedFilter == filter ? FocusDesign.primary.opacity(0.12) : Color(uiColor: .secondarySystemGroupedBackground))
                     )
                     .overlay {
                         Capsule()
-                            .stroke(selectedFilter == filter ? Color.accentColor.opacity(0.22) : Color.clear, lineWidth: 1)
+                            .stroke(selectedFilter == filter ? FocusDesign.primary.opacity(0.22) : Color.clear, lineWidth: 1)
                     }
                 }
             }
