@@ -223,6 +223,19 @@
         return true;
       }
 
+      const importantVideoSelectors = [
+        "#arc_toolbar_report",
+        "#commentapp",
+        "bili-comments",
+        ".video-toolbar-container",
+        ".video-pod",
+        ".video-pod__body",
+        ".video-pod__list",
+        ".multi-page",
+        ".left-container",
+        ".right-container"
+      ].join(",");
+
       return mutations.some((mutation) => {
         const target = mutation.target;
         if (target && target.nodeType === 1 && !isIgnoredPlayerMutationTarget(target)) {
@@ -242,13 +255,8 @@
             return true;
           }
 
-          return !!node.querySelector?.([
-            "#arc_toolbar_report",
-            ".video-toolbar-container",
-            ".video-pod",
-            ".left-container",
-            ".right-container"
-          ].join(","));
+          return !!node.matches?.(importantVideoSelectors)
+            || !!node.querySelector?.(importantVideoSelectors);
         });
       });
     }

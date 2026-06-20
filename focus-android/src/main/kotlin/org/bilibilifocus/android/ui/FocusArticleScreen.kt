@@ -1,8 +1,10 @@
 package org.bilibilifocus.android.ui
 
 import android.annotation.SuppressLint
+import android.graphics.Color as AndroidColor
 import android.webkit.WebView
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -62,8 +65,10 @@ fun FocusArticleScreen(
     cvid: Long,
     onBack: () -> Unit,
     onOpenUser: (Long) -> Unit = {},
+    viewModel: FocusArticleViewModel? = null,
+    scrollState: ScrollState = rememberScrollState(),
 ) {
-    val viewModel = remember(cvid) {
+    val resolvedViewModel = viewModel ?: remember(cvid) {
         FocusArticleViewModel(
             service = ArticleService(
                 cookieProvider = AndroidCookieProvider(),
@@ -73,11 +78,11 @@ fun FocusArticleScreen(
     }
 
     LaunchedEffect(cvid) {
-        viewModel.load(cvid)
+        resolvedViewModel.loadIfNeeded(cvid)
     }
 
-    val state by viewModel.state.collectAsState()
-    val htmlContent by viewModel.htmlContent.collectAsState()
+    val state by resolvedViewModel.state.collectAsState()
+    val htmlContent by resolvedViewModel.htmlContent.collectAsState()
 
     Scaffold(
         topBar = {
@@ -131,7 +136,7 @@ fun FocusArticleScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding)
-                        .verticalScroll(rememberScrollState()),
+                        .verticalScroll(scrollState),
                 ) {
                     // Banner image
                     if (s.detail.bannerUrl.isNotBlank()) {
@@ -244,6 +249,14 @@ private fun ArticleStatItem(value: String, label: String) {
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 private fun ArticleContentView(htmlContent: String) {
+    val isDarkTheme = isSystemInDarkTheme()
+    val bodyTextColor = if (isDarkTheme) "#E7EAF0" else "#18191C"
+    val bodyBackground = if (isDarkTheme) "#11151B" else "#FFFFFF"
+    val linkColor = if (isDarkTheme) "#FF97B4" else "#00A1D6"
+    val quoteTextColor = if (isDarkTheme) "#B7BFCC" else "#61666D"
+    val codeBackground = if (isDarkTheme) "#1E2530" else "#F6F6F6"
+    val dividerColor = if (isDarkTheme) "#303947" else "#E3E5E7"
+    val tableHeaderColor = if (isDarkTheme) "#1A2028" else "#F6F6F6"
     val styledHtml = """
         <!DOCTYPE html>
         <html>
@@ -253,14 +266,15 @@ private fun ArticleContentView(htmlContent: String) {
           * { margin: 0; padding: 0; box-sizing: border-box; }
           body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            font-size: 16px;
+            font-size: 17px;
             line-height: 1.8;
-            color: #18191c;
+            color: $bodyTextColor;
             padding: 16px;
-            background: #fff;
+            background: $bodyBackground;
             word-wrap: break-word;
           }
           p { margin: 12px 0; }
+          span, strong, em, li { color: inherit; }
           h1, h2, h3, h4, h5, h6 { margin: 20px 0 12px; font-weight: 600; line-height: 1.4; }
           h1 { font-size: 28px; }
           h2 { font-size: 24px; }
@@ -272,15 +286,15 @@ private fun ArticleContentView(htmlContent: String) {
             margin: 16px 0;
             border-radius: 8px;
           }
-          a { color: #00A1D6; text-decoration: none; }
+          a { color: $linkColor; text-decoration: none; }
           blockquote {
-            border-left: 4px solid #00A1D6;
+            border-left: 4px solid $linkColor;
             padding-left: 16px;
             margin: 16px 0;
-            color: #61666d;
+            color: $quoteTextColor;
           }
           pre, code {
-            background: #f6f6f6;
+            background: $codeBackground;
             border-radius: 4px;
             padding: 2px 6px;
             font-family: 'Courier New', monospace;
@@ -295,8 +309,8 @@ private fun ArticleContentView(htmlContent: String) {
           ul, ol { padding-left: 24px; margin: 12px 0; }
           li { margin: 8px 0; }
           table { border-collapse: collapse; width: 100%; margin: 16px 0; }
-          th, td { border: 1px solid #e3e5e7; padding: 8px 12px; text-align: left; }
-          th { background: #f6f6f6; font-weight: 600; }
+          th, td { border: 1px solid $dividerColor; padding: 8px 12px; text-align: left; color: $bodyTextColor; }
+          th { background: $tableHeaderColor; font-weight: 600; }
           .video-wrap, .aid, figure { margin: 16px 0; }
         </style>
         </head>
@@ -316,6 +330,7 @@ private fun ArticleContentView(htmlContent: String) {
                 settings.setSupportZoom(true)
                 settings.builtInZoomControls = true
                 settings.displayZoomControls = false
+                setBackgroundColor(AndroidColor.TRANSPARENT)
                 loadDataWithBaseURL("https://www.bilibili.com/", styledHtml, "text/html", "UTF-8", null)
             }
         },

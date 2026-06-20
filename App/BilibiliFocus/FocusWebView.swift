@@ -7,6 +7,7 @@ import WebKit
 struct FocusWebView: UIViewRepresentable {
     @ObservedObject var viewModel: FocusBrowserViewModel
     @ObservedObject var settingsStore: FocusSettingsStore
+    @Environment(\.colorScheme) private var colorScheme
 
     func makeCoordinator() -> Coordinator {
         Coordinator(viewModel: viewModel)
@@ -22,16 +23,25 @@ struct FocusWebView: UIViewRepresentable {
         let webView = WKWebView(frame: .zero, configuration: configuration)
         webView.customUserAgent = FocusUserAgent.mobileSafari()
         webView.allowsBackForwardNavigationGestures = false
+        webView.overrideUserInterfaceStyle = colorScheme == .dark ? .dark : .light
         if #available(iOS 16.4, *) {
             webView.isInspectable = true
         }
         webView.navigationDelegate = context.coordinator
         webView.uiDelegate = context.coordinator
-        context.coordinator.installScripts(on: webView, settings: settingsStore.settings)
+        context.coordinator.installScripts(
+            on: webView,
+            settings: settingsStore.settings,
+            isDarkMode: colorScheme == .dark
+        )
         viewModel.attach(
             webView: webView,
             reconfigureScripts: { [weak coordinator = context.coordinator] webView, settings in
-                coordinator?.installScripts(on: webView, settings: settings)
+                coordinator?.installScripts(
+                    on: webView,
+                    settings: settings,
+                    isDarkMode: colorScheme == .dark
+                )
             },
             prepareForURL: { [weak coordinator = context.coordinator] webView, url in
                 coordinator?.prepare(webView: webView, for: url)
@@ -41,8 +51,17 @@ struct FocusWebView: UIViewRepresentable {
     }
 
     func updateUIView(_ webView: WKWebView, context: Context) {
-        if context.coordinator.lastAppliedSettings != settingsStore.settings {
-            context.coordinator.installScripts(on: webView, settings: settingsStore.settings)
+        let isDarkMode = colorScheme == .dark
+        webView.overrideUserInterfaceStyle = isDarkMode ? .dark : .light
+        if context.coordinator.lastAppliedSettings != settingsStore.settings
+            || context.coordinator.lastAppliedDarkMode != isDarkMode
+        {
+            context.coordinator.installScripts(
+                on: webView,
+                settings: settingsStore.settings,
+                isDarkMode: isDarkMode
+            )
+            context.coordinator.reapplyCurrentPageScripts(on: webView)
         }
     }
 
@@ -50,6 +69,10 @@ struct FocusWebView: UIViewRepresentable {
     final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler {
         private let viewModel: FocusBrowserViewModel
         fileprivate var lastAppliedSettings: FocusSettings?
+        fileprivate var lastAppliedDarkMode: Bool?
+        fileprivate var lastDocumentStartScript: String?
+        fileprivate var lastDocumentEndScript: String?
+        fileprivate var lastAppearanceScript: String?
         private var lastPreparedUsesDesktopMode = false
 
         init(viewModel: FocusBrowserViewModel) {
@@ -63,7 +86,7 @@ struct FocusWebView: UIViewRepresentable {
             webView.configuration.defaultWebpagePreferences.preferredContentMode = useDesktopMode ? .desktop : .mobile
         }
 
-        func installScripts(on webView: WKWebView, settings: FocusSettings) {
+        func installScripts(on webView: WKWebView, settings: FocusSettings, isDarkMode: Bool) {
             let controller = webView.configuration.userContentController
             controller.removeAllUserScripts()
             controller.removeScriptMessageHandler(forName: "getConfig")
@@ -71,20 +94,39 @@ struct FocusWebView: UIViewRepresentable {
             controller.add(self, name: "getConfig")
             controller.add(self, name: "logDebug")
 
-            if let documentStart = try? FocusScriptBuilder.makeUserScript(for: .documentStart, settings: settings) {
+            let appearanceScript = FocusWebAppearance.script(isDarkMode: isDarkMode)
+            let documentStartScript = try? FocusScriptBuilder.makeUserScript(for: .documentStart, settings: settings)
+            let documentEndScript = try? FocusScriptBuilder.makeUserScript(for: .documentEnd, settings: settings)
+            controller.addUserScript(
+                WKUserScript(
+                    source: appearanceScript,
+                    injectionTime: .atDocumentStart,
+                    forMainFrameOnly: true
+                )
+            )
+
+            if let documentStartScript {
                 controller.addUserScript(
                     WKUserScript(
-                        source: documentStart,
+                        source: documentStartScript,
                         injectionTime: .atDocumentStart,
                         forMainFrameOnly: true
                     )
                 )
             }
 
-            if let documentEnd = try? FocusScriptBuilder.makeUserScript(for: .documentEnd, settings: settings) {
+            controller.addUserScript(
+                WKUserScript(
+                    source: appearanceScript,
+                    injectionTime: .atDocumentEnd,
+                    forMainFrameOnly: true
+                )
+            )
+
+            if let documentEndScript {
                 controller.addUserScript(
                     WKUserScript(
-                        source: documentEnd,
+                        source: documentEndScript,
                         injectionTime: .atDocumentEnd,
                         forMainFrameOnly: true
                     )
@@ -92,6 +134,22 @@ struct FocusWebView: UIViewRepresentable {
             }
 
             lastAppliedSettings = settings
+            lastAppliedDarkMode = isDarkMode
+            lastAppearanceScript = appearanceScript
+            lastDocumentStartScript = documentStartScript
+            lastDocumentEndScript = documentEndScript
+        }
+
+        func reapplyCurrentPageScripts(on webView: WKWebView) {
+            if let lastAppearanceScript {
+                webView.evaluateJavaScript(lastAppearanceScript)
+            }
+            if let lastDocumentStartScript {
+                webView.evaluateJavaScript(lastDocumentStartScript)
+            }
+            if let lastDocumentEndScript {
+                webView.evaluateJavaScript(lastDocumentEndScript)
+            }
         }
 
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
@@ -109,6 +167,7 @@ struct FocusWebView: UIViewRepresentable {
         }
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            reapplyCurrentPageScripts(on: webView)
             viewModel.updateNavigationState(from: webView)
         }
 
@@ -142,6 +201,12 @@ struct FocusWebView: UIViewRepresentable {
                 let url = navigationAction.request.url
             else {
                 decisionHandler(.allow)
+                return
+            }
+
+            if viewModel.shouldOpenNativeUserSpace(url) {
+                decisionHandler(.cancel)
+                viewModel.openNativeUserSpace(url)
                 return
             }
 

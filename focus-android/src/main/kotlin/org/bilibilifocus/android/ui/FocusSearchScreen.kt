@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,9 +19,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -40,6 +39,7 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -67,22 +67,29 @@ import org.bilibilifocus.core.service.SearchResultService
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FocusSearchScreen(
+    viewModel: FocusSearchViewModel,
     onOpenItem: (SearchResultItem) -> Unit = {},
     onOpenLogin: () -> Unit = {},
+    initialQuery: String? = null,
+    onInitialQueryConsumed: () -> Unit = {},
+    contentPadding: PaddingValues = PaddingValues(),
+    resultColumns: Int = 2,
 ) {
-    val viewModel = remember {
-        FocusSearchViewModel(
-            service = SearchResultService(
-                cookieProvider = AndroidCookieProvider(),
-                httpClient = KtorHttpClient(),
-            )
-        )
-    }
-
     var searchQuery by remember { mutableStateOf("") }
     val state by viewModel.state.collectAsState()
+    val resolvedResultColumns = resultColumns.coerceAtLeast(1)
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    // 从动态页搜索框带入的查询：自动填入并搜索一次
+    LaunchedEffect(initialQuery) {
+        val q = initialQuery
+        if (!q.isNullOrBlank()) {
+            searchQuery = q
+            viewModel.search(q)
+            onInitialQueryConsumed()
+        }
+    }
+
+    Column(modifier = Modifier.fillMaxSize().padding(top = contentPadding.calculateTopPadding())) {
         SearchBar(
             inputField = {
                 SearchBarDefaults.InputField(
@@ -103,6 +110,7 @@ fun FocusSearchScreen(
             colors = SearchBarDefaults.colors(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant,
             ),
+            windowInsets = WindowInsets(0, 0, 0, 0),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 12.dp),
@@ -165,7 +173,12 @@ fun FocusSearchScreen(
             is SearchUiState.Loaded -> {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                    contentPadding = PaddingValues(
+                        start = 16.dp,
+                        end = 16.dp,
+                        top = 8.dp,
+                        bottom = 8.dp + contentPadding.calculateBottomPadding(),
+                    ),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
                     items(s.sections, key = { it.id }) { section ->
@@ -173,9 +186,10 @@ fun FocusSearchScreen(
                             section = section,
                             onOpenItem = onOpenItem,
                             onOpenPreview = { item -> onOpenItem(item) },
+                            resultColumns = resolvedResultColumns,
                         )
                     }
-                    item { Spacer(modifier = Modifier.height(80.dp)) }
+                    item { Spacer(modifier = Modifier.height(8.dp)) }
                 }
             }
         }
@@ -225,6 +239,7 @@ private fun FocusSearchSection(
     section: SearchResultSection,
     onOpenItem: (SearchResultItem) -> Unit,
     onOpenPreview: (SearchResultItem) -> Unit,
+    resultColumns: Int,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text(
@@ -235,22 +250,25 @@ private fun FocusSearchSection(
 
         when (section.filter) {
             SearchResultFilter.VIDEO, SearchResultFilter.LIVE -> {
-                val rows = section.items.chunked(2)
+                val rows = gridRows(section.items, resultColumns)
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     rows.forEach { rowItems ->
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                             rowItems.forEach { item ->
                                 ElevatedCard(
                                     onClick = { onOpenItem(item) },
-                                    shape = RoundedCornerShape(12.dp),
+                                    shape = RoundedCornerShape(16.dp),
                                     colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface),
                                     elevation = CardDefaults.elevatedCardElevation(defaultElevation = 1.dp),
                                     modifier = Modifier.weight(1f),
                                 ) {
-                                    FocusSearchVideoCard(item = item)
+                                    FocusSearchVideoCard(
+                                        item = item,
+                                        resultColumns = resultColumns,
+                                    )
                                 }
                             }
-                            repeat(2 - rowItems.size) {
+                            repeat(resultColumns - rowItems.size) {
                                 Spacer(modifier = Modifier.weight(1f))
                             }
                         }
@@ -259,35 +277,72 @@ private fun FocusSearchSection(
             }
 
             SearchResultFilter.USERS -> {
-                section.items.forEach { item ->
-                    ElevatedCard(
-                        onClick = { onOpenItem(item) },
-                        shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface),
-                        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 1.dp),
-                    ) {
-                        FocusSearchUserCard(
-                            item = item,
-                            onOpenItem = onOpenItem,
-                            onOpenPreview = onOpenPreview,
-                        )
+                val userColumns = resultColumns.coerceAtMost(2)
+                val rows = gridRows(section.items, userColumns)
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    rows.forEach { rowItems ->
+                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            rowItems.forEach { item ->
+                                ElevatedCard(
+                                    onClick = { onOpenItem(item) },
+                                    shape = RoundedCornerShape(16.dp),
+                                    colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface),
+                                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 1.dp),
+                                    modifier = Modifier.weight(1f),
+                                ) {
+                                    FocusSearchUserCard(
+                                        item = item,
+                                        onOpenItem = onOpenItem,
+                                        onOpenPreview = onOpenPreview,
+                                    )
+                                }
+                            }
+                            repeat(userColumns - rowItems.size) {
+                                Spacer(modifier = Modifier.weight(1f))
+                            }
+                        }
                     }
                 }
             }
 
             SearchResultFilter.BANGUMI, SearchResultFilter.FILM -> {
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    items(section.items, key = { it.id }) { item ->
-                        ElevatedCard(
-                            onClick = { onOpenItem(item) },
-                            shape = RoundedCornerShape(12.dp),
-                            colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface),
-                            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 1.dp),
-                            modifier = Modifier.width(160.dp),
-                        ) {
-                            FocusSearchMediaCard(item = item)
+                val mediaColumns = resultColumns.coerceAtMost(3)
+                if (mediaColumns <= 2) {
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        items(section.items, key = { it.id }) { item ->
+                            ElevatedCard(
+                                onClick = { onOpenItem(item) },
+                                shape = RoundedCornerShape(16.dp),
+                                colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface),
+                                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 1.dp),
+                                modifier = Modifier.width(160.dp),
+                            ) {
+                                FocusSearchMediaCard(item = item)
+                            }
+                        }
+                    }
+                } else {
+                    val rows = gridRows(section.items, mediaColumns)
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        rows.forEach { rowItems ->
+                            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                rowItems.forEach { item ->
+                                    ElevatedCard(
+                                        onClick = { onOpenItem(item) },
+                                        shape = RoundedCornerShape(16.dp),
+                                        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface),
+                                        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 1.dp),
+                                        modifier = Modifier.weight(1f),
+                                    ) {
+                                        FocusSearchMediaCard(item = item)
+                                    }
+                                }
+                                repeat(mediaColumns - rowItems.size) {
+                                    Spacer(modifier = Modifier.weight(1f))
+                                }
+                            }
                         }
                     }
                 }
@@ -298,13 +353,21 @@ private fun FocusSearchSection(
     }
 }
 
+private fun <T> gridRows(items: List<T>, columns: Int): List<List<T>> {
+    val safeColumns = columns.coerceAtLeast(1)
+    return items.chunked(safeColumns)
+}
+
 @Composable
-private fun FocusSearchVideoCard(item: SearchResultItem) {
+private fun FocusSearchVideoCard(
+    item: SearchResultItem,
+    resultColumns: Int,
+) {
     Column {
         FocusSearchCover(
             url = item.coverURL,
-            height = 104,
             badgeText = item.badgeText,
+            aspectRatio = videoCoverAspectRatio(resultColumns),
         )
 
         Column(
@@ -337,8 +400,19 @@ private fun FocusSearchVideoCard(item: SearchResultItem) {
 }
 
 @Composable
-private fun FocusSearchCover(url: String?, height: Int, badgeText: String) {
-    Box(modifier = Modifier.fillMaxWidth().height(height.dp)) {
+private fun FocusSearchCover(
+    url: String?,
+    badgeText: String,
+    height: Int? = null,
+    aspectRatio: Float? = null,
+) {
+    val coverModifier = when {
+        aspectRatio != null -> Modifier.fillMaxWidth().aspectRatio(aspectRatio)
+        height != null -> Modifier.fillMaxWidth().height(height.dp)
+        else -> Modifier.fillMaxWidth().aspectRatio(16f / 9f)
+    }
+
+    Box(modifier = coverModifier) {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(url)
@@ -427,8 +501,8 @@ private fun FocusSearchUserCard(
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             FocusSearchCover(
                                 url = preview.coverURL,
-                                height = 76,
                                 badgeText = preview.badgeText,
+                                height = 76,
                             )
                             Text(
                                 text = preview.title,
@@ -458,8 +532,8 @@ private fun FocusSearchMediaCard(item: SearchResultItem) {
     Column {
         FocusSearchCover(
             url = item.coverURL,
-            height = 220,
             badgeText = item.badgeText,
+            height = 220,
         )
         Column(
             modifier = Modifier.padding(12.dp),
@@ -491,4 +565,10 @@ private fun FocusSearchMediaCard(item: SearchResultItem) {
             }
         }
     }
+}
+
+private fun videoCoverAspectRatio(resultColumns: Int): Float = when {
+    resultColumns >= 4 -> 16f / 9f
+    resultColumns == 3 -> 1.9f
+    else -> 2.0f
 }

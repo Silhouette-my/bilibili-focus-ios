@@ -6,6 +6,7 @@ import android.os.Looper
 import android.webkit.CookieManager
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -37,6 +38,7 @@ fun FocusLoginScreen(
     onBack: () -> Unit,
     onLoginComplete: () -> Unit,
 ) {
+    val isDarkMode = isSystemInDarkTheme()
     var isLoading by remember { mutableStateOf(true) }
     var webView by remember { mutableStateOf<WebView?>(null) }
     val completed = remember { mutableStateOf(false) }
@@ -91,6 +93,7 @@ fun FocusLoginScreen(
                             webViewClient = object : WebViewClient() {
                                 override fun onPageFinished(view: WebView, url: String) {
                                     isLoading = false
+                                    view.evaluateJavascript(buildBilibiliThemeScript(isDarkMode), null)
                                     if (!completed.value && !url.contains("passport.bilibili.com")) {
                                         completed.value = true
                                         CookieManager.getInstance().flush()
@@ -105,6 +108,9 @@ fun FocusLoginScreen(
                             loadUrl("https://passport.bilibili.com/login")
                             webView = this
                         }
+                    },
+                    update = { view ->
+                        view.evaluateJavascript(buildBilibiliThemeScript(isDarkMode), null)
                     },
                     modifier = Modifier.fillMaxSize(),
                 )
