@@ -1,44 +1,41 @@
-# Bilibili Focus iOS
+# Bilibili Focus
 
-自用的 iOS 版 Bilibili 容器，核心思路是：
+自用的 Bilibili 手机端容器，当前仓库同时包含 iOS 和 Android 两条主线。
 
-- `动态` 使用原生 SwiftUI 关注流
-- `搜索` 使用原生关键词入口
-- `播放 / 详情 / 结果页` 继续由 `WKWebView` 承接
-- JS 注入只做去干扰、导流拦截和小范围布局修复
+核心方向：
 
-这个公开仓库只保留 iOS 主线，不包含 Safari userscript 版。
+- `动态`、`搜索`、`我的/历史` 优先走原生页与 API
+- `播放页`、`部分详情页` 继续复用官方网页播放器与详情 DOM
+- 页面注入只做去干扰、导流拦截和小范围布局修复
+- `WKWebView / Android WebView` 与原生请求共用登录 Cookie
 
-## 当前范围
+## 当前能力
 
-- 原生动态流，数据源为已登录用户的关注动态
-- 原生搜索入口，提交后进入官方结果页
-- 视频页、动态详情页、搜索结果页的页面裁剪与重排
-- Cookie 桥接，保证 `WKWebView` 登录态与原生请求共用
-- 原生底栏、顶栏和基础导航路由
+- 原生关注动态流
+- 原生搜索入口与结果页卡片流
+- 原生我的页、播放历史预览与历史详情页
+- 原生 UP 主空间、合集页、专栏页、图文动态详情
+- 视频播放页的移动化裁剪与原生底部控制栏
+- iOS unsigned IPA 与 Android APK 本地打包
 
-当前不包含：
-
-- Safari / Userscripts 分发版本
-- 评论区恢复
-- `space.bilibili.com` 个人主页移动化
-
-## 目录结构
+## 仓库结构
 
 - `App/BilibiliFocus`
-  - SwiftUI 应用入口
-  - 浏览容器、原生动态页、原生搜索入口
-  - Cookie 持久化与 WebView 宿主逻辑
+  - iOS SwiftUI 应用入口、原生页面、WebView 容器
 - `Sources/FocusCore`
-  - 路由、设置、导航策略
-  - 动态数据模型与服务
-  - 页面规则、注入脚本和运行时
+  - iOS 侧共享核心：导航策略、页面规则、注入运行时
+- `focus-core`
+  - Android / Kotlin Multiplatform 共享模型与 API service
+- `focus-android`
+  - Android 应用、Compose UI、ExoPlayer 播放与原生页面
 - `Scripts`
-  - 本地构建和 unsigned IPA 打包脚本
+  - iOS unsigned IPA 打包脚本
 - `Tests/FocusCoreTests`
-  - 规则、路由、配置和 fixture 测试
+  - iOS 规则、路由、配置与 fixture 测试
 
 ## 本地运行
+
+### iOS
 
 1. 打开 `BilibiliFocus.xcodeproj`
 2. 选择 `BilibiliFocus` scheme
@@ -50,46 +47,59 @@
 ```bash
 xcodebuild -project BilibiliFocus.xcodeproj \
   -scheme BilibiliFocus \
-  -configuration Debug \
-  -sdk iphonesimulator \
-  -destination 'generic/platform=iOS Simulator' \
-  -derivedDataPath .DerivedData \
+  -destination 'generic/platform=iOS' \
+  -derivedDataPath .tmp-derived \
   CODE_SIGNING_ALLOWED=NO build
 ```
 
-## 打包 unsigned IPA
+### Android
 
-仓库内置脚本会先构建 `iphoneos` 产物，再导出未签名 IPA：
+```bash
+./gradlew :focus-android:assembleDebug
+```
+
+## 打包产物
+
+### iOS unsigned IPA
 
 ```bash
 ./Scripts/build_unsigned_ipa.sh
 ```
 
-默认输出在：
+默认输出：
 
 ```text
-build/BilibiliFocus-unsigned.ipa
+Build/BilibiliFocus-unsigned.ipa
 ```
 
-后续可自行配合 AltStore、SideStore 或重签名工具安装。
+### Android APK
+
+```bash
+./gradlew :focus-android:assembleDebug
+```
+
+默认输出：
+
+```text
+focus-android/build/outputs/apk/debug/focus-android-debug.apk
+```
 
 ## 测试
 
-规则与核心逻辑测试：
+### iOS 核心测试
 
 ```bash
 FOCUS_INCLUDE_TESTS=1 swift test
 ```
 
-Web 注入验证：
+### Web 注入验证
 
 ```bash
 swift run FocusVerifier
 ```
 
-## 已知取舍
+## 当前取舍
 
-- 动态流只服务关注动态，不做热门流兜底
-- 搜索目前仍落到官方结果页，首版不做完整原生结果列表
-- 播放页和详情页仍依赖 Bilibili 当前网页结构，规则需要随网页变动维护
-- 默认按自用侧载方案设计，不以 App Store 审核兼容为目标
+- 默认按自用侧载方案设计，不以 App Store / 应用商店审核兼容为目标
+- 播放页与部分详情页仍然依赖 Bilibili 当前网页结构，网页改动后需要继续维护规则
+- `localonly/userscript-archive` 只作为本地归档，不是当前主线分发方案

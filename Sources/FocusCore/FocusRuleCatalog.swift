@@ -3215,6 +3215,57 @@ public enum FocusRuleCatalog {
                       box-sizing: border-box !important;
                     }
 
+                    html[data-focus-platform='ios'] #playerWrap,
+                    html[data-focus-platform='ios'] #bilibili-player,
+                    html[data-focus-platform='ios'] .bpx-player-container,
+                    html[data-focus-platform='ios'] .player-container,
+                    html[data-focus-platform='ios'] .bpx-player-video-wrap {
+                      width: 100% !important;
+                      max-width: 100% !important;
+                      min-height: 0 !important;
+                      height: calc(100vw / 1.5) !important;
+                      min-height: 0 !important;
+                      max-height: none !important;
+                      aspect-ratio: 3 / 2 !important;
+                      overflow: hidden !important;
+                      position: relative !important;
+                      background: #000 !important;
+                      padding-top: 0 !important;
+                      padding-bottom: 0 !important;
+                    }
+
+                    html[data-focus-platform='ios'] .bpx-player-primary-area,
+                    html[data-focus-platform='ios'] .bpx-player-video-area,
+                    html[data-focus-platform='ios'] .bpx-player-video-wrap,
+                    html[data-focus-platform='ios'] .bpx-player-video-perch,
+                    html[data-focus-platform='ios'] .bpx-player-video-screen,
+                    html[data-focus-platform='ios'] .bilibili-player-video,
+                    html[data-focus-platform='ios'] .bilibili-player-video-wrap {
+                      min-height: 0 !important;
+                      height: 100% !important;
+                      max-height: 100% !important;
+                      overflow: hidden !important;
+                      position: relative !important;
+                      background: #000 !important;
+                      padding-top: 0 !important;
+                      padding-bottom: 0 !important;
+                    }
+
+                    html[data-focus-platform='ios'] #playerWrap video,
+                    html[data-focus-platform='ios'] #bilibili-player video,
+                    html[data-focus-platform='ios'] .bpx-player-container video,
+                    html[data-focus-platform='ios'] .player-container video,
+                    html[data-focus-platform='ios'] .bpx-player-video-wrap video,
+                    html[data-focus-platform='ios'] .bpx-player-video-area video,
+                    html[data-focus-platform='ios'] .bilibili-player-video video {
+                      width: 100% !important;
+                      height: 100% !important;
+                      min-height: 100% !important;
+                      max-height: 100% !important;
+                      object-fit: contain !important;
+                      display: block !important;
+                    }
+
                     .bpx-player-control-wrap,
                     .bpx-player-control-bottom,
                     .bpx-player-control-bottom-left,
@@ -3510,6 +3561,54 @@ public enum FocusRuleCatalog {
                       return null;
                     };
 
+                    const isIOSFocus = document.documentElement?.getAttribute?.('data-focus-platform') === 'ios';
+
+                    const clearIOSPlayerSizing = () => {
+                      if (!isIOSFocus) {
+                        return;
+                      }
+
+                      [
+                        '#playerWrap',
+                        '#bilibili-player',
+                        '.bpx-player-container',
+                        '.player-container',
+                        '.bpx-player-primary-area',
+                        '.bpx-player-video-area',
+                        '.bpx-player-video-wrap',
+                        '.bpx-player-video-perch',
+                        '.bpx-player-video-screen',
+                        '.bilibili-player-video',
+                        '.bilibili-player-video-wrap'
+                      ].forEach((selector) => {
+                        document.querySelectorAll(selector).forEach((node) => {
+                          if (!(node instanceof HTMLElement)) {
+                            return;
+                          }
+                          [
+                            'width',
+                            'max-width',
+                            'height',
+                            'min-height',
+                            'max-height',
+                            'aspect-ratio',
+                            'overflow',
+                            'padding-top',
+                            'padding-bottom',
+                            'background',
+                            'position',
+                            'display',
+                            'align-items',
+                            'justify-content',
+                            'object-position',
+                            'transform'
+                          ].forEach((property) => {
+                            node.style.removeProperty(property);
+                          });
+                        });
+                      });
+                    };
+
                     const rankVideos = () => {
                       return Array.from(document.querySelectorAll('video'))
                         .map((video) => {
@@ -3544,6 +3643,131 @@ public enum FocusRuleCatalog {
 
                       const rankedVideos = rankVideos();
                       return rememberActiveVideo(rankedVideos[0]?.video || null);
+                    };
+
+                    const applyIOSPlayerSizing = () => {
+                      if (!isIOSFocus) {
+                        return;
+                      }
+
+                      const activeVideo = findPrimaryVideo();
+                      const playerRoot = document.querySelector('#playerWrap, #bilibili-player, .bpx-player-container, .player-container');
+                      if (!(playerRoot instanceof HTMLElement)) {
+                        return;
+                      }
+
+                      const isFullscreen = !!document.fullscreenElement
+                        || activeVideo?.webkitPresentationMode === 'fullscreen'
+                        || activeVideo?.webkitPresentationMode === 'fullScreen'
+                        || /(^|\\s)(?:web-)?fullscreen(?:\\s|$)/.test(String(playerRoot.className || ''));
+                      if (isFullscreen) {
+                        clearIOSPlayerSizing();
+                        return;
+                      }
+
+                      const measuredWidths = [
+                        playerRoot.getBoundingClientRect().width,
+                        playerRoot.parentElement?.getBoundingClientRect?.().width || 0,
+                        document.querySelector('#app')?.getBoundingClientRect?.().width || 0,
+                        document.querySelector('main')?.getBoundingClientRect?.().width || 0,
+                        window.visualViewport?.width || 0,
+                        window.innerWidth || 0,
+                        document.documentElement?.clientWidth || 0
+                      ].filter((value) => Number.isFinite(value) && value > 0);
+                      const shellWidth = measuredWidths.length > 0 ? measuredWidths[0] : 0;
+                      if (!(shellWidth > 0)) {
+                        return;
+                      }
+
+                      const rawRatio = activeVideo && activeVideo.videoWidth > 0 && activeVideo.videoHeight > 0
+                        ? activeVideo.videoWidth / activeVideo.videoHeight
+                        : (16 / 9);
+                      const targetAspectRatio = 3 / 2;
+                      const objectFitMode = 'contain';
+                      const widthBasis = Math.round(shellWidth);
+                      const targetHeight = Math.max(180, Math.round(widthBasis / targetAspectRatio));
+
+                      document.documentElement.style.setProperty('overflow-x', 'hidden', 'important');
+                      document.body?.style?.setProperty('overflow-x', 'hidden', 'important');
+                      document.body?.style?.setProperty('width', '100%', 'important');
+                      document.body?.style?.setProperty('max-width', '100vw', 'important');
+
+                      [
+                        '#playerWrap',
+                        '#bilibili-player',
+                        '.bpx-player-container',
+                        '.player-container',
+                        '.bpx-player-video-wrap'
+                      ].forEach((selector) => {
+                        document.querySelectorAll(selector).forEach((node) => {
+                          if (!(node instanceof HTMLElement)) {
+                            return;
+                          }
+                          node.style.setProperty('width', `${widthBasis}px`, 'important');
+                          node.style.setProperty('max-width', `${widthBasis}px`, 'important');
+                          node.style.setProperty('height', `${targetHeight}px`, 'important');
+                          node.style.setProperty('min-height', `${targetHeight}px`, 'important');
+                          node.style.setProperty('max-height', `${targetHeight}px`, 'important');
+                          node.style.setProperty('aspect-ratio', '3 / 2', 'important');
+                          node.style.setProperty('overflow', 'hidden', 'important');
+                          node.style.setProperty('padding-top', '0', 'important');
+                          node.style.setProperty('padding-bottom', '0', 'important');
+                          node.style.setProperty('background', '#000', 'important');
+                          node.style.setProperty('margin-left', 'auto', 'important');
+                          node.style.setProperty('margin-right', 'auto', 'important');
+                        });
+                      });
+
+                      [
+                        '.bpx-player-primary-area',
+                        '.bpx-player-video-area',
+                        '.bpx-player-video-wrap',
+                        '.bpx-player-video-perch',
+                        '.bpx-player-video-screen',
+                        '.bilibili-player-video',
+                        '.bilibili-player-video-wrap'
+                      ].forEach((selector) => {
+                        document.querySelectorAll(selector).forEach((node) => {
+                          if (!(node instanceof HTMLElement)) {
+                            return;
+                          }
+                          node.style.setProperty('height', `${targetHeight}px`, 'important');
+                          node.style.setProperty('min-height', `${targetHeight}px`, 'important');
+                          node.style.setProperty('max-height', `${targetHeight}px`, 'important');
+                          node.style.setProperty('overflow', 'hidden', 'important');
+                          node.style.setProperty('position', 'relative', 'important');
+                          node.style.setProperty('display', 'flex', 'important');
+                          node.style.setProperty('align-items', 'center', 'important');
+                          node.style.setProperty('justify-content', 'center', 'important');
+                          node.style.setProperty('background', '#000', 'important');
+                          node.style.setProperty('padding-top', '0', 'important');
+                          node.style.setProperty('padding-bottom', '0', 'important');
+                        });
+                      });
+
+                      [
+                        '#playerWrap video',
+                        '#bilibili-player video',
+                        '.bpx-player-container video',
+                        '.player-container video',
+                        '.bpx-player-video-wrap video',
+                        '.bpx-player-video-area video',
+                        '.bilibili-player-video video'
+                      ].forEach((selector) => {
+                        document.querySelectorAll(selector).forEach((node) => {
+                          if (!(node instanceof HTMLElement)) {
+                            return;
+                          }
+                          node.style.setProperty('width', '100%', 'important');
+                          node.style.setProperty('height', '100%', 'important');
+                          node.style.setProperty('min-height', '100%', 'important');
+                          node.style.setProperty('max-height', '100%', 'important');
+                          node.style.setProperty('display', 'block', 'important');
+                          node.style.setProperty('object-fit', objectFitMode, 'important');
+                          node.style.setProperty('object-position', 'center center', 'important');
+                          node.style.setProperty('transform', 'none', 'important');
+                        });
+                      });
                     };
 
                     const collectVideoPodItems = (pod) => {
@@ -3711,6 +3935,7 @@ public enum FocusRuleCatalog {
                     };
 
                     const snapshotPlayerState = () => {
+                      applyIOSPlayerSizing();
                       const titleSelectors = [
                         '#viewbox_report',
                         'h1.video-title',
@@ -3735,6 +3960,7 @@ public enum FocusRuleCatalog {
                       };
                       const activeVideo = findPrimaryVideo();
                       const playerRoot = document.querySelector('.bpx-player-container, #bilibili-player, #playerWrap');
+                      const playerRect = playerRoot?.getBoundingClientRect?.();
                       const playButton = document.querySelector(playerSelectors.playButton);
                       const danmakuToggle = document.querySelector(playerSelectors.danmakuToggle);
                       const subtitleToggle = document.querySelector(playerSelectors.subtitleToggle);
@@ -3778,6 +4004,8 @@ public enum FocusRuleCatalog {
                         pageURL: location.href,
                         pageTitle: document.title || '',
                         videoTitle: extractVideoTitle(),
+                        playerWidth: Number.isFinite(playerRect?.width) ? Math.round(playerRect.width) : 0,
+                        playerHeight: Number.isFinite(playerRect?.height) ? Math.round(playerRect.height) : 0,
                         isPlaying: activeVideo ? videoSuggestsPlaying : uiSuggestsPlaying && !uiSuggestsPaused,
                         playbackRate: Number.isFinite(rawPlaybackRate) && rawPlaybackRate > 0
                           ? rawPlaybackRate
@@ -3800,6 +4028,7 @@ public enum FocusRuleCatalog {
 
                     window.__FOCUS_SNAPSHOT_PLAYER_STATE__ = snapshotPlayerState;
                     disableAutoplayByDefault();
+                    applyIOSPlayerSizing();
                     snapshotPlayerState();
 
                     if (!state.playerHooksInstalled) {
@@ -3808,6 +4037,7 @@ public enum FocusRuleCatalog {
                       let snapshotTimer = null;
                       let videoPodRefreshTimer = null;
                       let autoplayRefreshTimer = null;
+                      let iosPlayerSizingTimer = null;
                       const scheduleSnapshot = (delay = 80) => {
                         clearTimeout(snapshotTimer);
                         snapshotTimer = setTimeout(() => {
@@ -3824,6 +4054,12 @@ public enum FocusRuleCatalog {
                         clearTimeout(autoplayRefreshTimer);
                         autoplayRefreshTimer = setTimeout(() => {
                           disableAutoplayByDefault();
+                        }, delay);
+                      };
+                      const scheduleIOSPlayerSizing = (delay = 90) => {
+                        clearTimeout(iosPlayerSizingTimer);
+                        iosPlayerSizingTimer = setTimeout(() => {
+                          applyIOSPlayerSizing();
                         }, delay);
                       };
 
@@ -3843,9 +4079,19 @@ public enum FocusRuleCatalog {
                           if (event.target instanceof HTMLVideoElement) {
                             rememberActiveVideo(event.target);
                           }
+                          scheduleIOSPlayerSizing(eventName === 'loadedmetadata' || eventName === 'webkitendfullscreen' ? 30 : 80);
                           scheduleSnapshot(eventName === 'ratechange' ? 20 : 80);
                         }, true);
                       });
+
+                      window.addEventListener('resize', () => {
+                        scheduleIOSPlayerSizing(30);
+                        scheduleSnapshot(60);
+                      }, { passive: true });
+
+                      window.visualViewport?.addEventListener?.('resize', () => {
+                        scheduleIOSPlayerSizing(20);
+                      }, { passive: true });
 
                       document.addEventListener('click', (event) => {
                         const target = event.target;
@@ -3863,6 +4109,8 @@ public enum FocusRuleCatalog {
                           '[class*="speed"]'
                         ].join(','))) {
                           rememberActiveVideo(trackedVideo() || findPrimaryVideo());
+                          scheduleIOSPlayerSizing(30);
+                          scheduleIOSPlayerSizing(160);
                           scheduleSnapshot(60);
                           scheduleSnapshot(180);
                         }
@@ -3875,6 +4123,7 @@ public enum FocusRuleCatalog {
 
                       const observer = new MutationObserver(() => {
                         scheduleAutoplayRefresh(60);
+                        scheduleIOSPlayerSizing(80);
                         scheduleSnapshot(120);
                         scheduleVideoPodRefresh(120);
                       });
@@ -3888,6 +4137,7 @@ public enum FocusRuleCatalog {
 
                     disableAutoplayByDefault();
                     refreshVideoPods();
+                    applyIOSPlayerSizing();
                     """,
                     settingKey: .playerMaskEnabled
                 ),

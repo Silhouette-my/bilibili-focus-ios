@@ -7,6 +7,7 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.runtime.Composable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.ui.viewinterop.AndroidView
 
 @SuppressLint("SetJavaScriptEnabled")
@@ -19,6 +20,7 @@ fun FocusWebView(
     onPageFinished: (String) -> Unit = {},
     onError: (String) -> Unit = {},
 ) {
+    val isDarkMode = isSystemInDarkTheme()
     AndroidView(
         factory = { context ->
             WebView(context).apply {
@@ -43,6 +45,7 @@ fun FocusWebView(
                     override fun onPageFinished(view: WebView?, url: String?) {
                         super.onPageFinished(view, url)
                         if (url != null) {
+                            view?.evaluateJavascript(buildBilibiliThemeScript(isDarkMode), null)
                             onPageFinished(url)
                             userScript?.let { script ->
                                 view?.evaluateJavascript(script, null)
@@ -88,6 +91,8 @@ fun FocusWebView(
         update = { webView ->
             if (webView.url != url) {
                 webView.loadUrl(url)
+            } else {
+                webView.evaluateJavascript(buildBilibiliThemeScript(isDarkMode), null)
             }
         },
     )

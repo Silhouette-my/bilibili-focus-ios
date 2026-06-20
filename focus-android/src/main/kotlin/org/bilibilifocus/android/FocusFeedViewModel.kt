@@ -38,11 +38,12 @@ class FocusFeedViewModel(
         loadJob = scope.launch {
             _state.value = FeedUiState.Loading
             try {
-                val cards = service.fetchFollowingFeed()
-                _state.value = if (cards.isEmpty()) {
+                val page = service.fetchFollowingFeedPage()
+                nextOffset = page.nextOffset
+                _state.value = if (page.cards.isEmpty()) {
                     FeedUiState.Empty
                 } else {
-                    FeedUiState.Loaded(cards)
+                    FeedUiState.Loaded(page.cards)
                 }
             } catch (e: DynamicFeedService.ServiceError) {
                 if (e == DynamicFeedService.ServiceError.LoginRequired) {
@@ -60,11 +61,12 @@ class FocusFeedViewModel(
         loadJob?.cancel()
         loadJob = scope.launch {
             try {
-                val cards = service.fetchFollowingFeed()
-                _state.value = if (cards.isEmpty()) {
+                val page = service.fetchFollowingFeedPage()
+                nextOffset = page.nextOffset
+                _state.value = if (page.cards.isEmpty()) {
                     FeedUiState.Empty
                 } else {
-                    FeedUiState.Loaded(cards)
+                    FeedUiState.Loaded(page.cards)
                 }
             } catch (e: DynamicFeedService.ServiceError) {
                 if (e == DynamicFeedService.ServiceError.LoginRequired) {

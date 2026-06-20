@@ -42,6 +42,7 @@
 		000000000000000000000234 /* AppIcon76x76.png in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000334 /* AppIcon76x76.png */; };
 		000000000000000000000235 /* AppIcon76x76@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000335 /* AppIcon76x76@2x.png */; };
 		000000000000000000000236 /* AppIcon83.5x83.5@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000336 /* AppIcon83.5x83.5@2x.png */; };
+		000000000000000000000337 /* FocusWebAppearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000339 /* FocusWebAppearance.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -106,6 +107,7 @@
 		000000000000000000000335 /* AppIcon76x76@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon76x76@2x.png"; sourceTree = "<group>"; };
 		000000000000000000000336 /* AppIcon83.5x83.5@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon83.5x83.5@2x.png"; sourceTree = "<group>"; };
 		000000000000000000000338 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		000000000000000000000339 /* FocusWebAppearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusWebAppearance.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -156,6 +158,7 @@
 				000000000000000000000303 /* FocusBrowserViewModel.swift */,
 				000000000000000000000304 /* FocusSettingsStore.swift */,
 				000000000000000000000319 /* FocusUserAgent.swift */,
+				000000000000000000000339 /* FocusWebAppearance.swift */,
 				000000000000000000000305 /* FocusWebView.swift */,
 			);
 			path = App/BilibiliFocus;
@@ -325,6 +328,7 @@
 				000000000000000000000205 /* FocusBrowserViewModel.swift in Sources */,
 				000000000000000000000206 /* FocusSettingsStore.swift in Sources */,
 				000000000000000000000219 /* FocusUserAgent.swift in Sources */,
+				000000000000000000000337 /* FocusWebAppearance.swift in Sources */,
 				000000000000000000000207 /* FocusWebView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

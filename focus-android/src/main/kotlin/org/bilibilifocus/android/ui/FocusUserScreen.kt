@@ -11,9 +11,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -57,8 +59,10 @@ fun FocusUserScreen(
     userId: Long,
     onBack: () -> Unit,
     onOpenVideo: (String) -> Unit = {},
+    viewModel: FocusUserViewModel? = null,
+    gridState: LazyGridState = rememberLazyGridState(),
 ) {
-    val viewModel = remember(userId) {
+    val resolvedViewModel = viewModel ?: remember(userId) {
         FocusUserViewModel(
             service = UserService(
                 cookieProvider = AndroidCookieProvider(),
@@ -68,10 +72,10 @@ fun FocusUserScreen(
     }
 
     LaunchedEffect(userId) {
-        viewModel.load(userId)
+        resolvedViewModel.loadIfNeeded(userId)
     }
 
-    val state by viewModel.state.collectAsState()
+    val state by resolvedViewModel.state.collectAsState()
 
     Scaffold(
         topBar = {
@@ -110,6 +114,7 @@ fun FocusUserScreen(
 
             is UserUiState.Loaded -> {
                 LazyVerticalGrid(
+                    state = gridState,
                     columns = GridCells.Fixed(2),
                     modifier = Modifier.fillMaxSize().padding(innerPadding),
                     contentPadding = PaddingValues(16.dp),
@@ -126,7 +131,7 @@ fun FocusUserScreen(
                                 val url = "https://www.bilibili.com/video/${video.bvid}"
                                 onOpenVideo(url)
                             },
-                            shape = RoundedCornerShape(12.dp),
+                            shape = RoundedCornerShape(16.dp),
                             colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface),
                             elevation = CardDefaults.elevatedCardElevation(defaultElevation = 1.dp),
                         ) {

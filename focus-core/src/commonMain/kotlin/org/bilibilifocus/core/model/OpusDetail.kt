@@ -2,6 +2,7 @@ package org.bilibilifocus.core.model
 
 data class OpusDetail(
     val id: String,
+    val commentId: Long,
     val author: OpusAuthor,
     val publishTime: String,
     val paragraphs: List<Paragraph>,

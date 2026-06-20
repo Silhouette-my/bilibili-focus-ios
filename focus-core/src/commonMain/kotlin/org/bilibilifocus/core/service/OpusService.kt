@@ -8,6 +8,7 @@ import org.bilibilifocus.core.model.OpusBlock
 import org.bilibilifocus.core.model.OpusDetail
 import org.bilibilifocus.core.model.OpusImage
 import org.bilibilifocus.core.model.OpusTextNode
+import org.bilibilifocus.core.model.VideoComment
 
 class OpusService(
     private val cookieProvider: CookieProvider,
@@ -21,6 +22,13 @@ class OpusService(
     }
 
     private val json = Json { ignoreUnknownKeys = true }
+    private var wbiMixedKey: String? = null
+    private val wbiMixinTable = intArrayOf(
+        46, 47, 18, 2, 53, 8, 23, 32, 15, 50, 10, 31, 58, 3, 45, 35, 27, 43, 5, 49,
+        33, 9, 42, 19, 29, 28, 14, 39, 12, 38, 41, 13, 37, 48, 7, 16, 24, 55, 40,
+        61, 26, 17, 0, 1, 60, 51, 30, 4, 22, 25, 54, 21, 56, 59, 6, 63, 57, 62, 11,
+        36, 20, 52, 34, 44,
+    )
 
     suspend fun fetchOpusDetail(id: String): OpusDetail {
         val url = "https://api.bilibili.com/x/polymer/web-dynamic/v1/opus/detail" +
@@ -54,12 +62,13 @@ class OpusService(
             if (directParagraphs.isNotEmpty()) {
                 return OpusDetail(
                     id = id,
+                    commentId = 0L,
                     author = OpusAuthor(name = "用户", mid = 0, avatarURL = ""),
                     publishTime = "",
                     paragraphs = directParagraphs,
                 )
             }
-            throw ServiceError.InvalidResponse
+            return fetchFromDynamicDetail(id) ?: throw ServiceError.InvalidResponse
         }
 
         val basic = item.dictionaryValueAt("basic") ?: JsonObject(emptyMap())
@@ -68,6 +77,10 @@ class OpusService(
         val opusId = basic.stringValueAt("comment_id_str")
             ?: basic.stringValueAt("rid_str")
             ?: id
+        val commentId = basic.intValueAt("comment_id")?.toLong()
+            ?: basic.stringValueAt("comment_id_str")?.toLongOrNull()
+            ?: id.toLongOrNull()
+            ?: 0L
 
         val authorModule = modules.dictionaryValueAt("module_author")
         val authorName = authorModule?.stringValueAt("name")?.ifEmpty { null } ?: "用户"
@@ -80,10 +93,12 @@ class OpusService(
 
         val paragraphs = parseParagraphs(modules)
 
-        // 如果解析不到段落，至少返回一个空的结果而不是抛异常
+        // 如果解析不到段落，先尝试动态详情接口（普通图片/文字动态），再退化为空结果
         if (paragraphs.isEmpty()) {
+            fetchFromDynamicDetail(id)?.let { return it }
             return OpusDetail(
                 id = opusId,
+                commentId = commentId,
                 author = OpusAuthor(name = authorName, mid = authorMid, avatarURL = authorAvatar),
                 publishTime = publishTime,
                 paragraphs = listOf(
@@ -96,9 +111,162 @@ class OpusService(
 
         return OpusDetail(
             id = opusId,
+            commentId = commentId,
             author = OpusAuthor(name = authorName, mid = authorMid, avatarURL = authorAvatar),
             publishTime = publishTime,
             paragraphs = paragraphs,
+        )
+    }
+
+    /**
+     * 普通图片/文字动态（MAJOR_TYPE_DRAW 等）走 opus/detail 拿不到 module_content，
+     * 回退到动态详情接口，按 feed 相同的 module_dynamic 结构解析文本 + 图片。
+     */
+    private suspend fun fetchFromDynamicDetail(id: String): OpusDetail? {
+        val url = "https://api.bilibili.com/x/polymer/web-dynamic/v1/detail" +
+            "?id=$id&features=itemOpusStyle&timezone_offset=-480"
+        val response = try {
+            httpClient.get(url, buildHeaders())
+        } catch (_: Exception) {
+            return null
+        }
+        if (response.statusCode !in 200..299) return null
+
+        val payload = try {
+            json.parseToJsonElement(response.body) as? JsonObject
+        } catch (_: Exception) {
+            null
+        } ?: return null
+        if (payload.intValueAt("code") != 0) return null
+
+        val item = payload.dictionaryValueAt("data", "item") ?: return null
+        val modules = item.dictionaryValueAt("modules") ?: return null
+        val author = modules.dictionaryValueAt("module_author")
+        val dynamic = modules.dictionaryValueAt("module_dynamic") ?: return null
+        val major = dynamic.dictionaryValueAt("major")
+
+        val blocks = mutableListOf<OpusBlock>()
+
+        val text = dynamic.stringValueAt("desc", "text")
+            ?: major?.stringValueAt("opus", "summary", "text")
+        if (!text.isNullOrEmpty()) {
+            blocks.add(OpusBlock.Text(listOf(OpusTextNode(text = text, bold = false))))
+        }
+
+        val pics = mutableListOf<OpusImage>()
+        fun addPic(d: JsonObject, vararg keys: String) {
+            val raw = keys.firstNotNullOfOrNull { d.stringValueAt(it) } ?: return
+            val u = if (raw.startsWith("//")) "https:$raw" else raw
+            pics.add(OpusImage(url = u, width = d.intValueAt("width") ?: 0, height = d.intValueAt("height") ?: 0))
+        }
+        major?.arrayValueAt("opus", "pics")?.forEach { (it as? JsonObject)?.let { d -> addPic(d, "url", "src") } }
+        major?.arrayValueAt("draw", "items")?.forEach { (it as? JsonObject)?.let { d -> addPic(d, "src", "url") } }
+        if (pics.isNotEmpty()) {
+            blocks.add(OpusBlock.Image(pics))
+        }
+
+        if (blocks.isEmpty()) return null
+
+        return OpusDetail(
+            id = id,
+            commentId = id.toLongOrNull() ?: 0L,
+            author = OpusAuthor(
+                name = author?.stringValueAt("name")?.ifEmpty { null } ?: "用户",
+                mid = author?.intValueAt("mid")?.toLong() ?: 0L,
+                avatarURL = author?.stringValueAt("face") ?: "",
+            ),
+            publishTime = author?.stringValueAt("pub_time")
+                ?: author?.stringValueAt("pub_time_text")
+                ?: "",
+            paragraphs = listOf(OpusDetail.Paragraph(blocks)),
+        )
+    }
+
+    suspend fun fetchComments(commentId: Long, fallbackId: String, page: Int = 1): Pair<List<VideoComment>, Int> {
+        val oidCandidates = buildList {
+            if (commentId > 0) add(commentId.toString())
+            if (fallbackId.isNotBlank() && fallbackId !in this) add(fallbackId)
+        }
+        val typeCandidates = listOf(17, 11, 12)
+
+        for (oid in oidCandidates) {
+            for (type in typeCandidates) {
+                val result = runCatching { fetchCommentsByType(oid, type, page) }.getOrNull()
+                if (result != null && (result.first.isNotEmpty() || result.second > 0)) return result
+            }
+        }
+        return emptyList<VideoComment>() to 0
+    }
+
+    private suspend fun fetchCommentsByType(oid: String, type: Int, page: Int): Pair<List<VideoComment>, Int> {
+        val signed = signWbi(
+            "type" to type.toString(),
+            "oid" to oid,
+            "pn" to page.toString(),
+            "ps" to "20",
+            "sort" to "2",
+        )
+        val response = httpClient.get(
+            "https://api.bilibili.com/x/v2/reply/wbi/main?$signed",
+            buildHeaders(),
+        )
+        val payload = json.parseToJsonElement(response.body) as? JsonObject ?: throw ServiceError.InvalidResponse
+        val code = payload.intValueAt("code") ?: -1
+        if (code != 0) throw ServiceError.Api(code, payload.stringValueAt("message") ?: "未知错误")
+        val data = payload.dictionaryValueAt("data") ?: throw ServiceError.InvalidResponse
+        val replies = data.arrayValueAt("replies") ?: emptyList()
+        val comments = replies.mapNotNull { parseComment(it as? JsonObject) }
+        val total = data.intValueAt("cursor", "all_count")
+            ?: data.intValueAt("page", "count")
+            ?: 0
+        return comments to total
+    }
+
+    private suspend fun ensureWbiKey() {
+        if (wbiMixedKey != null) return
+        val response = httpClient.get("https://api.bilibili.com/x/web-interface/nav", buildHeaders())
+        val root = json.parseToJsonElement(response.body) as? JsonObject ?: throw ServiceError.InvalidResponse
+        val data = root.dictionaryValueAt("data") ?: throw ServiceError.InvalidResponse
+        val wbiImg = data.dictionaryValueAt("wbi_img") ?: throw ServiceError.InvalidResponse
+        val imgUrl = wbiImg.stringValueAt("img_url") ?: throw ServiceError.InvalidResponse
+        val subUrl = wbiImg.stringValueAt("sub_url") ?: throw ServiceError.InvalidResponse
+        val imgKey = imgUrl.substringAfterLast("/").substringBefore(".")
+        val subKey = subUrl.substringAfterLast("/").substringBefore(".")
+        val combined = imgKey + subKey
+        wbiMixedKey = buildString {
+            for (idx in wbiMixinTable) {
+                if (idx < combined.length) append(combined[idx])
+            }
+        }.take(32)
+    }
+
+    private suspend fun signWbi(vararg params: Pair<String, String>): String {
+        ensureWbiKey()
+        val key = wbiMixedKey ?: throw ServiceError.InvalidResponse
+        val wts = currentEpochSeconds().toString()
+        val all = params.toMutableList()
+        all.add("wts" to wts)
+        all.sortBy { it.first }
+        val raw = all.joinToString("&") { "${it.first}=${it.second}" } + key
+        val wrid = org.bilibilifocus.core.crypto.md5Hex(raw)
+        return all.joinToString("&") { "${it.first}=${it.second}" } + "&w_rid=$wrid"
+    }
+
+    private fun parseComment(obj: JsonObject?): VideoComment? {
+        if (obj == null) return null
+        val member = obj.dictionaryValueAt("member") ?: return null
+        val content = obj.dictionaryValueAt("content") ?: return null
+        val subReplies = obj.arrayValueAt("replies") ?: emptyList()
+        return VideoComment(
+            rpid = obj.intValueAt("rpid")?.toLong() ?: 0L,
+            mid = obj.intValueAt("mid")?.toLong() ?: 0L,
+            authorName = member.stringValueAt("uname") ?: "",
+            avatarURL = member.stringValueAt("avatar") ?: "",
+            content = content.stringValueAt("message") ?: "",
+            likeCount = obj.intValueAt("like")?.toLong() ?: 0L,
+            replyCount = obj.intValueAt("rcount")?.toLong() ?: 0L,
+            publishTime = obj.intValueAt("ctime")?.toLong() ?: 0L,
+            replies = subReplies.mapNotNull { parseComment(it as? JsonObject) },
         )
     }
 

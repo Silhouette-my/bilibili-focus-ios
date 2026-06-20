@@ -23,6 +23,12 @@ class FocusUserViewModel(
 
     private val _state = MutableStateFlow<UserUiState>(UserUiState.Idle)
     val state: StateFlow<UserUiState> = _state.asStateFlow()
+    private var loadedMid: Long? = null
+
+    fun loadIfNeeded(mid: Long) {
+        if (loadedMid == mid && _state.value is UserUiState.Loaded) return
+        load(mid)
+    }
 
     fun load(mid: Long) {
         loadJob?.cancel()
@@ -34,6 +40,7 @@ class FocusUserViewModel(
                 val videos = service.fetchUserVideos(mid)
 
                 val profile = info.copy(following = relation.first, followers = relation.second)
+                loadedMid = mid
                 _state.value = UserUiState.Loaded(profile, videos)
             } catch (e: UserService.ServiceError) {
                 when (e) {

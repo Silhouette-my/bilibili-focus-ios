@@ -3136,6 +3136,302 @@ object FocusRuleCatalog {
                     .bilibili-player-danmaku-send {
                       display: none !important;
                     }
+
+                    html[data-focus-platform='ios'] #playerWrap,
+                    html[data-focus-platform='ios'] #bilibili-player,
+                    html[data-focus-platform='ios'] .bpx-player-container,
+                    html[data-focus-platform='ios'] .player-container,
+                    html[data-focus-platform='ios'] .bpx-player-video-wrap {
+                      width: 100% !important;
+                      max-width: 100% !important;
+                      min-height: 0 !important;
+                      height: min(31vh, 68vw) !important;
+                      min-height: 150px !important;
+                      max-height: min(31vh, 68vw) !important;
+                      aspect-ratio: 3 / 2 !important;
+                      overflow: hidden !important;
+                      position: relative !important;
+                      background: #000 !important;
+                    }
+
+                    html[data-focus-platform='ios'] .bpx-player-primary-area,
+                    html[data-focus-platform='ios'] .bpx-player-video-area,
+                    html[data-focus-platform='ios'] .bpx-player-video-wrap,
+                    html[data-focus-platform='ios'] .bpx-player-video-perch,
+                    html[data-focus-platform='ios'] .bpx-player-video-screen,
+                    html[data-focus-platform='ios'] .bilibili-player-video,
+                    html[data-focus-platform='ios'] .bilibili-player-video-wrap {
+                      min-height: 0 !important;
+                      height: 100% !important;
+                      max-height: 100% !important;
+                      overflow: hidden !important;
+                      position: relative !important;
+                      background: #000 !important;
+                    }
+
+                    html[data-focus-platform='ios'] #playerWrap video,
+                    html[data-focus-platform='ios'] #bilibili-player video,
+                    html[data-focus-platform='ios'] .bpx-player-container video,
+                    html[data-focus-platform='ios'] .player-container video,
+                    html[data-focus-platform='ios'] .bpx-player-video-wrap video,
+                    html[data-focus-platform='ios'] .bpx-player-video-area video,
+                    html[data-focus-platform='ios'] .bilibili-player-video video {
+                      width: 100% !important;
+                      height: 100% !important;
+                      min-height: 100% !important;
+                      max-height: 100% !important;
+                      object-fit: cover !important;
+                      display: block !important;
+                    }
+
+                    html[data-focus-platform='ios'] body,
+                    html[data-focus-platform='ios'] #app,
+                    html[data-focus-platform='ios'] main,
+                    html[data-focus-platform='ios'] .left-container,
+                    html[data-focus-platform='ios'] .left-container-under-player,
+                    html[data-focus-platform='ios'] .video-container,
+                    html[data-focus-platform='ios'] .video-container-v1,
+                    html[data-focus-platform='ios'] .base-video-sections,
+                    html[data-focus-platform='ios'] #viewbox_report {
+                      width: 100% !important;
+                      min-width: 0 !important;
+                      max-width: 100vw !important;
+                      box-sizing: border-box !important;
+                    }
+
+                    html[data-focus-platform='ios'] .right-container,
+                    html[data-focus-platform='ios'] [class*='right-container'] {
+                      display: none !important;
+                    }
+
+                    html[data-focus-platform='ios'] #playerWrap > *,
+                    html[data-focus-platform='ios'] #bilibili-player > *,
+                    html[data-focus-platform='ios'] .bpx-player-container > *,
+                    html[data-focus-platform='ios'] .player-container > *,
+                    html[data-focus-platform='ios'] .bpx-player-video-wrap > * {
+                      min-height: 0 !important;
+                      max-height: 100% !important;
+                    }
+
+                    .left-container,
+                    .right-container,
+                    #viewbox_report,
+                    #commentapp,
+                    #commentapp > bili-comments,
+                    bili-comments,
+                    .comment-container,
+                    .bb-comment,
+                    .reply-box,
+                    .reply-list,
+                    .reply-header,
+                    .reply-content,
+                    .reply-info,
+                    .root-reply-container,
+                    .sub-reply-item,
+                    .reply-item,
+                    .video-pod,
+                    .video-pod__head,
+                    .video-pod__header,
+                    .video-pod__body,
+                    .video-pod__list,
+                    .multi-page,
+                    [class*='multi-page'],
+                    [class*='episode-list'],
+                    [class*='part-list'],
+                    [class*='page-list'] {
+                      max-width: 100% !important;
+                      box-sizing: border-box !important;
+                    }
+
+                    #commentapp,
+                    #commentapp > bili-comments,
+                    bili-comments,
+                    .comment-container,
+                    .bb-comment {
+                      width: 100% !important;
+                      margin-top: 18px !important;
+                      padding: 0 !important;
+                    }
+
+                    .reply-box,
+                    .comment-send,
+                    .comment-con {
+                      position: static !important;
+                      width: 100% !important;
+                    }
+
+                    .root-reply-container,
+                    .sub-reply-item,
+                    .reply-item {
+                      margin-bottom: 10px !important;
+                      padding: 12px 14px !important;
+                      border-radius: 16px !important;
+                      background: rgba(255, 255, 255, 0.96) !important;
+                      border: 1px solid rgba(15, 23, 42, 0.06) !important;
+                    }
+
+                    html[data-focus-theme='dark'] .root-reply-container,
+                    html[data-focus-theme='dark'] .sub-reply-item,
+                    html[data-focus-theme='dark'] .reply-item {
+                      background: rgba(23, 27, 35, 0.92) !important;
+                      border-color: rgba(255, 255, 255, 0.08) !important;
+                    }
+
+                    .reply-header,
+                    .reply-content,
+                    .reply-info,
+                    .reply-wrap,
+                    .sub-reply-container {
+                      width: 100% !important;
+                    }
+
+                    .reply-content,
+                    .reply-content * {
+                      font-size: 15px !important;
+                      line-height: 1.55 !important;
+                      word-break: break-word !important;
+                    }
+
+                    .reply-info,
+                    .reply-time,
+                    .reply-like,
+                    .sub-reply-entry {
+                      font-size: 12px !important;
+                    }
+
+                    .reply-box textarea,
+                    .comment-send textarea {
+                      min-height: 88px !important;
+                      border-radius: 14px !important;
+                    }
+
+                    .video-pod,
+                    .multi-page,
+                    [class*='multi-page'],
+                    [class*='episode-list'],
+                    [class*='part-list'],
+                    [class*='page-list'] {
+                      margin-top: 18px !important;
+                      padding: 0 !important;
+                      background: transparent !important;
+                      border: 0 !important;
+                    }
+
+                    .video-pod__head,
+                    .video-pod__header,
+                    .multi-page .head-con,
+                    .multi-page [class*='head'],
+                    [class*='episode-list'] [class*='head'],
+                    [class*='part-list'] [class*='head'],
+                    [class*='page-list'] [class*='head'] {
+                      margin-bottom: 10px !important;
+                    }
+
+                    .video-pod__body,
+                    .video-pod__list,
+                    .multi-page .list-box,
+                    .multi-page .cur-list,
+                    .multi-page ul,
+                    [class*='episode-list'] [class*='list'],
+                    [class*='part-list'] [class*='list'],
+                    [class*='page-list'] [class*='list'],
+                    [class*='episode-list'] ul,
+                    [class*='part-list'] ul,
+                    [class*='page-list'] ul {
+                      display: flex !important;
+                      flex-wrap: nowrap !important;
+                      gap: 10px !important;
+                      overflow-x: auto !important;
+                      overflow-y: hidden !important;
+                      padding: 2px 0 8px !important;
+                      scroll-snap-type: x proximity !important;
+                      -webkit-overflow-scrolling: touch !important;
+                    }
+
+                    .video-pod__item,
+                    .pod-item,
+                    .multi-page .clickitem,
+                    .multi-page li,
+                    .multi-page [class*='item'],
+                    [class*='episode-list'] li,
+                    [class*='part-list'] li,
+                    [class*='page-list'] li,
+                    [class*='episode-list'] [class*='item'],
+                    [class*='part-list'] [class*='item'],
+                    [class*='page-list'] [class*='item'] {
+                      flex: 0 0 158px !important;
+                      min-height: 84px !important;
+                      padding: 12px !important;
+                      border-radius: 16px !important;
+                      background: rgba(255, 255, 255, 0.96) !important;
+                      border: 1px solid rgba(15, 23, 42, 0.06) !important;
+                      scroll-snap-align: start !important;
+                      box-sizing: border-box !important;
+                      list-style: none !important;
+                    }
+
+                    html[data-focus-theme='dark'] .video-pod__item,
+                    html[data-focus-theme='dark'] .pod-item,
+                    html[data-focus-theme='dark'] .multi-page .clickitem,
+                    html[data-focus-theme='dark'] .multi-page li,
+                    html[data-focus-theme='dark'] .multi-page [class*='item'],
+                    html[data-focus-theme='dark'] [class*='episode-list'] li,
+                    html[data-focus-theme='dark'] [class*='part-list'] li,
+                    html[data-focus-theme='dark'] [class*='page-list'] li,
+                    html[data-focus-theme='dark'] [class*='episode-list'] [class*='item'],
+                    html[data-focus-theme='dark'] [class*='part-list'] [class*='item'],
+                    html[data-focus-theme='dark'] [class*='page-list'] [class*='item'] {
+                      background: rgba(23, 27, 35, 0.92) !important;
+                      border-color: rgba(255, 255, 255, 0.08) !important;
+                    }
+
+                    .video-pod__item.active,
+                    .video-pod__item.on,
+                    .video-pod__item.is-active,
+                    .pod-item.active,
+                    .pod-item.on,
+                    .pod-item.is-active,
+                    .video-pod__item[aria-current='true'],
+                    .pod-item[aria-current='true'],
+                    .multi-page .clickitem.active,
+                    .multi-page .clickitem.on,
+                    .multi-page .clickitem[aria-current='true'],
+                    .multi-page li.active,
+                    .multi-page li.on,
+                    .multi-page li[aria-current='true'],
+                    [class*='episode-list'] .active,
+                    [class*='part-list'] .active,
+                    [class*='page-list'] .active,
+                    [class*='episode-list'] [aria-current='true'],
+                    [class*='part-list'] [aria-current='true'],
+                    [class*='page-list'] [aria-current='true'] {
+                      border-color: rgba(251, 114, 153, 0.52) !important;
+                      box-shadow: inset 0 0 0 1px rgba(251, 114, 153, 0.22) !important;
+                    }
+
+                    .video-pod__item *,
+                    .pod-item *,
+                    .multi-page .clickitem *,
+                    .multi-page li *,
+                    [class*='episode-list'] li *,
+                    [class*='part-list'] li *,
+                    [class*='page-list'] li * {
+                      white-space: normal !important;
+                    }
+
+                    [data-focus-video-pod-toggle] {
+                      display: inline-flex !important;
+                      align-items: center !important;
+                      justify-content: center !important;
+                      margin-top: 10px !important;
+                      padding: 8px 12px !important;
+                      border-radius: 999px !important;
+                      border: 1px solid rgba(251, 114, 153, 0.24) !important;
+                      background: rgba(251, 114, 153, 0.10) !important;
+                      color: #fb7299 !important;
+                      font-size: 13px !important;
+                      font-weight: 600 !important;
+                    }
                     """,
                     script = """
                     const state = helpers.featureState;
@@ -3172,6 +3468,40 @@ object FocusRuleCatalog {
                       return null;
                     };
 
+                    const isIOSFocus = document.documentElement?.getAttribute?.('data-focus-platform') === 'ios';
+
+                    const clearIOSPlayerSizing = () => {
+                      if (!isIOSFocus) {
+                        return;
+                      }
+
+                      [
+                        '#playerWrap',
+                        '#bilibili-player',
+                        '.bpx-player-container',
+                        '.player-container',
+                        '.bpx-player-primary-area',
+                        '.bpx-player-video-area',
+                        '.bpx-player-video-wrap',
+                        '.bpx-player-video-perch'
+                      ].forEach((selector) => {
+                        document.querySelectorAll(selector).forEach((node) => {
+                          if (!(node instanceof HTMLElement)) {
+                            return;
+                          }
+                          [
+                            'height',
+                            'min-height',
+                            'max-height',
+                            'aspect-ratio',
+                            'overflow'
+                          ].forEach((property) => {
+                            node.style.removeProperty(property);
+                          });
+                        });
+                      });
+                    };
+
                     const rankVideos = () => {
                       return Array.from(document.querySelectorAll('video'))
                         .map((video) => {
@@ -3206,6 +3536,434 @@ object FocusRuleCatalog {
 
                       const rankedVideos = rankVideos();
                       return rememberActiveVideo(rankedVideos[0]?.video || null);
+                    };
+
+                    const applyIOSPlayerSizing = () => {
+                      if (!isIOSFocus) {
+                        return;
+                      }
+
+                      const activeVideo = findPrimaryVideo();
+                      const playerRoot = document.querySelector('#playerWrap, #bilibili-player, .bpx-player-container, .player-container');
+                      if (!(playerRoot instanceof HTMLElement)) {
+                        return;
+                      }
+
+                      const isFullscreen = !!document.fullscreenElement
+                        || activeVideo?.webkitPresentationMode === 'fullscreen'
+                        || activeVideo?.webkitPresentationMode === 'fullScreen'
+                        || /(^|\\s)(?:web-)?fullscreen(?:\\s|$)/.test(String(playerRoot.className || ''));
+                      if (isFullscreen) {
+                        clearIOSPlayerSizing();
+                        return;
+                      }
+
+                      const deviceWidth = Math.max(
+                        window.screen?.width || 0,
+                        window.screen?.availWidth || 0
+                      );
+                      const fallbackViewportWidth = Math.max(
+                        deviceWidth > 0 && (window.innerWidth || 0) > 0
+                          ? Math.min(window.innerWidth || 0, deviceWidth)
+                          : 0,
+                        deviceWidth > 0 && (document.documentElement?.clientWidth || 0) > 0
+                          ? Math.min(document.documentElement?.clientWidth || 0, deviceWidth)
+                          : 0,
+                        document.body?.getBoundingClientRect?.().width || 0
+                      );
+                      const viewportWidth = Math.max(
+                        window.visualViewport?.width || 0,
+                        fallbackViewportWidth
+                      );
+                      const measuredWidths = [
+                        playerRoot.getBoundingClientRect().width,
+                        playerRoot.parentElement?.getBoundingClientRect?.().width || 0,
+                        document.querySelector('#app')?.getBoundingClientRect?.().width || 0,
+                        document.querySelector('main')?.getBoundingClientRect?.().width || 0,
+                        viewportWidth
+                      ].filter((value) => Number.isFinite(value) && value > 0);
+                      const shellWidth = measuredWidths.length > 0
+                        ? measuredWidths.reduce((current, value) => Math.min(current, value), measuredWidths[0])
+                        : viewportWidth;
+                      if (!(shellWidth > 0)) {
+                        return;
+                      }
+
+                      const rawRatio = activeVideo && activeVideo.videoWidth > 0 && activeVideo.videoHeight > 0
+                        ? activeVideo.videoWidth / activeVideo.videoHeight
+                        : (16 / 9);
+                      const targetAspectRatio = 3 / 2;
+                      const viewportHeight = Math.max(
+                        window.visualViewport?.height || 0,
+                        window.innerHeight || 0,
+                        document.documentElement?.clientHeight || 0
+                      );
+                      const widthBasis = Math.min(
+                        shellWidth,
+                        viewportWidth > 0 ? viewportWidth : shellWidth,
+                        460
+                      );
+                      const targetHeight = Math.max(
+                        142,
+                        Math.min(
+                          Math.round(widthBasis / targetAspectRatio),
+                          Math.round(viewportHeight * 0.29)
+                        )
+                      );
+
+                      document.documentElement.style.setProperty('overflow-x', 'hidden', 'important');
+                      document.body?.style?.setProperty('overflow-x', 'hidden', 'important');
+                      document.body?.style?.setProperty('width', '100%', 'important');
+                      document.body?.style?.setProperty('max-width', '100vw', 'important');
+
+                      [
+                        '#playerWrap',
+                        '#bilibili-player',
+                        '.bpx-player-container',
+                        '.player-container',
+                        '.bpx-player-video-wrap'
+                      ].forEach((selector) => {
+                        document.querySelectorAll(selector).forEach((node) => {
+                          if (!(node instanceof HTMLElement)) {
+                            return;
+                          }
+                          node.style.setProperty('width', '100%', 'important');
+                          node.style.setProperty('max-width', `${'$'}{Math.round(widthBasis)}px`, 'important');
+                          node.style.setProperty('height', `${'$'}{targetHeight}px`, 'important');
+                          node.style.setProperty('min-height', `${'$'}{targetHeight}px`, 'important');
+                          node.style.setProperty('max-height', `${'$'}{targetHeight}px`, 'important');
+                          node.style.setProperty('aspect-ratio', '3 / 2', 'important');
+                          node.style.setProperty('overflow', 'hidden', 'important');
+                        });
+                      });
+
+                      [
+                        '.bpx-player-primary-area',
+                        '.bpx-player-video-area',
+                        '.bpx-player-video-wrap',
+                        '.bpx-player-video-perch',
+                        '.bpx-player-video-screen',
+                        '.bilibili-player-video',
+                        '.bilibili-player-video-wrap'
+                      ].forEach((selector) => {
+                        document.querySelectorAll(selector).forEach((node) => {
+                          if (!(node instanceof HTMLElement)) {
+                            return;
+                          }
+                          node.style.setProperty('height', `${'$'}{targetHeight}px`, 'important');
+                          node.style.setProperty('min-height', `${'$'}{targetHeight}px`, 'important');
+                          node.style.setProperty('max-height', `${'$'}{targetHeight}px`, 'important');
+                          node.style.setProperty('overflow', 'hidden', 'important');
+                          node.style.setProperty('position', 'relative', 'important');
+                          node.style.setProperty('background', '#000', 'important');
+                        });
+                      });
+
+                      [
+                        '#playerWrap video',
+                        '#bilibili-player video',
+                        '.bpx-player-container video',
+                        '.player-container video',
+                        '.bpx-player-video-wrap video',
+                        '.bpx-player-video-area video',
+                        '.bilibili-player-video video'
+                      ].forEach((selector) => {
+                        document.querySelectorAll(selector).forEach((node) => {
+                          if (!(node instanceof HTMLElement)) {
+                            return;
+                          }
+                          node.style.setProperty('width', '100%', 'important');
+                          node.style.setProperty('height', '100%', 'important');
+                          node.style.setProperty('min-height', '100%', 'important');
+                          node.style.setProperty('max-height', '100%', 'important');
+                          node.style.setProperty('display', 'block', 'important');
+                          node.style.setProperty('object-fit', 'cover', 'important');
+                        });
+                      });
+
+                      [
+                        '#app',
+                        'main',
+                        '.left-container',
+                        '.left-container-under-player',
+                        '.video-container',
+                        '.video-container-v1',
+                        '.base-video-sections',
+                        '#viewbox_report'
+                      ].forEach((selector) => {
+                        document.querySelectorAll(selector).forEach((node) => {
+                          if (!(node instanceof HTMLElement)) {
+                            return;
+                          }
+                          node.style.setProperty('width', '100%', 'important');
+                          node.style.setProperty('min-width', '0', 'important');
+                          node.style.setProperty('max-width', `${'$'}{Math.round(viewportWidth || widthBasis)}px`, 'important');
+                          node.style.setProperty('margin-left', '0', 'important');
+                          node.style.setProperty('margin-right', '0', 'important');
+                          node.style.setProperty('box-sizing', 'border-box', 'important');
+                        });
+                      });
+
+                      window.__FOCUS_PLAYER_LAYOUT__ = {
+                        viewportWidth,
+                        viewportHeight,
+                        shellWidth,
+                        widthBasis,
+                        rawRatio,
+                        targetAspectRatio,
+                        targetHeight
+                      };
+                    };
+
+                    const commentShadowStyles = {
+                      'bili-comments': `
+                        :host {
+                          display: block !important;
+                          width: 100% !important;
+                          margin-top: 0 !important;
+                        }
+                        #spinner-container,
+                        #header,
+                        #contents,
+                        #new,
+                        #feed,
+                        #reply-commentbox,
+                        #continuations,
+                        #end {
+                          width: 100% !important;
+                          box-sizing: border-box !important;
+                        }
+                        #title {
+                          margin: 0 0 14px !important;
+                          font-size: 18px !important;
+                          font-weight: 700 !important;
+                          line-height: 1.35 !important;
+                        }
+                        #feed {
+                          display: grid !important;
+                          gap: 12px !important;
+                        }
+                        #reply-commentbox {
+                          margin-top: 14px !important;
+                        }
+                        .bottombar {
+                          font-size: 13px !important;
+                          color: rgba(100, 116, 139, 0.92) !important;
+                        }
+                        :host-context(html[data-focus-theme='dark']) .bottombar {
+                          color: rgba(226, 232, 240, 0.76) !important;
+                        }
+                      `,
+                      'bili-comment-thread-renderer': `
+                        :host {
+                          display: block !important;
+                        }
+                        #replies {
+                          margin-top: 10px !important;
+                        }
+                      `,
+                      'bili-comment-renderer': `
+                        :host {
+                          display: block !important;
+                        }
+                        #body {
+                          display: flex !important;
+                          gap: 12px !important;
+                          padding: 14px 16px !important;
+                          border-radius: 16px !important;
+                          background: rgba(255, 255, 255, 0.96) !important;
+                          border: 1px solid rgba(15, 23, 42, 0.06) !important;
+                          box-sizing: border-box !important;
+                        }
+                        #main,
+                        #header,
+                        #content,
+                        #footer {
+                          width: 100% !important;
+                          box-sizing: border-box !important;
+                        }
+                        #header {
+                          margin-bottom: 6px !important;
+                        }
+                        #content {
+                          margin-bottom: 8px !important;
+                        }
+                        #footer {
+                          min-height: 20px !important;
+                        }
+                        :host-context(html[data-focus-theme='dark']) #body {
+                          background: rgba(23, 27, 35, 0.92) !important;
+                          border-color: rgba(255, 255, 255, 0.08) !important;
+                        }
+                      `,
+                      'bili-comment-reply-renderer': `
+                        :host {
+                          display: block !important;
+                        }
+                        #body {
+                          display: flex !important;
+                          gap: 10px !important;
+                          padding: 12px 14px !important;
+                          border-radius: 14px !important;
+                          background: rgba(255, 255, 255, 0.92) !important;
+                          border: 1px solid rgba(15, 23, 42, 0.05) !important;
+                          box-sizing: border-box !important;
+                        }
+                        #main,
+                        #header,
+                        #content,
+                        #footer {
+                          width: 100% !important;
+                          box-sizing: border-box !important;
+                        }
+                        #content {
+                          margin-bottom: 6px !important;
+                        }
+                        :host-context(html[data-focus-theme='dark']) #body {
+                          background: rgba(23, 27, 35, 0.88) !important;
+                          border-color: rgba(255, 255, 255, 0.07) !important;
+                        }
+                      `,
+                      'bili-comment-replies-renderer': `
+                        :host {
+                          display: block !important;
+                        }
+                        #expander,
+                        #expander-contents,
+                        #expander-footer,
+                        #view-more {
+                          width: 100% !important;
+                          box-sizing: border-box !important;
+                        }
+                        #view-more {
+                          margin-top: 8px !important;
+                          font-size: 13px !important;
+                        }
+                      `,
+                      'bili-comment-box': `
+                        :host {
+                          display: block !important;
+                          width: 100% !important;
+                        }
+                      `,
+                      'bili-rich-text': `
+                        :host {
+                          --bili-rich-text-font-size: 15px !important;
+                          --bili-rich-text-line-height: 24px !important;
+                        }
+                        #contents {
+                          font-size: 15px !important;
+                          line-height: 24px !important;
+                        }
+                      `
+                    };
+
+                    const ensureShadowStyle = (host, styleId, cssText) => {
+                      if (!host || !host.shadowRoot || !cssText) {
+                        return;
+                      }
+
+                      let styleNode = host.shadowRoot.querySelector('style[data-focus-shadow-style="' + styleId + '"]');
+                      if (!(styleNode instanceof HTMLStyleElement)) {
+                        styleNode = document.createElement('style');
+                        styleNode.setAttribute('data-focus-shadow-style', styleId);
+                        host.shadowRoot.appendChild(styleNode);
+                      }
+
+                      if (styleNode.textContent !== cssText) {
+                        styleNode.textContent = cssText;
+                      }
+                    };
+
+                    const applyCommentShadowStyles = () => {
+                      const commentsRoot = document.querySelector('bili-comments');
+                      if (!(commentsRoot instanceof HTMLElement)) {
+                        return;
+                      }
+
+                      const queue = [commentsRoot];
+                      const seen = new Set();
+                      while (queue.length > 0) {
+                        const node = queue.shift();
+                        if (!(node instanceof HTMLElement) || seen.has(node)) {
+                          continue;
+                        }
+                        seen.add(node);
+
+                        const tagName = node.tagName.toLowerCase();
+                        const cssText = commentShadowStyles[tagName];
+                        if (cssText) {
+                          ensureShadowStyle(node, 'focus-' + tagName, cssText);
+                        }
+
+                        if (!node.shadowRoot) {
+                          continue;
+                        }
+
+                        Array.from(node.shadowRoot.querySelectorAll('*')).forEach((child) => {
+                          if (child instanceof HTMLElement && child.tagName.includes('-')) {
+                            queue.push(child);
+                          }
+                        });
+                      }
+                    };
+
+                    const observeCommentShadowRoots = () => {
+                      const commentsRoot = document.querySelector('bili-comments');
+                      if (!(commentsRoot instanceof HTMLElement)) {
+                        return;
+                      }
+
+                      state.commentShadowRootObservers = state.commentShadowRootObservers || [];
+                      state.commentObservedShadowRoots = state.commentObservedShadowRoots || new WeakSet();
+
+                      const attachObserver = (node) => {
+                        if (!(node instanceof HTMLElement) || !node.shadowRoot || state.commentObservedShadowRoots.has(node.shadowRoot)) {
+                          return;
+                        }
+
+                        state.commentObservedShadowRoots.add(node.shadowRoot);
+
+                        const observer = new MutationObserver(() => {
+                          applyCommentShadowStyles();
+                          observeCommentShadowRoots();
+                        });
+
+                        observer.observe(node.shadowRoot, {
+                          childList: true,
+                          subtree: true,
+                          attributes: true,
+                          attributeFilter: ['class', 'style', 'aria-expanded', 'aria-current']
+                        });
+                        state.commentShadowRootObservers.push(observer);
+
+                        Array.from(node.shadowRoot.querySelectorAll('*')).forEach((child) => {
+                          if (child instanceof HTMLElement && child.tagName.includes('-')) {
+                            attachObserver(child);
+                          }
+                        });
+                      };
+
+                      attachObserver(commentsRoot);
+                    };
+
+                    const scheduleDeferredRepairs = () => {
+                      const pageKey = `${'$'}{location.pathname}${'$'}{location.search}`;
+                      if (state.deferredRepairPageKey === pageKey) {
+                        return;
+                      }
+
+                      state.deferredRepairPageKey = pageKey;
+                      [120, 500, 1400, 3200].forEach((delay) => {
+                        setTimeout(() => {
+                          disableAutoplayByDefault();
+                          applyIOSPlayerSizing();
+                          applyCommentShadowStyles();
+                          observeCommentShadowRoots();
+                          refreshVideoPods();
+                          snapshotPlayerState();
+                        }, delay);
+                      });
                     };
 
                     const collectVideoPodItems = (pod) => {
@@ -3462,6 +4220,10 @@ object FocusRuleCatalog {
 
                     window.__FOCUS_SNAPSHOT_PLAYER_STATE__ = snapshotPlayerState;
                     disableAutoplayByDefault();
+                    applyIOSPlayerSizing();
+                    applyCommentShadowStyles();
+                    observeCommentShadowRoots();
+                    scheduleDeferredRepairs();
                     snapshotPlayerState();
 
                     if (!state.playerHooksInstalled) {
@@ -3470,6 +4232,7 @@ object FocusRuleCatalog {
                       let snapshotTimer = null;
                       let videoPodRefreshTimer = null;
                       let autoplayRefreshTimer = null;
+                      let commentRefreshTimer = null;
                       const scheduleSnapshot = (delay = 80) => {
                         clearTimeout(snapshotTimer);
                         snapshotTimer = setTimeout(() => {
@@ -3488,6 +4251,13 @@ object FocusRuleCatalog {
                           disableAutoplayByDefault();
                         }, delay);
                       };
+                      const scheduleCommentRefresh = (delay = 100) => {
+                        clearTimeout(commentRefreshTimer);
+                        commentRefreshTimer = setTimeout(() => {
+                          applyCommentShadowStyles();
+                          observeCommentShadowRoots();
+                        }, delay);
+                      };
 
                       [
                         'play',
@@ -3504,6 +4274,15 @@ object FocusRuleCatalog {
                         document.addEventListener(eventName, (event) => {
                           if (event.target instanceof HTMLVideoElement) {
                             rememberActiveVideo(event.target);
+                          }
+                          if (
+                            eventName === 'loadedmetadata'
+                            || eventName === 'durationchange'
+                            || eventName === 'fullscreenchange'
+                            || eventName === 'webkitbeginfullscreen'
+                            || eventName === 'webkitendfullscreen'
+                          ) {
+                            applyIOSPlayerSizing();
                           }
                           scheduleSnapshot(eventName === 'ratechange' ? 20 : 80);
                         }, true);
@@ -3525,6 +4304,7 @@ object FocusRuleCatalog {
                           '[class*="speed"]'
                         ].join(','))) {
                           rememberActiveVideo(trackedVideo() || findPrimaryVideo());
+                          applyIOSPlayerSizing();
                           scheduleSnapshot(60);
                           scheduleSnapshot(180);
                         }
@@ -3533,12 +4313,19 @@ object FocusRuleCatalog {
                           scheduleVideoPodRefresh(40);
                           scheduleVideoPodRefresh(180);
                         }
+
+                        if (target.closest('#commentapp')) {
+                          scheduleCommentRefresh(40);
+                          scheduleCommentRefresh(180);
+                        }
                       }, true);
 
                       const observer = new MutationObserver(() => {
                         scheduleAutoplayRefresh(60);
+                        applyIOSPlayerSizing();
                         scheduleSnapshot(120);
                         scheduleVideoPodRefresh(120);
+                        scheduleCommentRefresh(120);
                       });
                       observer.observe(document.documentElement, {
                         childList: true,
@@ -3546,9 +4333,25 @@ object FocusRuleCatalog {
                         attributes: true,
                         attributeFilter: ['class', 'aria-selected', 'aria-checked', 'aria-pressed', 'style']
                       });
+
+                      if (!state.viewportSizingHooksInstalled) {
+                        state.viewportSizingHooksInstalled = true;
+                        const scheduleViewportRepair = () => {
+                          applyIOSPlayerSizing();
+                          scheduleSnapshot(120);
+                        };
+
+                        window.addEventListener('resize', scheduleViewportRepair, { passive: true });
+                        window.addEventListener('orientationchange', scheduleViewportRepair, { passive: true });
+                        window.visualViewport?.addEventListener?.('resize', scheduleViewportRepair, { passive: true });
+                      }
                     }
 
                     disableAutoplayByDefault();
+                    applyIOSPlayerSizing();
+                    applyCommentShadowStyles();
+                    observeCommentShadowRoots();
+                    scheduleDeferredRepairs();
                     refreshVideoPods();
                     """,
                     settingKey = FocusFeature.SettingKey.PLAYER_MASK_ENABLED

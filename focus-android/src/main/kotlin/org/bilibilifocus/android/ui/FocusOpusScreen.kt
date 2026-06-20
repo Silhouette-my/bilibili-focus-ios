@@ -4,17 +4,25 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,7 +39,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
@@ -39,6 +46,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -49,8 +57,12 @@ import org.bilibilifocus.core.model.OpusBlock
 import org.bilibilifocus.core.model.OpusDetail
 import org.bilibilifocus.core.model.OpusImage
 import org.bilibilifocus.core.model.OpusTextNode
+import org.bilibilifocus.core.model.VideoComment
 import org.bilibilifocus.core.service.KtorHttpClient
 import org.bilibilifocus.core.service.OpusService
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,8 +71,10 @@ fun FocusOpusScreen(
     onBack: () -> Unit,
     onOpenUser: (Long) -> Unit = {},
     onOpenVideo: (String) -> Unit = {},
+    viewModel: FocusOpusViewModel? = null,
+    listState: LazyListState = rememberLazyListState(),
 ) {
-    val viewModel = remember(opusId) {
+    val resolvedViewModel = viewModel ?: remember(opusId) {
         FocusOpusViewModel(
             service = OpusService(
                 cookieProvider = AndroidCookieProvider(),
@@ -70,17 +84,17 @@ fun FocusOpusScreen(
     }
 
     LaunchedEffect(opusId) {
-        viewModel.load(opusId)
+        resolvedViewModel.loadIfNeeded(opusId)
     }
 
-    val state by viewModel.state.collectAsState()
+    val state by resolvedViewModel.state.collectAsState()
+    val comments by resolvedViewModel.comments.collectAsState()
 
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    val author = (state as? OpusUiState.Loaded)?.detail?.author?.name ?: "帖子"
-                    Text(author, maxLines = 1)
+                    Text("图文动态", maxLines = 1)
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -115,13 +129,46 @@ fun FocusOpusScreen(
 
             is OpusUiState.Loaded -> {
                 LazyColumn(
+                    state = listState,
                     modifier = Modifier.fillMaxSize().padding(innerPadding),
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
+                    item(key = "author-card") {
+                        OpusAuthorCard(detail = s.detail, onOpenUser = onOpenUser)
+                    }
+
                     s.detail.paragraphs.forEachIndexed { index, para ->
                         item(key = "para-$index") {
-                            OpusParagraphView(paragraph = para)
+                            ElevatedCard(
+                                shape = RoundedCornerShape(18.dp),
+                                colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface),
+                                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 1.dp),
+                            ) {
+                                OpusParagraphView(
+                                    paragraph = para,
+                                    modifier = Modifier.padding(16.dp),
+                                )
+                            }
+                        }
+                    }
+
+                    if (comments.isNotEmpty()) {
+                        item(key = "comments-header") {
+                            Text(
+                                "评论 (${comments.size})",
+                                style = MaterialTheme.typography.titleMedium,
+                                modifier = Modifier.padding(top = 4.dp),
+                            )
+                        }
+                        itemsIndexed(comments, key = { index, item -> "c-${item.rpid}-$index" }) { _, comment ->
+                            ElevatedCard(
+                                shape = RoundedCornerShape(18.dp),
+                                colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface),
+                                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 1.dp),
+                            ) {
+                                OpusCommentItem(comment = comment, modifier = Modifier.padding(16.dp))
+                            }
                         }
                     }
 
@@ -133,8 +180,45 @@ fun FocusOpusScreen(
 }
 
 @Composable
-private fun OpusParagraphView(paragraph: OpusDetail.Paragraph) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+private fun OpusAuthorCard(detail: OpusDetail, onOpenUser: (Long) -> Unit) {
+    ElevatedCard(
+        onClick = { if (detail.author.mid > 0) onOpenUser(detail.author.mid) },
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 1.dp),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(detail.author.avatarURL)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = null,
+                modifier = Modifier.size(48.dp).clip(CircleShape),
+                contentScale = ContentScale.Crop,
+            )
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(detail.author.name, style = MaterialTheme.typography.titleSmall)
+                if (detail.publishTime.isNotBlank()) {
+                    Text(
+                        detail.publishTime,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun OpusParagraphView(paragraph: OpusDetail.Paragraph, modifier: Modifier = Modifier) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         paragraph.blocks.forEachIndexed { _, block ->
             when (block) {
                 is OpusBlock.Text -> OpusRichText(nodes = block.nodes)
@@ -165,12 +249,36 @@ private fun OpusRichText(nodes: List<OpusTextNode>) {
     }
     Text(
         text = annotatedString,
-        style = MaterialTheme.typography.bodyMedium,
+        style = MaterialTheme.typography.bodyLarge,
     )
 }
 
 @Composable
 private fun OpusImageGrid(images: List<OpusImage>) {
+    if (images.size == 1) {
+        val image = images.first()
+        val ratio = normalizedImageRatio(image)
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(image.url)
+                .crossfade(true)
+                .build(),
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .border(
+                    width = 0.5.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f),
+                    shape = RoundedCornerShape(12.dp),
+                )
+                .height(singleImageHeightForRatio(ratio)),
+            contentScale = ContentScale.Fit,
+        )
+        return
+    }
+
     val columnCount = if (images.size == 1) 1 else 2
     val rows = images.chunked(columnCount)
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -190,8 +298,14 @@ private fun OpusImageGrid(images: List<OpusImage>) {
                         modifier = Modifier
                             .weight(1f)
                             .height(imageHeight.dp)
-                            .clip(RoundedCornerShape(12.dp)),
-                        contentScale = ContentScale.Crop,
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .border(
+                                width = 0.5.dp,
+                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f),
+                                shape = RoundedCornerShape(12.dp),
+                            ),
+                        contentScale = ContentScale.Fit,
                     )
                 }
                 repeat(columnCount - rowImages.size) {
@@ -208,6 +322,7 @@ private fun OpusCodeBlock(lang: String, content: String) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(12.dp),
     ) {
         Text(
@@ -215,5 +330,71 @@ private fun OpusCodeBlock(lang: String, content: String) {
             style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+    }
+}
+
+@Composable
+private fun OpusCommentItem(comment: VideoComment, modifier: Modifier = Modifier) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(comment.avatarURL)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = null,
+                modifier = Modifier.size(32.dp).clip(CircleShape),
+                contentScale = ContentScale.Crop,
+            )
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(comment.authorName, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        formatCommentTime(comment.publishTime),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Text(
+                        "${comment.likeCount}赞",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
+        Text(comment.content, style = MaterialTheme.typography.bodyLarge)
+        comment.replies.take(2).forEach { reply ->
+            Text(
+                "${reply.authorName}: ${reply.content}",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = 42.dp),
+            )
+        }
+    }
+}
+
+private fun normalizedImageRatio(image: OpusImage): Float {
+    val width = image.width.takeIf { it > 0 } ?: return 1f
+    val height = image.height.takeIf { it > 0 } ?: return 1f
+    return (width.toFloat() / height.toFloat()).coerceIn(0.75f, 1.8f)
+}
+
+private fun singleImageHeightForRatio(ratio: Float): Dp = when {
+    ratio >= 1.45f -> 220.dp
+    ratio >= 1.1f -> 260.dp
+    ratio >= 0.9f -> 320.dp
+    else -> 420.dp
+}
+
+private fun formatCommentTime(ts: Long): String {
+    if (ts <= 0) return ""
+    val now = System.currentTimeMillis() / 1000
+    val diff = now - ts
+    return when {
+        diff < 60 -> "刚刚"
+        diff < 3600 -> "${diff / 60}分钟前"
+        diff < 86400 -> "${diff / 3600}小时前"
+        else -> SimpleDateFormat("MM-dd", Locale.getDefault()).format(Date(ts * 1000))
     }
 }

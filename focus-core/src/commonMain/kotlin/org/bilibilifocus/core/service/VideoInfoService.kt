@@ -8,7 +8,10 @@ import org.bilibilifocus.core.cookie.CookieProvider
 import org.bilibilifocus.core.crypto.md5Hex
 import org.bilibilifocus.core.model.VideoAuthor
 import org.bilibilifocus.core.model.VideoComment
+import org.bilibilifocus.core.model.VideoEpisode
+import org.bilibilifocus.core.model.VideoEpisodeGroup
 import org.bilibilifocus.core.model.VideoInfo
+import org.bilibilifocus.core.model.VideoPage
 import org.bilibilifocus.core.model.VideoStats
 import kotlin.math.min
 
@@ -117,6 +120,8 @@ class VideoInfoService(
             ?: emptyList()
 
         val cid = data["cid"]?.jsonPrimitive?.content?.toLongOrNull() ?: 0
+        val pages = parsePages(data)
+        val episodeGroups = parseEpisodeGroups(data)
 
         return VideoInfo(
             bvid = data["bvid"]?.jsonPrimitive?.content ?: id,
@@ -142,6 +147,8 @@ class VideoInfoService(
                 comments = stat?.get("reply")?.jsonPrimitive?.content?.toLongOrNull() ?: 0,
             ),
             tags = tags,
+            pages = pages,
+            episodeGroups = episodeGroups,
             playerURL = null,
         )
     }
@@ -222,6 +229,74 @@ class VideoInfoService(
             replyCount = obj["rcount"]?.jsonPrimitive?.content?.toLongOrNull() ?: 0,
             publishTime = obj["ctime"]?.jsonPrimitive?.content?.toLongOrNull() ?: 0,
             replies = subReplies?.mapNotNull { parseComment(it as? JsonObject) } ?: emptyList(),
+        )
+    }
+
+    private fun parsePages(data: JsonObject): List<VideoPage> {
+        val pages = data["pages"] as? kotlinx.serialization.json.JsonArray ?: return emptyList()
+        return pages.mapNotNull { pageElement ->
+            val page = pageElement as? JsonObject ?: return@mapNotNull null
+            val cid = page["cid"]?.jsonPrimitive?.content?.toLongOrNull() ?: return@mapNotNull null
+            val pageNumber = page["page"]?.jsonPrimitive?.content?.toIntOrNull() ?: 1
+            val title = page["part"]?.jsonPrimitive?.content?.ifBlank { null } ?: "P$pageNumber"
+            val duration = page["duration"]?.jsonPrimitive?.content?.toLongOrNull() ?: 0L
+            VideoPage(
+                pageNumber = pageNumber,
+                cid = cid,
+                title = title,
+                duration = duration,
+            )
+        }
+    }
+
+    private fun parseEpisodeGroups(data: JsonObject): List<VideoEpisodeGroup> {
+        val ugcSeason = data.dictionaryValueAt("ugc_season") ?: return emptyList()
+        val seasonTitle = ugcSeason.stringValueAt("title").orEmpty()
+        val sections = ugcSeason.arrayValueAt("sections") ?: return emptyList()
+        return sections.mapNotNull { sectionElement ->
+            val section = sectionElement as? JsonObject ?: return@mapNotNull null
+            val groupTitle = section.stringValueAt("title")
+                ?.takeIf { it.isNotBlank() }
+                ?: seasonTitle.ifBlank { "选集" }
+            val episodes = section.arrayValueAt("episodes")
+                ?.mapNotNull { episodeElement -> parseEpisode(episodeElement as? JsonObject) }
+                ?: emptyList()
+            if (episodes.isEmpty()) null else VideoEpisodeGroup(groupTitle, episodes)
+        }
+    }
+
+    private fun parseEpisode(episode: JsonObject?): VideoEpisode? {
+        if (episode == null) return null
+        val arc = episode.dictionaryValueAt("arc")
+        val bvid = episode.stringValueAt("bvid")
+            ?: arc?.stringValueAt("bvid")
+            ?: return null
+        val aid = episode.intValueAt("aid")?.toLong()
+            ?: arc?.intValueAt("aid")?.toLong()
+            ?: 0L
+        val cid = episode.intValueAt("cid")?.toLong()
+            ?: arc?.intValueAt("cid")?.toLong()
+            ?: 0L
+        val title = episode.stringValueAt("title")
+            ?.takeIf { it.isNotBlank() }
+            ?: episode.stringValueAt("long_title")
+            ?.takeIf { it.isNotBlank() }
+            ?: arc?.stringValueAt("title")
+            ?.takeIf { it.isNotBlank() }
+            ?: bvid
+        val coverURL = episode.stringValueAt("cover")
+            ?: arc?.stringValueAt("pic")
+            ?: ""
+        val badgeText = episode.stringValueAt("badge")
+            ?: episode.stringValueAt("badge_info", "text")
+            ?: ""
+        return VideoEpisode(
+            bvid = bvid,
+            aid = aid,
+            cid = cid,
+            title = title,
+            coverURL = coverURL,
+            badgeText = badgeText,
         )
     }
 
