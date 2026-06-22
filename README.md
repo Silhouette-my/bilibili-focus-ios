@@ -1,13 +1,13 @@
 # Bilibili Focus
 
-自用的 Bilibili 手机端容器，当前仓库同时包含 iOS 和 Android 两条主线。
+自用的 Bilibili 移动端容器项目，当前仓库包含 iOS 和 Android 两条主线。
 
-核心方向：
+当前实现方向：
 
 - `动态`、`搜索`、`我的/历史` 优先走原生页与 API
-- `播放页`、`部分详情页` 继续复用官方网页播放器与详情 DOM
+- `播放页` 保持 `SwiftUI/Compose + WebView` 宿主，复用官方网页播放器
 - 页面注入只做去干扰、导流拦截和小范围布局修复
-- `WKWebView / Android WebView` 与原生请求共用登录 Cookie
+- WebView 与原生请求共用登录 Cookie
 
 ## 当前能力
 
@@ -15,8 +15,8 @@
 - 原生搜索入口与结果页卡片流
 - 原生我的页、播放历史预览与历史详情页
 - 原生 UP 主空间、合集页、专栏页、图文动态详情
-- 视频播放页的移动化裁剪与原生底部控制栏
-- iOS unsigned IPA 与 Android APK 本地打包
+- WebView 播放页移动化裁剪与原生底部控制栏
+- iOS unsigned IPA 与 Android debug APK 本地打包
 
 ## 仓库结构
 
@@ -32,6 +32,8 @@
   - iOS unsigned IPA 打包脚本
 - `Tests/FocusCoreTests`
   - iOS 规则、路由、配置与 fixture 测试
+- `localonly`
+  - 本地归档或不参与远端主线的文件
 
 ## 本地运行
 
@@ -58,7 +60,7 @@ xcodebuild -project BilibiliFocus.xcodeproj \
 ./gradlew :focus-android:assembleDebug
 ```
 
-## 打包产物
+## 打包
 
 ### iOS unsigned IPA
 
@@ -66,19 +68,19 @@ xcodebuild -project BilibiliFocus.xcodeproj \
 ./Scripts/build_unsigned_ipa.sh
 ```
 
-默认输出：
+输出：
 
 ```text
 Build/BilibiliFocus-unsigned.ipa
 ```
 
-### Android APK
+### Android debug APK
 
 ```bash
 ./gradlew :focus-android:assembleDebug
 ```
 
-默认输出：
+输出：
 
 ```text
 focus-android/build/outputs/apk/debug/focus-android-debug.apk
@@ -98,8 +100,8 @@ FOCUS_INCLUDE_TESTS=1 swift test
 swift run FocusVerifier
 ```
 
-## 当前取舍
+## 说明
 
 - 默认按自用侧载方案设计，不以 App Store / 应用商店审核兼容为目标
-- 播放页与部分详情页仍然依赖 Bilibili 当前网页结构，网页改动后需要继续维护规则
-- `localonly/userscript-archive` 只作为本地归档，不是当前主线分发方案
+- 播放页与部分详情页仍依赖 Bilibili 当前网页结构，网页改动后需要继续维护规则
+- `localonly` 下的内容不属于当前远端主线分发物

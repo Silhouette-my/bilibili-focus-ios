@@ -43,10 +43,6 @@
 		000000000000000000000235 /* AppIcon76x76@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000335 /* AppIcon76x76@2x.png */; };
 		000000000000000000000236 /* AppIcon83.5x83.5@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000336 /* AppIcon83.5x83.5@2x.png */; };
 		000000000000000000000337 /* FocusWebAppearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000339 /* FocusWebAppearance.swift */; };
-		000000000000000000000340 /* FocusVideoDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000341 /* FocusVideoDetailViewModel.swift */; };
-		000000000000000000000342 /* FocusVideoDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000343 /* FocusVideoDetailView.swift */; };
-		000000000000000000000344 /* FocusVideoDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000345 /* FocusVideoDetail.swift */; };
-		000000000000000000000346 /* FocusVideoDetailService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000347 /* FocusVideoDetailService.swift */; };
 		000000000000000000000348 /* FocusSharedUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000349 /* FocusSharedUI.swift */; };
 /* End PBXBuildFile section */
 
@@ -113,10 +109,6 @@
 		000000000000000000000336 /* AppIcon83.5x83.5@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon83.5x83.5@2x.png"; sourceTree = "<group>"; };
 		000000000000000000000338 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		000000000000000000000339 /* FocusWebAppearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusWebAppearance.swift; sourceTree = "<group>"; };
-		000000000000000000000341 /* FocusVideoDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusVideoDetailViewModel.swift; sourceTree = "<group>"; };
-		000000000000000000000343 /* FocusVideoDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusVideoDetailView.swift; sourceTree = "<group>"; };
-		000000000000000000000345 /* FocusVideoDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusVideoDetail.swift; sourceTree = "<group>"; };
-		000000000000000000000347 /* FocusVideoDetailService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusVideoDetailService.swift; sourceTree = "<group>"; };
 		000000000000000000000349 /* FocusSharedUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusSharedUI.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -166,8 +158,6 @@
 				000000000000000000000301 /* BilibiliFocusApp.swift */,
 				000000000000000000000302 /* FocusBrowserView.swift */,
 				000000000000000000000303 /* FocusBrowserViewModel.swift */,
-				000000000000000000000341 /* FocusVideoDetailViewModel.swift */,
-				000000000000000000000343 /* FocusVideoDetailView.swift */,
 				000000000000000000000349 /* FocusSharedUI.swift */,
 				000000000000000000000304 /* FocusSettingsStore.swift */,
 				000000000000000000000319 /* FocusUserAgent.swift */,
@@ -185,8 +175,6 @@
 				000000000000000000000322 /* CookieSnapshotProvider.swift */,
 				000000000000000000000323 /* DynamicCard.swift */,
 				000000000000000000000324 /* DynamicFeedService.swift */,
-				000000000000000000000345 /* FocusVideoDetail.swift */,
-				000000000000000000000347 /* FocusVideoDetailService.swift */,
 				000000000000000000000306 /* FocusBundle.swift */,
 				000000000000000000000307 /* FocusEntry.swift */,
 				000000000000000000000308 /* FocusFeature.swift */,
@@ -341,8 +329,6 @@
 				000000000000000000000203 /* BilibiliFocusApp.swift in Sources */,
 				000000000000000000000204 /* FocusBrowserView.swift in Sources */,
 				000000000000000000000205 /* FocusBrowserViewModel.swift in Sources */,
-				000000000000000000000340 /* FocusVideoDetailViewModel.swift in Sources */,
-				000000000000000000000342 /* FocusVideoDetailView.swift in Sources */,
 				000000000000000000000348 /* FocusSharedUI.swift in Sources */,
 				000000000000000000000206 /* FocusSettingsStore.swift in Sources */,
 				000000000000000000000219 /* FocusUserAgent.swift in Sources */,
@@ -360,8 +346,6 @@
 				000000000000000000000222 /* CookieSnapshotProvider.swift in Sources */,
 				000000000000000000000223 /* DynamicCard.swift in Sources */,
 				000000000000000000000224 /* DynamicFeedService.swift in Sources */,
-				000000000000000000000344 /* FocusVideoDetail.swift in Sources */,
-				000000000000000000000346 /* FocusVideoDetailService.swift in Sources */,
 				000000000000000000000208 /* FocusBundle.swift in Sources */,
 				000000000000000000000209 /* FocusEntry.swift in Sources */,
 				000000000000000000000210 /* FocusFeature.swift in Sources */,

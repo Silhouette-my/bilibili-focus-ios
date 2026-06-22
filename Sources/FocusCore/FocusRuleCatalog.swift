@@ -3234,8 +3234,33 @@ public enum FocusRuleCatalog {
                       min-width: 0 !important;
                       max-width: 100% !important;
                       margin: 0 !important;
+                      left: 0 !important;
+                      right: 0 !important;
+                      inset-inline: 0 !important;
+                      transform: none !important;
                       padding: 0 !important;
                       box-sizing: border-box !important;
+                    }
+
+                    html[data-focus-platform='ios'].focus-native-video-pending #playerWrap,
+                    html[data-focus-platform='ios'].focus-native-video-pending .player-wrap,
+                    html[data-focus-platform='ios'].focus-native-video-pending .player-container,
+                    html[data-focus-platform='ios'].focus-native-video-pending #bilibili-player,
+                    html[data-focus-platform='ios'].focus-native-video-pending .bpx-player-container,
+                    html[data-focus-platform='ios'].focus-native-video-pending .bpx-player-video-wrap {
+                      opacity: 0 !important;
+                      visibility: hidden !important;
+                    }
+
+                    html[data-focus-platform='ios'].focus-native-video-ready #playerWrap,
+                    html[data-focus-platform='ios'].focus-native-video-ready .player-wrap,
+                    html[data-focus-platform='ios'].focus-native-video-ready .player-container,
+                    html[data-focus-platform='ios'].focus-native-video-ready #bilibili-player,
+                    html[data-focus-platform='ios'].focus-native-video-ready .bpx-player-container,
+                    html[data-focus-platform='ios'].focus-native-video-ready .bpx-player-video-wrap {
+                      opacity: 1 !important;
+                      visibility: visible !important;
+                      transition: opacity 0.14s ease !important;
                     }
 
                     @media (orientation: portrait) {
@@ -3270,6 +3295,10 @@ public enum FocusRuleCatalog {
                         max-height: 100% !important;
                         overflow: hidden !important;
                         position: relative !important;
+                        left: 0 !important;
+                        right: 0 !important;
+                        margin: 0 auto !important;
+                        transform: none !important;
                         background: #000 !important;
                         padding-top: 0 !important;
                         padding-bottom: 0 !important;
@@ -3286,6 +3315,10 @@ public enum FocusRuleCatalog {
                         height: 100% !important;
                         min-height: 100% !important;
                         max-height: 100% !important;
+                        margin: 0 auto !important;
+                        left: 0 !important;
+                        right: 0 !important;
+                        transform: none !important;
                         object-fit: contain !important;
                         display: block !important;
                       }
@@ -3584,6 +3617,24 @@ public enum FocusRuleCatalog {
                       gap: 0 !important;
                       margin: 0 !important;
                       padding: 0 !important;
+                    }
+
+                    html.focus-hide-original-video-pod .right-container,
+                    html.focus-hide-original-video-pod .right-container-inner,
+                    html.focus-hide-original-video-pod .video-pod,
+                    html.focus-hide-original-video-pod .video-pod__head,
+                    html.focus-hide-original-video-pod .video-pod__header,
+                    html.focus-hide-original-video-pod .video-pod__body,
+                    html.focus-hide-original-video-pod .video-pod__list,
+                    html.focus-hide-original-video-pod .multi-page,
+                    html.focus-hide-original-video-pod [class*="multi-page"],
+                    html.focus-hide-original-video-pod [class*="episode-list"],
+                    html.focus-hide-original-video-pod [class*="part-list"],
+                    html.focus-hide-original-video-pod [class*="page-list"] {
+                      display: none !important;
+                      visibility: hidden !important;
+                      opacity: 0 !important;
+                      pointer-events: none !important;
                     }
 
                     .right-container:not(:has(.video-pod)),
