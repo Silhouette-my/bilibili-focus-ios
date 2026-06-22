@@ -9,6 +9,17 @@ struct FocusWebView: UIViewRepresentable {
     @ObservedObject var settingsStore: FocusSettingsStore
     @Environment(\.colorScheme) private var colorScheme
 
+    private func resolvedDarkMode() -> Bool {
+        switch settingsStore.settings.themeMode {
+        case .system:
+            return colorScheme == .dark
+        case .light:
+            return false
+        case .dark:
+            return true
+        }
+    }
+
     func makeCoordinator() -> Coordinator {
         Coordinator(viewModel: viewModel)
     }
@@ -23,7 +34,11 @@ struct FocusWebView: UIViewRepresentable {
         let webView = WKWebView(frame: .zero, configuration: configuration)
         webView.customUserAgent = FocusUserAgent.mobileSafari()
         webView.allowsBackForwardNavigationGestures = false
-        webView.overrideUserInterfaceStyle = colorScheme == .dark ? .dark : .light
+        let isDarkMode = resolvedDarkMode()
+        webView.overrideUserInterfaceStyle = isDarkMode ? .dark : .light
+        webView.isOpaque = false
+        webView.backgroundColor = isDarkMode ? UIColor(red: 0.06, green: 0.07, blue: 0.09, alpha: 1) : UIColor(red: 0.965, green: 0.969, blue: 0.98, alpha: 1)
+        webView.scrollView.backgroundColor = webView.backgroundColor
         if #available(iOS 16.4, *) {
             webView.isInspectable = true
         }
@@ -32,7 +47,7 @@ struct FocusWebView: UIViewRepresentable {
         context.coordinator.installScripts(
             on: webView,
             settings: settingsStore.settings,
-            isDarkMode: colorScheme == .dark
+            isDarkMode: isDarkMode
         )
         viewModel.attach(
             webView: webView,
@@ -40,7 +55,7 @@ struct FocusWebView: UIViewRepresentable {
                 coordinator?.installScripts(
                     on: webView,
                     settings: settings,
-                    isDarkMode: colorScheme == .dark
+                    isDarkMode: resolvedDarkMode()
                 )
             },
             prepareForURL: { [weak coordinator = context.coordinator] webView, url in
@@ -51,8 +66,10 @@ struct FocusWebView: UIViewRepresentable {
     }
 
     func updateUIView(_ webView: WKWebView, context: Context) {
-        let isDarkMode = colorScheme == .dark
+        let isDarkMode = resolvedDarkMode()
         webView.overrideUserInterfaceStyle = isDarkMode ? .dark : .light
+        webView.backgroundColor = isDarkMode ? UIColor(red: 0.06, green: 0.07, blue: 0.09, alpha: 1) : UIColor(red: 0.965, green: 0.969, blue: 0.98, alpha: 1)
+        webView.scrollView.backgroundColor = webView.backgroundColor
         if context.coordinator.lastAppliedSettings != settingsStore.settings
             || context.coordinator.lastAppliedDarkMode != isDarkMode
         {
@@ -94,9 +111,18 @@ struct FocusWebView: UIViewRepresentable {
             controller.add(self, name: "getConfig")
             controller.add(self, name: "logDebug")
 
+            let bootstrapAppearanceScript = FocusWebAppearance.bootstrapCSS(isDarkMode: isDarkMode)
             let appearanceScript = FocusWebAppearance.script(isDarkMode: isDarkMode)
             let documentStartScript = try? FocusScriptBuilder.makeUserScript(for: .documentStart, settings: settings)
             let documentEndScript = try? FocusScriptBuilder.makeUserScript(for: .documentEnd, settings: settings)
+            controller.addUserScript(
+                WKUserScript(
+                    source: bootstrapAppearanceScript,
+                    injectionTime: .atDocumentStart,
+                    forMainFrameOnly: true
+                )
+            )
+
             controller.addUserScript(
                 WKUserScript(
                     source: appearanceScript,
@@ -176,7 +202,7 @@ struct FocusWebView: UIViewRepresentable {
         }
 
         func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
-            viewModel.updateNavigationState(from: webView)
+            viewModel.commitNavigationState(from: webView)
         }
 
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
@@ -201,6 +227,11 @@ struct FocusWebView: UIViewRepresentable {
                 let url = navigationAction.request.url
             else {
                 decisionHandler(.allow)
+                return
+            }
+
+            if viewModel.handleFocusActionURL(url) {
+                decisionHandler(.cancel)
                 return
             }
 

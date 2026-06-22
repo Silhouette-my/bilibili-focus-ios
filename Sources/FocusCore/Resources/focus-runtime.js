@@ -163,6 +163,11 @@
         const styleId = makeStyleId(rule.id, feature.featureId);
         if (isFeatureEnabled(feature)) {
           ensureStyle(styleId, feature.css);
+
+          if (feature.css && document.getElementById(styleId)) {
+            void document.body.offsetHeight;
+          }
+
           runFeatureScript(rule, feature);
         } else {
           removeStyle(styleId);
@@ -185,12 +190,19 @@
       clearTimeout(state.applyTimer);
       const now = Date.now();
       const isVideoPage = location.pathname.indexOf("/video/") === 0 || location.pathname.indexOf("/bangumi/play/") === 0;
-      const delay = isVideoPage ? Math.max(180, 280 - (now - state.lastApplyAt)) : 80;
-      state.applyTimer = setTimeout(() => {
+      const delay = isVideoPage ? 120 : Math.max(40, 80 - (now - state.lastApplyAt));
+
+      if (delay === 0) {
         state.lastApplyAt = Date.now();
         applyAll();
-        postDebug("scheduleApply", reason);
-      }, Math.max(delay, 40));
+        postDebug("scheduleApply-immediate", reason);
+      } else {
+        state.applyTimer = setTimeout(() => {
+          state.lastApplyAt = Date.now();
+          applyAll();
+          postDebug("scheduleApply", reason);
+        }, delay);
+      }
     }
 
     function isIgnoredPlayerMutationTarget(node) {
@@ -212,6 +224,34 @@
       ].join(","));
     }
 
+    function isFocusManagedNode(node) {
+      if (!node) {
+        return false;
+      }
+
+      const element = node.nodeType === 1 ? node : node.parentElement;
+      if (!element) {
+        return false;
+      }
+
+      const id = String(element.id || "");
+      if (
+        id === "focus-native-video-augment"
+        || id === "focus-native-video-loading-mask"
+        || id === "focus-native-opus-comments"
+        || id === "focus-bootstrap-theme"
+        || id.indexOf(stylePrefix) === 0
+      ) {
+        return true;
+      }
+
+      return !!element.closest([
+        "#focus-native-video-augment",
+        "#focus-native-video-loading-mask",
+        "#focus-native-opus-comments"
+      ].join(","));
+    }
+
     function shouldScheduleForMutations(mutations) {
       if (!mutations || mutations.length === 0) {
         return false;
@@ -225,16 +265,28 @@
 
       return mutations.some((mutation) => {
         const target = mutation.target;
-        if (target && target.nodeType === 1 && !isIgnoredPlayerMutationTarget(target)) {
-          return true;
-        }
-
         const changedNodes = []
           .concat(Array.from(mutation.addedNodes || []))
           .concat(Array.from(mutation.removedNodes || []));
 
+        if (changedNodes.length > 0 && changedNodes.every((node) => !node || node.nodeType !== 1 || isFocusManagedNode(node))) {
+          return false;
+        }
+
+        if (target && target.nodeType === 1 && isFocusManagedNode(target)) {
+          return false;
+        }
+
+        if (target && target.nodeType === 1 && !isIgnoredPlayerMutationTarget(target)) {
+          return true;
+        }
+
         return changedNodes.some((node) => {
           if (!node || node.nodeType !== 1) {
+            return false;
+          }
+
+          if (isFocusManagedNode(node)) {
             return false;
           }
 

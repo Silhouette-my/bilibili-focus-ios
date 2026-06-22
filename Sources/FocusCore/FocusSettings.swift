@@ -10,6 +10,9 @@ public struct FocusSettings: Codable, Equatable, Sendable {
     public var dynamicMaskEnabled: Bool
     public var debugMode: Bool
     public var defaultEntry: FocusEntry
+    public var themeMode: FocusThemeMode
+    public var dynamicVisibleKinds: Set<FocusDynamicFilterKind>
+    public var perAuthorDynamicFilters: [String: Set<FocusDynamicFilterKind>]
 
     public init(
         redirectEnabled: Bool = true,
@@ -17,7 +20,10 @@ public struct FocusSettings: Codable, Equatable, Sendable {
         searchMaskEnabled: Bool = true,
         dynamicMaskEnabled: Bool = true,
         debugMode: Bool = false,
-        defaultEntry: FocusEntry = .dynamic
+        defaultEntry: FocusEntry = .dynamic,
+        themeMode: FocusThemeMode = .system,
+        dynamicVisibleKinds: Set<FocusDynamicFilterKind> = Set(FocusDynamicFilterKind.allCases),
+        perAuthorDynamicFilters: [String: Set<FocusDynamicFilterKind>] = [:]
     ) {
         self.redirectEnabled = redirectEnabled
         self.playerMaskEnabled = playerMaskEnabled
@@ -25,6 +31,9 @@ public struct FocusSettings: Codable, Equatable, Sendable {
         self.dynamicMaskEnabled = dynamicMaskEnabled
         self.debugMode = debugMode
         self.defaultEntry = defaultEntry
+        self.themeMode = themeMode
+        self.dynamicVisibleKinds = dynamicVisibleKinds
+        self.perAuthorDynamicFilters = perAuthorDynamicFilters
     }
 
     public static func load(from userDefaults: UserDefaults) -> FocusSettings {
@@ -44,5 +53,39 @@ public struct FocusSettings: Codable, Equatable, Sendable {
         }
 
         userDefaults.set(data, forKey: Self.storageKey)
+    }
+}
+
+public enum FocusDynamicFilterKind: String, Codable, CaseIterable, Hashable, Sendable {
+    case all
+    case video
+    case articleLike
+
+    public var title: String {
+        switch self {
+        case .all:
+            return "综合"
+        case .video:
+            return "视频"
+        case .articleLike:
+            return "图文"
+        }
+    }
+}
+
+public enum FocusThemeMode: String, Codable, CaseIterable, Hashable, Sendable {
+    case system
+    case light
+    case dark
+
+    public var title: String {
+        switch self {
+        case .system:
+            return "跟随系统"
+        case .light:
+            return "浅色"
+        case .dark:
+            return "深色"
+        }
     }
 }

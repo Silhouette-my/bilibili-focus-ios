@@ -3110,7 +3110,7 @@ public enum FocusRuleCatalog {
             features: [
                 FocusFeature(
                     featureId: "player-layout",
-                    requiredSelectors: ["#playerWrap", "#arc_toolbar_report"],
+                    requiredSelectors: ["#playerWrap"],
                     optionalSelectors: [".video-pod", ".left-container", ".right-container"],
                     action: .repair,
                     css: """
@@ -3132,7 +3132,24 @@ public enum FocusRuleCatalog {
 
                     body {
                       padding-bottom: 164px !important;
+                      background: #0f1115 !important;
+                    }
+
+                    html[data-focus-theme='light'] body {
                       background: #ffffff !important;
+                    }
+
+                    html[data-focus-theme='dark'],
+                    html[data-focus-theme='dark'] body,
+                    html[data-focus-theme='dark'] #app,
+                    html[data-focus-theme='dark'] main,
+                    html[data-focus-theme='dark'] #mirror-vdcon,
+                    html[data-focus-theme='dark'] .video-container,
+                    html[data-focus-theme='dark'] .video-container-v1,
+                    html[data-focus-theme='dark'] .left-container,
+                    html[data-focus-theme='dark'] .right-container,
+                    html[data-focus-theme='dark'] .right-container-inner {
+                      background: #0f1115 !important;
                     }
 
                     #biliMainHeader,
@@ -3194,10 +3211,16 @@ public enum FocusRuleCatalog {
                       display: flex !important;
                       flex-direction: column !important;
                       gap: 12px !important;
+                      order: 1 !important;
                     }
 
-                    .left-container > :not(#playerWrap):not(.player-wrap):not(#arc_toolbar_report):not(.video-toolbar-container),
-                    .left-container.scroll-sticky > :not(#playerWrap):not(.player-wrap):not(#arc_toolbar_report):not(.video-toolbar-container) {
+                    .right-container,
+                    .right-container-inner {
+                      order: 2 !important;
+                    }
+
+                    .left-container > :not(#playerWrap):not(.player-wrap):not(#arc_toolbar_report):not(.video-toolbar-container):not(#focus-native-video-augment),
+                    .left-container.scroll-sticky > :not(#playerWrap):not(.player-wrap):not(#arc_toolbar_report):not(.video-toolbar-container):not(#focus-native-video-augment) {
                       display: none !important;
                     }
 
@@ -3215,55 +3238,57 @@ public enum FocusRuleCatalog {
                       box-sizing: border-box !important;
                     }
 
-                    html[data-focus-platform='ios'] #playerWrap,
-                    html[data-focus-platform='ios'] #bilibili-player,
-                    html[data-focus-platform='ios'] .bpx-player-container,
-                    html[data-focus-platform='ios'] .player-container,
-                    html[data-focus-platform='ios'] .bpx-player-video-wrap {
-                      width: 100% !important;
-                      max-width: 100% !important;
-                      min-height: 0 !important;
-                      height: calc(100vw / 1.5) !important;
-                      min-height: 0 !important;
-                      max-height: none !important;
-                      aspect-ratio: 3 / 2 !important;
-                      overflow: hidden !important;
-                      position: relative !important;
-                      background: #000 !important;
-                      padding-top: 0 !important;
-                      padding-bottom: 0 !important;
-                    }
+                    @media (orientation: portrait) {
+                      html[data-focus-platform='ios'] #playerWrap,
+                      html[data-focus-platform='ios'] #bilibili-player,
+                      html[data-focus-platform='ios'] .bpx-player-container,
+                      html[data-focus-platform='ios'] .player-container,
+                      html[data-focus-platform='ios'] .bpx-player-video-wrap {
+                        width: 100% !important;
+                        max-width: 100% !important;
+                        min-height: 0 !important;
+                        height: calc(100vw / 1.5) !important;
+                        min-height: 0 !important;
+                        max-height: none !important;
+                        aspect-ratio: 3 / 2 !important;
+                        overflow: hidden !important;
+                        position: relative !important;
+                        background: #000 !important;
+                        padding-top: 0 !important;
+                        padding-bottom: 0 !important;
+                      }
 
-                    html[data-focus-platform='ios'] .bpx-player-primary-area,
-                    html[data-focus-platform='ios'] .bpx-player-video-area,
-                    html[data-focus-platform='ios'] .bpx-player-video-wrap,
-                    html[data-focus-platform='ios'] .bpx-player-video-perch,
-                    html[data-focus-platform='ios'] .bpx-player-video-screen,
-                    html[data-focus-platform='ios'] .bilibili-player-video,
-                    html[data-focus-platform='ios'] .bilibili-player-video-wrap {
-                      min-height: 0 !important;
-                      height: 100% !important;
-                      max-height: 100% !important;
-                      overflow: hidden !important;
-                      position: relative !important;
-                      background: #000 !important;
-                      padding-top: 0 !important;
-                      padding-bottom: 0 !important;
-                    }
+                      html[data-focus-platform='ios'] .bpx-player-primary-area,
+                      html[data-focus-platform='ios'] .bpx-player-video-area,
+                      html[data-focus-platform='ios'] .bpx-player-video-wrap,
+                      html[data-focus-platform='ios'] .bpx-player-video-perch,
+                      html[data-focus-platform='ios'] .bpx-player-video-screen,
+                      html[data-focus-platform='ios'] .bilibili-player-video,
+                      html[data-focus-platform='ios'] .bilibili-player-video-wrap {
+                        min-height: 0 !important;
+                        height: 100% !important;
+                        max-height: 100% !important;
+                        overflow: hidden !important;
+                        position: relative !important;
+                        background: #000 !important;
+                        padding-top: 0 !important;
+                        padding-bottom: 0 !important;
+                      }
 
-                    html[data-focus-platform='ios'] #playerWrap video,
-                    html[data-focus-platform='ios'] #bilibili-player video,
-                    html[data-focus-platform='ios'] .bpx-player-container video,
-                    html[data-focus-platform='ios'] .player-container video,
-                    html[data-focus-platform='ios'] .bpx-player-video-wrap video,
-                    html[data-focus-platform='ios'] .bpx-player-video-area video,
-                    html[data-focus-platform='ios'] .bilibili-player-video video {
-                      width: 100% !important;
-                      height: 100% !important;
-                      min-height: 100% !important;
-                      max-height: 100% !important;
-                      object-fit: contain !important;
-                      display: block !important;
+                      html[data-focus-platform='ios'] #playerWrap video,
+                      html[data-focus-platform='ios'] #bilibili-player video,
+                      html[data-focus-platform='ios'] .bpx-player-container video,
+                      html[data-focus-platform='ios'] .player-container video,
+                      html[data-focus-platform='ios'] .bpx-player-video-wrap video,
+                      html[data-focus-platform='ios'] .bpx-player-video-area video,
+                      html[data-focus-platform='ios'] .bilibili-player-video video {
+                        width: 100% !important;
+                        height: 100% !important;
+                        min-height: 100% !important;
+                        max-height: 100% !important;
+                        object-fit: contain !important;
+                        display: block !important;
+                      }
                     }
 
                     .bpx-player-control-wrap,
@@ -3316,57 +3341,249 @@ public enum FocusRuleCatalog {
 
                     #arc_toolbar_report,
                     .video-toolbar-container {
-                      width: 100% !important;
+                      display: block !important;
+                      width: auto !important;
                       min-width: 0 !important;
-                      max-width: 100% !important;
-                      margin: 0 !important;
-                      padding: 0 12px 16px !important;
+                      max-width: none !important;
+                      margin: 4px 16px 4px !important;
+                      padding: 12px 16px !important;
                       box-sizing: border-box !important;
+                      background: rgba(248, 250, 252, 0.96) !important;
+                      background-image: none !important;
+                      border: 1px solid rgba(15, 23, 42, 0.06) !important;
+                      border-radius: 20px !important;
+                      box-shadow: 0 14px 32px rgba(15, 23, 42, 0.05) !important;
+                    }
+
+                    html[data-focus-theme='dark'] #arc_toolbar_report,
+                    html[data-focus-theme='dark'] .video-toolbar-container {
+                      background: rgba(17, 24, 39, 0.96) !important;
+                      border-color: rgba(255, 255, 255, 0.08) !important;
+                      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.22) !important;
+                    }
+
+                    #arc_toolbar_report::before,
+                    #arc_toolbar_report::after,
+                    .video-toolbar-container::before,
+                    .video-toolbar-container::after {
+                      display: none !important;
+                      content: none !important;
+                      background: transparent !important;
+                      border: 0 !important;
+                      box-shadow: none !important;
                     }
 
                     #arc_toolbar_report .video-toolbar-right,
-                    .video-toolbar-container .video-toolbar-right {
+                    .video-toolbar-container .video-toolbar-right,
+                    #arc_toolbar_report .toolbar-right,
+                    .video-toolbar-container .toolbar-right {
                       display: none !important;
                     }
 
                     #arc_toolbar_report .video-toolbar-left,
-                    #arc_toolbar_report .video-toolbar-left-main,
                     .video-toolbar-container .video-toolbar-left,
-                    .video-toolbar-container .video-toolbar-left-main {
-                      display: flex !important;
-                      flex-wrap: wrap !important;
-                      align-items: stretch !important;
-                      gap: 8px !important;
+                    #arc_toolbar_report .toolbar-left,
+                    .video-toolbar-container .toolbar-left {
+                      display: block !important;
                       width: 100% !important;
                       min-width: 0 !important;
                       margin: 0 !important;
+                      padding: 0 !important;
+                      background: transparent !important;
+                      border: 0 !important;
+                      box-shadow: none !important;
                     }
 
-                    #arc_toolbar_report .video-toolbar-left > *:not(:is(.video-like-info, .video-fav, .video-share-wrap)):not(:has(:is(.video-like, .video-like-info, .video-fav, .video-share, .video-share-wrap))),
-                    #arc_toolbar_report .video-toolbar-left-main > *:not(:is(.video-like-info, .video-fav, .video-share-wrap)):not(:has(:is(.video-like, .video-like-info, .video-fav, .video-share, .video-share-wrap))),
-                    .video-toolbar-container .video-toolbar-left > *:not(:is(.video-like-info, .video-fav, .video-share-wrap)):not(:has(:is(.video-like, .video-like-info, .video-fav, .video-share, .video-share-wrap))),
-                    .video-toolbar-container .video-toolbar-left-main > *:not(:is(.video-like-info, .video-fav, .video-share-wrap)):not(:has(:is(.video-like, .video-like-info, .video-fav, .video-share, .video-share-wrap))) {
+                    #arc_toolbar_report .video-toolbar-left-main,
+                    .video-toolbar-container .video-toolbar-left-main,
+                    #arc_toolbar_report .toolbar-left-main,
+                    .video-toolbar-container .toolbar-left-main {
+                      display: flex !important;
+                      flex-direction: row !important;
+                      align-items: center !important;
+                      justify-content: stretch !important;
+                      width: 100% !important;
+                      min-width: 0 !important;
+                      margin: 0 !important;
+                      padding: 0 !important;
+                      background: transparent !important;
+                      border: 0 !important;
+                      box-shadow: none !important;
+                    }
+
+                    #arc_toolbar_report .video-toolbar-left-main > *,
+                    .video-toolbar-container .video-toolbar-left-main > *,
+                    #arc_toolbar_report .toolbar-left-main > *,
+                    .video-toolbar-container .toolbar-left-main > * {
+                      flex: 1 1 0 !important;
+                      display: flex !important;
+                      align-items: center !important;
+                      justify-content: center !important;
+                      width: 0 !important;
+                      min-width: 0 !important;
+                      margin: 0 !important;
+                      padding: 0 !important;
+                    }
+
+                    #arc_toolbar_report .toolbar-left-item-wrap,
+                    .video-toolbar-container .toolbar-left-item-wrap {
+                      flex: 1 1 0 !important;
+                      width: 0 !important;
+                      min-width: 0 !important;
+                    }
+
+                    #arc_toolbar_report .video-toolbar-left > *:has(.video-complaint, [class*="complaint"], [class*="more"]),
+                    .video-toolbar-container .video-toolbar-left > *:has(.video-complaint, [class*="complaint"], [class*="more"]),
+                    #arc_toolbar_report .video-toolbar-left-main > *:has(.video-complaint, [class*="complaint"], [class*="more"]),
+                    .video-toolbar-container .video-toolbar-left-main > *:has(.video-complaint, [class*="complaint"], [class*="more"]),
+                    #arc_toolbar_report .toolbar-left > *:has(.video-complaint, [class*="complaint"], [class*="more"]),
+                    .video-toolbar-container .toolbar-left > *:has(.video-complaint, [class*="complaint"], [class*="more"]),
+                    #arc_toolbar_report .toolbar-left-main > *:has(.video-complaint, [class*="complaint"], [class*="more"]),
+                    .video-toolbar-container .toolbar-left-main > *:has(.video-complaint, [class*="complaint"], [class*="more"]),
+                    #arc_toolbar_report .video-share-wrap,
+                    .video-toolbar-container .video-share-wrap,
+                    #arc_toolbar_report .toolbar-left-item-wrap:has(.video-share-wrap),
+                    .video-toolbar-container .toolbar-left-item-wrap:has(.video-share-wrap) {
                       display: none !important;
                     }
 
-                    #arc_toolbar_report .video-toolbar-left > *:is(.video-like-info, .video-fav, .video-share-wrap),
-                    #arc_toolbar_report .video-toolbar-left-main > *:is(.video-like-info, .video-fav, .video-share-wrap),
-                    #arc_toolbar_report .video-toolbar-left > *:has(:is(.video-like, .video-like-info, .video-fav, .video-share, .video-share-wrap)),
-                    #arc_toolbar_report .video-toolbar-left-main > *:has(:is(.video-like, .video-like-info, .video-fav, .video-share, .video-share-wrap)),
-                    .video-toolbar-container .video-toolbar-left > *:is(.video-like-info, .video-fav, .video-share-wrap),
-                    .video-toolbar-container .video-toolbar-left-main > *:is(.video-like-info, .video-fav, .video-share-wrap),
-                    .video-toolbar-container .video-toolbar-left > *:has(:is(.video-like, .video-like-info, .video-fav, .video-share, .video-share-wrap)),
-                    .video-toolbar-container .video-toolbar-left-main > *:has(:is(.video-like, .video-like-info, .video-fav, .video-share, .video-share-wrap)) {
-                      display: flex !important;
-                      flex: 1 1 calc((100% - 16px) / 3) !important;
-                      min-width: 84px !important;
-                      margin: 0 !important;
-                      padding: 10px 12px !important;
+                    #arc_toolbar_report .video-like-info,
+                    .video-toolbar-container .video-like-info,
+                    #arc_toolbar_report .video-like,
+                    .video-toolbar-container .video-like,
+                    #arc_toolbar_report .video-coin,
+                    .video-toolbar-container .video-coin,
+                    #arc_toolbar_report .video-fav,
+                    .video-toolbar-container .video-fav,
+                    #arc_toolbar_report .video-share-wrap,
+                    .video-toolbar-container .video-share-wrap {
+                      width: auto !important;
+                      display: inline-flex !important;
                       align-items: center !important;
                       justify-content: center !important;
-                      border-radius: 14px !important;
-                      background: #f6f7fb !important;
-                      box-sizing: border-box !important;
+                      gap: 0 !important;
+                      background: transparent !important;
+                      border: 0 !important;
+                      box-shadow: none !important;
+                      margin: 0 !important;
+                      padding: 0 !important;
+                      min-width: 0 !important;
+                      text-align: center !important;
+                      line-height: 1 !important;
+                    }
+
+                    #arc_toolbar_report .video-like-info > *,
+                    .video-toolbar-container .video-like-info > *,
+                    #arc_toolbar_report .video-like > *,
+                    .video-toolbar-container .video-like > *,
+                    #arc_toolbar_report .video-coin > *,
+                    .video-toolbar-container .video-coin > *,
+                    #arc_toolbar_report .video-fav > *,
+                    .video-toolbar-container .video-fav > *,
+                    #arc_toolbar_report .video-share-wrap > *,
+                    .video-toolbar-container .video-share-wrap > * {
+                      margin: 0 !important;
+                      padding: 0 !important;
+                    }
+
+                    #arc_toolbar_report .video-like-info svg,
+                    .video-toolbar-container .video-like-info svg,
+                    #arc_toolbar_report .video-like svg,
+                    .video-toolbar-container .video-like svg,
+                    #arc_toolbar_report .video-coin svg,
+                    .video-toolbar-container .video-coin svg,
+                    #arc_toolbar_report .video-fav svg,
+                    .video-toolbar-container .video-fav svg,
+                    #arc_toolbar_report .video-share-wrap svg,
+                    .video-toolbar-container .video-share-wrap svg,
+                    #arc_toolbar_report .video-like-info i,
+                    .video-toolbar-container .video-like-info i,
+                    #arc_toolbar_report .video-coin i,
+                    .video-toolbar-container .video-coin i,
+                    #arc_toolbar_report .video-fav i,
+                    .video-toolbar-container .video-fav i,
+                    #arc_toolbar_report .video-share-wrap i,
+                    .video-toolbar-container .video-share-wrap i {
+                      flex: 0 0 auto !important;
+                      margin: 0 !important;
+                      display: inline-flex !important;
+                      visibility: visible !important;
+                      opacity: 1 !important;
+                    }
+
+                    #arc_toolbar_report .video-like-info span,
+                    .video-toolbar-container .video-like-info span,
+                    #arc_toolbar_report .video-like span,
+                    .video-toolbar-container .video-like span,
+                    #arc_toolbar_report .video-coin span,
+                    .video-toolbar-container .video-coin span,
+                    #arc_toolbar_report .video-fav span,
+                    .video-toolbar-container .video-fav span {
+                      display: none !important;
+                      visibility: hidden !important;
+                      opacity: 0 !important;
+                      width: 0 !important;
+                      height: 0 !important;
+                      max-width: 0 !important;
+                      max-height: 0 !important;
+                      overflow: hidden !important;
+                      position: absolute !important;
+                      pointer-events: none !important;
+                      flex: 0 0 0 !important;
+                      margin: 0 !important;
+                      padding: 0 !important;
+                      border: 0 !important;
+                      font-size: 0 !important;
+                      line-height: 0 !important;
+                    }
+
+                    #arc_toolbar_report .video-share-wrap span span,
+                    .video-toolbar-container .video-share-wrap span span,
+                    #arc_toolbar_report .video-share-wrap .video-share span,
+                    .video-toolbar-container .video-share-wrap .video-share span {
+                      display: none !important;
+                      visibility: hidden !important;
+                      opacity: 0 !important;
+                      width: 0 !important;
+                      height: 0 !important;
+                      max-width: 0 !important;
+                      max-height: 0 !important;
+                      overflow: hidden !important;
+                      position: absolute !important;
+                      pointer-events: none !important;
+                      flex: 0 0 0 !important;
+                      margin: 0 !important;
+                      padding: 0 !important;
+                      border: 0 !important;
+                      font-size: 0 !important;
+                      line-height: 0 !important;
+                    }
+
+                    #arc_toolbar_report .video-share-wrap > span,
+                    .video-toolbar-container .video-share-wrap > span {
+                      display: inline-flex !important;
+                      align-items: center !important;
+                      justify-content: center !important;
+                      gap: 0 !important;
+                      min-width: 0 !important;
+                      width: auto !important;
+                    }
+
+                    #arc_toolbar_report .video-share-wrap > span > .video-share-popover,
+                    .video-toolbar-container .video-share-wrap > span > .video-share-popover,
+                    #arc_toolbar_report .video-share-wrap > span > :not(.video-share),
+                    .video-toolbar-container .video-share-wrap > span > :not(.video-share) {
+                      display: none !important;
+                    }
+
+                    #arc_toolbar_report .video-share-wrap > span > .video-share,
+                    .video-toolbar-container .video-share-wrap > span > .video-share {
+                      display: inline-flex !important;
+                      align-items: center !important;
+                      justify-content: center !important;
+                      gap: 0 !important;
+                      margin: 0 !important;
+                      padding: 0 !important;
                     }
 
                     .right-container:not(:has(.video-pod)),
@@ -3562,6 +3779,7 @@ public enum FocusRuleCatalog {
                     };
 
                     const isIOSFocus = document.documentElement?.getAttribute?.('data-focus-platform') === 'ios';
+                    let iosPlayerSizingSuppressedUntil = 0;
 
                     const clearIOSPlayerSizing = () => {
                       if (!isIOSFocus) {
@@ -3579,7 +3797,14 @@ public enum FocusRuleCatalog {
                         '.bpx-player-video-perch',
                         '.bpx-player-video-screen',
                         '.bilibili-player-video',
-                        '.bilibili-player-video-wrap'
+                        '.bilibili-player-video-wrap',
+                        '#playerWrap video',
+                        '#bilibili-player video',
+                        '.bpx-player-container video',
+                        '.player-container video',
+                        '.bpx-player-video-wrap video',
+                        '.bpx-player-video-area video',
+                        '.bilibili-player-video video'
                       ].forEach((selector) => {
                         document.querySelectorAll(selector).forEach((node) => {
                           if (!(node instanceof HTMLElement)) {
@@ -3600,13 +3825,34 @@ public enum FocusRuleCatalog {
                             'display',
                             'align-items',
                             'justify-content',
+                            'margin-left',
+                            'margin-right',
+                            'margin-top',
+                            'margin-bottom',
                             'object-position',
-                            'transform'
+                            'object-fit',
+                            'transform',
+                            'left',
+                            'top'
                           ].forEach((property) => {
                             node.style.removeProperty(property);
                           });
                         });
                       });
+                    };
+
+                    const suppressIOSPlayerSizing = (duration = 520) => {
+                      if (!isIOSFocus) {
+                        return;
+                      }
+                      iosPlayerSizingSuppressedUntil = Date.now() + Math.max(duration, 0);
+                      clearIOSPlayerSizing();
+                    };
+
+                    const isLandscapeViewport = () => {
+                      const viewportWidth = window.visualViewport?.width || window.innerWidth || document.documentElement?.clientWidth || 0;
+                      const viewportHeight = window.visualViewport?.height || window.innerHeight || document.documentElement?.clientHeight || 0;
+                      return viewportWidth > 0 && viewportHeight > 0 && viewportWidth > viewportHeight;
                     };
 
                     const rankVideos = () => {
@@ -3650,6 +3896,11 @@ public enum FocusRuleCatalog {
                         return;
                       }
 
+                      if (iosPlayerSizingSuppressedUntil > Date.now()) {
+                        clearIOSPlayerSizing();
+                        return;
+                      }
+
                       const activeVideo = findPrimaryVideo();
                       const playerRoot = document.querySelector('#playerWrap, #bilibili-player, .bpx-player-container, .player-container');
                       if (!(playerRoot instanceof HTMLElement)) {
@@ -3659,8 +3910,9 @@ public enum FocusRuleCatalog {
                       const isFullscreen = !!document.fullscreenElement
                         || activeVideo?.webkitPresentationMode === 'fullscreen'
                         || activeVideo?.webkitPresentationMode === 'fullScreen'
+                        || activeVideo?.webkitDisplayingFullscreen === true
                         || /(^|\\s)(?:web-)?fullscreen(?:\\s|$)/.test(String(playerRoot.className || ''));
-                      if (isFullscreen) {
+                      if (isFullscreen || isLandscapeViewport()) {
                         clearIOSPlayerSizing();
                         return;
                       }
@@ -4018,6 +4270,7 @@ public enum FocusRuleCatalog {
                         isFullscreen: !!document.fullscreenElement
                           || activeVideo?.webkitPresentationMode === 'fullscreen'
                           || activeVideo?.webkitPresentationMode === 'fullScreen'
+                          || activeVideo?.webkitDisplayingFullscreen === true
                           || /(^|\\s)(?:web-)?fullscreen(?:\\s|$)/.test(playerClassName),
                         updatedAt: Date.now()
                       };
@@ -4026,10 +4279,12 @@ public enum FocusRuleCatalog {
                       return payload;
                     };
 
-                    window.__FOCUS_SNAPSHOT_PLAYER_STATE__ = snapshotPlayerState;
-                    disableAutoplayByDefault();
-                    applyIOSPlayerSizing();
-                    snapshotPlayerState();
+                      window.__FOCUS_SNAPSHOT_PLAYER_STATE__ = snapshotPlayerState;
+                      window.__FOCUS_CLEAR_IOS_PLAYER_SIZING__ = clearIOSPlayerSizing;
+                      window.__FOCUS_SUPPRESS_IOS_PLAYER_SIZING__ = suppressIOSPlayerSizing;
+                      disableAutoplayByDefault();
+                      applyIOSPlayerSizing();
+                      snapshotPlayerState();
 
                     if (!state.playerHooksInstalled) {
                       state.playerHooksInstalled = true;
@@ -4078,6 +4333,20 @@ public enum FocusRuleCatalog {
                         document.addEventListener(eventName, (event) => {
                           if (event.target instanceof HTMLVideoElement) {
                             rememberActiveVideo(event.target);
+                          }
+                          if (eventName === 'webkitbeginfullscreen' || eventName === 'fullscreenchange') {
+                            const eventVideo = event.target instanceof HTMLVideoElement ? event.target : trackedVideo();
+                            const eventPlayerRoot = eventVideo?.closest?.('#playerWrap, #bilibili-player, .bpx-player-container, .player-container');
+                            const enteringFullscreen = !!document.fullscreenElement
+                              || eventVideo?.webkitPresentationMode === 'fullscreen'
+                              || eventVideo?.webkitPresentationMode === 'fullScreen'
+                              || eventVideo?.webkitDisplayingFullscreen === true
+                              || /(^|\\s)(?:web-)?fullscreen(?:\\s|$)/.test(String(eventPlayerRoot?.className || ''));
+                            if (enteringFullscreen) {
+                              suppressIOSPlayerSizing(1200);
+                            }
+                          } else if (eventName === 'webkitendfullscreen') {
+                            suppressIOSPlayerSizing(520);
                           }
                           scheduleIOSPlayerSizing(eventName === 'loadedmetadata' || eventName === 'webkitendfullscreen' ? 30 : 80);
                           scheduleSnapshot(eventName === 'ratechange' ? 20 : 80);

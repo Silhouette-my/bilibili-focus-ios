@@ -152,6 +152,7 @@ public struct DynamicFeedService: Sendable {
         }
 
         let authorName = author.stringValue(at: ["name"]) ?? "Bilibili"
+        let authorMID = author.intValue(at: ["mid"]).map(Int64.init) ?? 0
         let authorAvatar = normalizedURL(author.stringValue(at: ["face"]))
         let publishTime = author.stringValue(at: ["pub_time"])
             ?? author.stringValue(at: ["pub_action"])
@@ -190,7 +191,7 @@ public struct DynamicFeedService: Sendable {
         return DynamicCard(
             id: id,
             kind: kind,
-            author: .init(name: authorName, avatarURL: authorAvatar),
+            author: .init(mid: authorMID, name: authorName, avatarURL: authorAvatar),
             publishTime: publishTime,
             text: text,
             coverURLs: coverURLs,
