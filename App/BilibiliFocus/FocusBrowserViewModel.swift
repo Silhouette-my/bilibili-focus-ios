@@ -1924,6 +1924,13 @@ final class FocusBrowserViewModel: ObservableObject {
             window.__FOCUS_LOADING_MASK_OBSERVER__ = null;
           }
 
+          if (window.__FOCUS_NATIVE_VIDEO_AUGMENT_HELPERS__?.teardown) {
+            try {
+              window.__FOCUS_NATIVE_VIDEO_AUGMENT_HELPERS__.teardown();
+            } catch (_) {}
+          }
+          window.__FOCUS_NATIVE_VIDEO_AUGMENT_HELPERS__ = null;
+
           document.documentElement.classList.remove('focus-native-video-ready', 'focus-hide-danmaku', 'focus-hide-subtitles');
           document.body?.classList?.remove?.('focus-native-video-ready');
 
@@ -2568,6 +2575,7 @@ final class FocusBrowserViewModel: ObservableObject {
 
               const rootId = 'focus-native-video-augment';
               const styleId = 'focus-native-video-augment-style';
+              \(focusNativeVideoAugmentMountHelpersJavaScript)
               const ensureStyle = () => {
                 let style = document.getElementById(styleId);
                 if (!style) {
@@ -2587,6 +2595,8 @@ final class FocusBrowserViewModel: ObservableObject {
                     padding: 8px 16px 24px !important;
                     position: relative !important;
                     z-index: 21 !important;
+                    order: 2 !important;
+                    flex: 0 0 auto !important;
                   }
                   #${rootId} .focus-native-section {
                     margin-top: 8px !important;
@@ -2673,6 +2683,8 @@ final class FocusBrowserViewModel: ObservableObject {
               root.style.setProperty('opacity', '1', 'important');
               root.style.setProperty('position', 'relative', 'important');
               root.style.setProperty('z-index', '21', 'important');
+              root.style.setProperty('order', '2', 'important');
+              root.style.setProperty('flex', '0 0 auto', 'important');
 
               if (!root.querySelector('.focus-native-skeleton-header')) {
                 root.innerHTML = `
@@ -2701,39 +2713,7 @@ final class FocusBrowserViewModel: ObservableObject {
                 `;
               }
 
-              const resolvePlayerShell = () => {
-                const directShell = document.querySelector('#playerWrap, .player-wrap, #bilibili-player, .bpx-player-container, .player-container');
-                if (directShell instanceof HTMLElement) {
-                  return directShell;
-                }
-
-                const videoNode = document.querySelector('#playerWrap video, #bilibili-player video, .bpx-player-container video, .player-container video, video');
-                const shell = videoNode?.closest?.('#playerWrap, .player-wrap, #bilibili-player, .bpx-player-container, .player-container');
-                return shell instanceof HTMLElement ? shell : null;
-              };
-              const viewbox = document.querySelector('#viewbox_report');
-              const leftContainer = viewbox?.closest('.left-container') || document.querySelector('.left-container');
-              const playerShell = resolvePlayerShell();
-              const attachPlaceholderToStableSlot = () => {
-                if (playerShell?.parentNode) {
-                  const parent = playerShell.parentNode;
-                  const desiredNextSibling = playerShell.nextSibling;
-                  if (root.parentNode !== parent || root.previousSibling !== playerShell) {
-                    parent.insertBefore(root, desiredNextSibling);
-                  }
-                  return;
-                }
-                if (viewbox?.parentNode) {
-                  viewbox.parentNode.insertBefore(root, viewbox.nextSibling);
-                  return;
-                }
-                if (leftContainer) {
-                  leftContainer.appendChild(root);
-                  return;
-                }
-                (document.querySelector('main') || document.body || document.documentElement).appendChild(root);
-              };
-              attachPlaceholderToStableSlot();
+              mountNativeVideoAugmentRoot(root);
               return true;
             })();
             """,
@@ -4486,6 +4466,114 @@ fileprivate actor FocusNativePageAugmentService {
     }
 }
 
+private let focusNativeVideoAugmentMountHelpersJavaScript = #"""
+              const ensureNativeVideoAugmentHelpers = () => {
+                const existingHelpers = window.__FOCUS_NATIVE_VIDEO_AUGMENT_HELPERS__;
+                if (existingHelpers) {
+                  return existingHelpers;
+                }
+
+                const resolveMountHost = () => {
+                  const playerContainer = document.querySelector('.left-container.scroll-sticky, .left-container');
+                  if (playerContainer instanceof HTMLElement) {
+                    return playerContainer;
+                  }
+
+                  const main = document.querySelector('main');
+                  if (main instanceof HTMLElement) {
+                    return main;
+                  }
+
+                  return document.body || document.documentElement;
+                };
+
+                const attachRoot = (root) => {
+                  if (!(root instanceof HTMLElement)) {
+                    return false;
+                  }
+
+                  const host = resolveMountHost();
+                  if (!host) {
+                    return false;
+                  }
+
+                  if (root.parentNode !== host) {
+                    host.appendChild(root);
+                  }
+
+                  return true;
+                };
+
+                const repairRoot = () => {
+                  const liveRoot = document.getElementById('focus-native-video-augment') || window.__FOCUS_NATIVE_VIDEO_AUGMENT_ROOT__;
+                  if (!(liveRoot instanceof HTMLElement)) {
+                    return false;
+                  }
+                  return attachRoot(liveRoot);
+                };
+
+                const disconnectObserver = () => {
+                  const observer = window.__FOCUS_NATIVE_VIDEO_AUGMENT_OBSERVER__;
+                  if (observer) {
+                    try {
+                      observer.disconnect();
+                    } catch (_) {}
+                  }
+                  window.__FOCUS_NATIVE_VIDEO_AUGMENT_OBSERVER__ = null;
+                };
+
+                const installObserver = (root) => {
+                  if (root instanceof HTMLElement) {
+                    window.__FOCUS_NATIVE_VIDEO_AUGMENT_ROOT__ = root;
+                  }
+
+                  window.__FOCUS_REPAIR_NATIVE_VIDEO_AUGMENT__ = repairRoot;
+                  disconnectObserver();
+
+                  const observer = new MutationObserver(() => {
+                    const liveRoot = document.getElementById('focus-native-video-augment') || window.__FOCUS_NATIVE_VIDEO_AUGMENT_ROOT__;
+                    if (!(liveRoot instanceof HTMLElement)) {
+                      return;
+                    }
+
+                    const host = resolveMountHost();
+                    if (liveRoot.parentNode !== host) {
+                      repairRoot();
+                    }
+                  });
+
+                  observer.observe(document.documentElement, { childList: true, subtree: true });
+                  window.__FOCUS_NATIVE_VIDEO_AUGMENT_OBSERVER__ = observer;
+                };
+
+                const teardown = () => {
+                  disconnectObserver();
+                  window.__FOCUS_NATIVE_VIDEO_AUGMENT_ROOT__ = null;
+                  window.__FOCUS_REPAIR_NATIVE_VIDEO_AUGMENT__ = null;
+                };
+
+                const helpers = {
+                  resolveMountHost,
+                  attachRoot,
+                  repairRoot,
+                  installObserver,
+                  teardown
+                };
+                window.__FOCUS_NATIVE_VIDEO_AUGMENT_HELPERS__ = helpers;
+                return helpers;
+              };
+
+              const nativeVideoAugmentHelpers = ensureNativeVideoAugmentHelpers();
+              const mountNativeVideoAugmentRoot = (root) => {
+                if (!(root instanceof HTMLElement)) {
+                  return false;
+                }
+                nativeVideoAugmentHelpers.attachRoot(root);
+                nativeVideoAugmentHelpers.installObserver(root);
+                return true;
+              };
+"""#
+
 private extension FocusNativeVideoAugmentPayload {
     var javaScript: String {
         let payloadJSON = focusJSONString
@@ -4494,7 +4582,8 @@ private extension FocusNativeVideoAugmentPayload {
           const payload = \#(payloadJSON);
           const styleId = 'focus-native-video-augment-style';
           const rootId = 'focus-native-video-augment';
-          const componentVersion = '2026-06-22-toolbar-center-no-follow';
+          const componentVersion = '2026-06-23-augment-self-remount';
+          \#(focusNativeVideoAugmentMountHelpersJavaScript)
           const hasRenderableContent = !!payload && (
             !!payload.authorName
             || !!payload.authorAvatarURL
@@ -4504,11 +4593,15 @@ private extension FocusNativeVideoAugmentPayload {
           );
           if (!hasRenderableContent) {
             document.getElementById(rootId)?.remove?.();
+            if (window.__FOCUS_NATIVE_VIDEO_AUGMENT_HELPERS__?.teardown) {
+              try {
+                window.__FOCUS_NATIVE_VIDEO_AUGMENT_HELPERS__.teardown();
+              } catch (_) {}
+            }
             return;
           }
 
-          const checkExistingComponent = () => {
-            const existing = document.getElementById(rootId);
+          const checkExistingComponent = (existing) => {
             if (!existing) return false;
             if (existing.getAttribute('data-focus-version') !== componentVersion) {
               return false;
@@ -4521,11 +4614,6 @@ private extension FocusNativeVideoAugmentPayload {
 
             return hasContent && isVisible && groupsReady && commentsReady;
           };
-
-          if (checkExistingComponent()) {
-            console.log('[Focus Native Augment] Component already valid, skipping injection');
-            return;
-          }
 
           const escapeHTML = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({
             '&': '&amp;',
@@ -4904,10 +4992,9 @@ private extension FocusNativeVideoAugmentPayload {
           ensureStyle();
           const preservedScrollY = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
           const root = document.getElementById(rootId) || document.createElement('section');
+          root.id = rootId;
+          mountNativeVideoAugmentRoot(root);
           const renderKey = `${payload.title || ''}::${payload.authorName || ''}::${(payload.groups || []).reduce((sum, group) => sum + ((group.items || []).length), 0)}::${(payload.comments || []).length}`;
-          if (root.getAttribute('data-focus-render-key') === renderKey) {
-            return;
-          }
           const loadingMaskId = 'focus-native-video-loading-mask';
           let loadingMask = document.getElementById(loadingMaskId);
           if (!loadingMask) {
@@ -4925,37 +5012,26 @@ private extension FocusNativeVideoAugmentPayload {
           loadingMask.style.zIndex = '20';
           loadingMask.style.opacity = '1';
           loadingMask.style.transition = 'opacity 0.18s ease';
-          root.id = rootId;
+
+          if (root.getAttribute('data-focus-render-key') === renderKey && checkExistingComponent(root)) {
+            hideOriginalSections();
+            mountNativeVideoAugmentRoot(root);
+            document.documentElement.classList.add('focus-native-video-ready');
+            document.body?.classList?.add('focus-native-video-ready');
+            return;
+          }
+
           root.setAttribute('data-focus-version', componentVersion);
           root.setAttribute('data-focus-render-key', renderKey);
+          root.removeAttribute('data-focus-placeholder');
           root.style.setProperty('display', 'block', 'important');
           root.style.setProperty('width', '100%', 'important');
           root.style.setProperty('visibility', 'visible', 'important');
           root.style.setProperty('opacity', '1', 'important');
           root.innerHTML = `${buildMetaHTML()}${buildGroupsHTML()}${buildCommentsHTML()}`;
 
-          const commentAnchor = payload.comments && payload.comments.length > 0
-            ? document.querySelector('#commentapp')
-            : null;
-          const episodeAnchor = payload.groups && payload.groups.length > 0
-            ? document.querySelector('.video-pod, .multi-page, [class*="episode-list"], [class*="part-list"], [class*="page-list"]')
-            : null;
-          const viewbox = document.querySelector('#viewbox_report');
-          const leftContainer = viewbox?.closest('.left-container') || document.querySelector('.left-container');
-
           hideOriginalSections();
-
-          if (commentAnchor && commentAnchor.parentNode) {
-            commentAnchor.parentNode.insertBefore(root, commentAnchor);
-          } else if (episodeAnchor && episodeAnchor.parentNode) {
-            episodeAnchor.parentNode.insertBefore(root, episodeAnchor);
-          } else if (viewbox && viewbox.parentNode) {
-            viewbox.parentNode.insertBefore(root, viewbox.nextSibling);
-          } else if (leftContainer) {
-            leftContainer.appendChild(root);
-          } else {
-            (document.querySelector('main') || document.body || document.documentElement).appendChild(root);
-          }
+          mountNativeVideoAugmentRoot(root);
 
           Array.from(document.querySelectorAll('button, a, div, span')).forEach((node) => {
             const text = String(node.textContent || '').trim();
