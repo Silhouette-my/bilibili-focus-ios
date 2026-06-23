@@ -16,8 +16,8 @@ struct DynamicFeedServiceTests {
         #expect(videoCard.publishTime == "5分钟前")
         #expect(videoCard.text == "视频动态正文")
         #expect(videoCard.coverURLs.count == 1)
-        #expect(videoCard.targetURL.absoluteString == "https://www.bilibili.com/video/BV1xx411c7mD")
-        #expect(videoCard.videoURL?.absoluteString == "https://www.bilibili.com/video/BV1xx411c7mD")
+        #expect(videoCard.targetURL.absoluteString == "https://www.bilibili.com/video/BV1xx411c7mD/")
+        #expect(videoCard.videoURL?.absoluteString == "https://www.bilibili.com/video/BV1xx411c7mD/")
 
         let imageCard = cards[1]
         #expect(imageCard.kind == .image)
@@ -77,8 +77,8 @@ struct DynamicFeedServiceTests {
         #expect(card.kind == .video)
         #expect(card.text == "合集标题")
         #expect(card.coverURLs.first?.absoluteString == "https://i0.hdslb.com/bfs/archive/ugc-season-cover.jpg")
-        #expect(card.targetURL.absoluteString == "https://www.bilibili.com/video/BV1zz411c7mE")
-        #expect(card.videoURL?.absoluteString == "https://www.bilibili.com/video/BV1zz411c7mE")
+        #expect(card.targetURL.absoluteString == "https://www.bilibili.com/video/BV1zz411c7mE/")
+        #expect(card.videoURL?.absoluteString == "https://www.bilibili.com/video/BV1zz411c7mE/")
     }
 }
 

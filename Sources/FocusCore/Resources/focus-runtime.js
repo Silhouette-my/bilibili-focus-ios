@@ -90,7 +90,27 @@
         const isBilibiliHost = host === "www.bilibili.com" || host === "bilibili.com" || host === "m.bilibili.com";
 
         if (isBilibiliHost && (path.indexOf("/video/") === 0 || path.indexOf("/bangumi/play/") === 0)) {
+          url.protocol = "https:";
           url.hostname = "www.bilibili.com";
+          if (path.indexOf("/video/") === 0 && !url.pathname.endsWith("/")) {
+            url.pathname = url.pathname + "/";
+          }
+          if (path.indexOf("/video/") === 0) {
+            const preservedNames = new Set([
+              "p",
+              "t",
+              "start_progress",
+              "start_progress_ms",
+              "spm_id_from",
+              "from_spmid",
+              "from_source"
+            ]);
+            Array.from(url.searchParams.keys()).forEach((key) => {
+              if (!preservedNames.has(String(key).toLowerCase())) {
+                url.searchParams.delete(key);
+              }
+            });
+          }
         }
 
         return url.toString();

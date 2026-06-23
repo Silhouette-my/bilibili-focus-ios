@@ -1191,7 +1191,19 @@ public enum FocusRuleCatalog {
                       }
 
                       if (videoPattern.test(path)) {
+                        parsedURL.protocol = 'https:';
                         parsedURL.hostname = 'www.bilibili.com';
+                        if (path.indexOf('/video/') === 0 && !parsedURL.pathname.endsWith('/')) {
+                          parsedURL.pathname += '/';
+                        }
+                        if (path.indexOf('/video/') === 0) {
+                          const preservedNames = new Set(['p', 't', 'start_progress', 'start_progress_ms', 'spm_id_from', 'from_spmid', 'from_source']);
+                          Array.from(parsedURL.searchParams.keys()).forEach((key) => {
+                            if (!preservedNames.has(String(key).toLowerCase())) {
+                              parsedURL.searchParams.delete(key);
+                            }
+                          });
+                        }
                         return parsedURL.toString();
                       }
 
@@ -1199,8 +1211,12 @@ public enum FocusRuleCatalog {
                         const bvid = parsedURL.searchParams.get('bvid');
                         const aid = parsedURL.searchParams.get('aid') || parsedURL.searchParams.get('avid');
                         if (bvid) {
+                          parsedURL.protocol = 'https:';
                           parsedURL.hostname = 'www.bilibili.com';
                           parsedURL.pathname = '/video/' + bvid;
+                          if (!parsedURL.pathname.endsWith('/')) {
+                            parsedURL.pathname += '/';
+                          }
                           parsedURL.searchParams.delete('bvid');
                           parsedURL.searchParams.delete('aid');
                           parsedURL.searchParams.delete('avid');
@@ -1208,8 +1224,12 @@ public enum FocusRuleCatalog {
                         }
 
                         if (aid) {
+                          parsedURL.protocol = 'https:';
                           parsedURL.hostname = 'www.bilibili.com';
                           parsedURL.pathname = '/video/av' + aid;
+                          if (!parsedURL.pathname.endsWith('/')) {
+                            parsedURL.pathname += '/';
+                          }
                           parsedURL.searchParams.delete('bvid');
                           parsedURL.searchParams.delete('aid');
                           parsedURL.searchParams.delete('avid');
@@ -1265,12 +1285,12 @@ public enum FocusRuleCatalog {
 
                       const bvidMatch = trimmed.match(/BV[0-9A-Za-z]{10}/);
                       if (bvidMatch) {
-                        return 'https://www.bilibili.com/video/' + bvidMatch[0];
+                        return 'https://www.bilibili.com/video/' + bvidMatch[0] + '/';
                       }
 
                       const aidMatch = trimmed.match(/(?:aid|avid)=([0-9]+)/i);
                       if (aidMatch) {
-                        return 'https://www.bilibili.com/video/av' + aidMatch[1];
+                        return 'https://www.bilibili.com/video/av' + aidMatch[1] + '/';
                       }
 
                       return null;

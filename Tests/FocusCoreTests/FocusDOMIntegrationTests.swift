@@ -70,7 +70,7 @@ struct FocusDOMIntegrationTests {
         )
         #expect(recommendationDisplay == "none")
         #expect(resultText.contains("Core Search Results"))
-        #expect(rewrittenHref == "https://www.bilibili.com/video/BV1xx411c7mD")
+        #expect(rewrittenHref == "https://www.bilibili.com/video/BV1xx411c7mD/")
         #expect(videoGridDisplay == "grid")
         #expect(videoGridColumns.contains(" "))
         #expect(markedVideoCards == "2")
@@ -118,7 +118,7 @@ struct FocusDOMIntegrationTests {
 
     @Test
     func videoFixtureReflowsDesktopPlaybackPage() async throws {
-        let webView = try await loadFixture(named: "video", url: URL(string: "https://www.bilibili.com/video/BV1xx411c7mD")!)
+        let webView = try await loadFixture(named: "video", url: URL(string: "https://www.bilibili.com/video/BV1xx411c7mD/")!)
 
         let titleDisplay = try await evaluate(
             "getComputedStyle(document.querySelector('#viewbox_report')).display",
@@ -160,8 +160,8 @@ struct FocusDOMIntegrationTests {
 
         #expect(titleDisplay == "none")
         #expect(playerText == "Core Player")
-        #expect(toolbarItems == "Like|Favorite|Share")
-        #expect(coinDisplay == "none")
+        #expect(toolbarItems == "Like|Coin|Favorite|Share")
+        #expect(coinDisplay == "block")
         #expect(partText == "P1|P2")
         #expect(recommendationDisplay == "none")
         #expect(autoplayEnabled == "false")

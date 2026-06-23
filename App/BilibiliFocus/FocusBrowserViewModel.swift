@@ -929,7 +929,6 @@ final class FocusBrowserViewModel: ObservableObject {
     @Published private(set) var nativeVideoAuthorMID: Int64 = 0
     @Published private(set) var nativeVideoAuthorFollowers: Int64 = 0
     @Published private(set) var nativeVideoAuthorIsFollowing = false
-
     let settingsStore: FocusSettingsStore
 
     weak var webView: WKWebView?
@@ -955,7 +954,6 @@ final class FocusBrowserViewModel: ObservableObject {
     private var pendingOrientationSyncAfterPlayerReady = false
     private var lastHandledDeviceOrientation: UIDeviceOrientation = .unknown
     private var orientationTransitionTask: Task<Void, Never>?
-
     init(settingsStore: FocusSettingsStore) {
         self.settingsStore = settingsStore
 
@@ -4115,7 +4113,7 @@ fileprivate actor FocusNativePageAugmentService {
                 title: title,
                 subtitle: "P\(pageNumber)",
                 badge: duration,
-                targetURL: "https://www.bilibili.com/video/\(bvid)?p=\(pageNumber)",
+                targetURL: "https://www.bilibili.com/video/\(bvid)/?p=\(pageNumber)",
                 isCurrent: currentPageNumber == pageNumber
             )
         }
@@ -4148,7 +4146,7 @@ fileprivate actor FocusNativePageAugmentService {
                     title: rawTitle?.nilIfBlank ?? "视频",
                     subtitle: bvid,
                     badge: badge,
-                    targetURL: "https://www.bilibili.com/video/\(bvid)",
+                    targetURL: "https://www.bilibili.com/video/\(bvid)/",
                     isCurrent: bvid.caseInsensitiveCompare(currentBvid) == .orderedSame
                 )
             }
@@ -4515,7 +4513,6 @@ private extension FocusNativeVideoAugmentPayload {
             if (existing.getAttribute('data-focus-version') !== componentVersion) {
               return false;
             }
-
             const rect = existing.getBoundingClientRect();
             const hasContent = existing.children.length > 0;
             const isVisible = rect.height > 50;
@@ -5196,7 +5193,7 @@ struct FocusMyHistoryItem: Identifiable {
         guard !bvid.isEmpty else {
             return nil
         }
-        return URL(string: "https://www.bilibili.com/video/\(bvid)")
+        return URL(string: "https://www.bilibili.com/video/\(bvid)/")
     }
 }
 
@@ -5227,7 +5224,7 @@ struct FocusMyFavoriteItem: Identifiable {
         guard !bvid.isEmpty else {
             return nil
         }
-        return URL(string: "https://www.bilibili.com/video/\(bvid)")
+        return URL(string: "https://www.bilibili.com/video/\(bvid)/")
     }
 }
 
@@ -5256,7 +5253,7 @@ struct FocusUserSpaceVideo: Identifiable {
         guard !bvid.isEmpty else {
             return nil
         }
-        return URL(string: "https://www.bilibili.com/video/\(bvid)")
+        return URL(string: "https://www.bilibili.com/video/\(bvid)/")
     }
 }
 
