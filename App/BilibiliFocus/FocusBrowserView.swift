@@ -3460,8 +3460,13 @@ private struct FocusSettingsView: View {
     @StateObject private var viewModel: FocusDynamicAuthorSettingsViewModel
     @Environment(\.dismiss) private var dismiss
 
-    init(settingsStore: FocusSettingsStore, dynamicAuthors _: [DynamicCard.Author]) {
-        self._viewModel = StateObject(wrappedValue: FocusDynamicAuthorSettingsViewModel(service: FocusFollowingAuthorsService(cookieProvider: WebViewCookieSnapshotProvider())))
+    init(settingsStore: FocusSettingsStore, dynamicAuthors: [DynamicCard.Author]) {
+        self._viewModel = StateObject(
+            wrappedValue: FocusDynamicAuthorSettingsViewModel(
+                service: FocusFollowingAuthorsService(cookieProvider: WebViewCookieSnapshotProvider()),
+                fallbackAuthors: dynamicAuthors
+            )
+        )
         self.settingsStore = settingsStore
     }
 
@@ -3632,9 +3637,4 @@ private struct FocusDynamicAuthorFilterView: View {
     }
 }
 
-private extension DynamicCard.Author {
-    var filterIdentity: String {
-        mid > 0 ? "mid:\(mid)" : "name:\(name)"
-    }
-}
 #endif

@@ -953,7 +953,9 @@ final class FocusBrowserViewModel: ObservableObject {
     private var lastIssuedLoadURL: URL?
     private var pendingOrientationSyncAfterPlayerReady = false
     private var lastHandledDeviceOrientation: UIDeviceOrientation = .unknown
-    private var orientationTransitionTask: Task<Void, Never>?
+    private var orientationDebounceTask: Task<Void, Never>?
+    private var fullscreenTransitionTask: Task<Void, Never>?
+    private var requestedInterfaceOrientationMask: UIInterfaceOrientationMask = .portrait
     init(settingsStore: FocusSettingsStore) {
         self.settingsStore = settingsStore
 
@@ -1799,6 +1801,79 @@ final class FocusBrowserViewModel: ObservableObject {
         )
     }
 
+    @MainActor
+    private func enterLandscapeFullscreen(for orientation: UIDeviceOrientation) {
+        let targetMask: UIInterfaceOrientationMask = orientation == .landscapeRight ? .landscapeRight : .landscapeLeft
+        let requiresNativeRotation = requestedInterfaceOrientationMask != targetMask
+
+        if requiresNativeRotation {
+            requestedInterfaceOrientationMask = targetMask
+            updateSupportedOrientations(to: targetMask)
+        }
+
+        fullscreenTransitionTask?.cancel()
+        fullscreenTransitionTask = Task { @MainActor [weak self] in
+            let delay: UInt64 = requiresNativeRotation ? 160_000_000 : 40_000_000
+            try? await Task.sleep(nanoseconds: delay)
+            guard let self, !Task.isCancelled else {
+                return
+            }
+            if !self.isImmersiveVideo {
+                self.requestFullscreen()
+            }
+        }
+    }
+
+    @MainActor
+    private func exitLandscapeFullscreen() {
+        fullscreenTransitionTask?.cancel()
+        if isImmersiveVideo {
+            exitFullscreen()
+        }
+
+        fullscreenTransitionTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: 120_000_000)
+            guard let self, !Task.isCancelled else {
+                return
+            }
+            self.requestedInterfaceOrientationMask = .portrait
+            self.updateSupportedOrientations(to: .portrait)
+        }
+    }
+
+    @MainActor
+    private func updateSupportedOrientations(to mask: UIInterfaceOrientationMask) {
+        AppDelegate.orientationLock = mask
+
+        guard let windowScene = activeWindowScene else {
+            UIViewController.attemptRotationToDeviceOrientation()
+            return
+        }
+
+        windowScene.windows.first(where: \.isKeyWindow)?.rootViewController?.setNeedsUpdateOfSupportedInterfaceOrientations()
+        windowScene.requestGeometryUpdate(.iOS(interfaceOrientations: mask)) { [weak self] error in
+            guard let self else {
+                return
+            }
+            debugLog(
+                "orientation.geometryUpdate.error",
+                fields: debugStateFields([
+                    "mask": "\(mask.rawValue)",
+                    "error": String(describing: error)
+                ])
+            )
+        }
+        UIViewController.attemptRotationToDeviceOrientation()
+    }
+
+    private var activeWindowScene: UIWindowScene? {
+        UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first { scene in
+                scene.activationState == .foregroundActive
+            }
+    }
+
     func toggleSubtitles() {
         runPlayerCommand(
             """
@@ -1845,8 +1920,8 @@ final class FocusBrowserViewModel: ObservableObject {
         }
         lastHandledDeviceOrientation = orientation
 
-        orientationTransitionTask?.cancel()
-        orientationTransitionTask = Task { @MainActor [weak self] in
+        orientationDebounceTask?.cancel()
+        orientationDebounceTask = Task { @MainActor [weak self] in
             try? await Task.sleep(nanoseconds: 180_000_000)
             guard let self, !Task.isCancelled else {
                 return
@@ -1878,12 +1953,10 @@ final class FocusBrowserViewModel: ObservableObject {
         switch orientation {
         case .landscapeLeft, .landscapeRight:
             if !isImmersiveVideo {
-                requestFullscreen()
+                enterLandscapeFullscreen(for: orientation)
             }
         case .portrait:
-            if isImmersiveVideo {
-                exitFullscreen()
-            }
+            exitLandscapeFullscreen()
         default:
             break
         }
@@ -1898,13 +1971,17 @@ final class FocusBrowserViewModel: ObservableObject {
         resetPlayerState()
         isLoadingPage = false
         isImmersiveVideo = false
+        requestedInterfaceOrientationMask = .portrait
+        updateSupportedOrientations(to: .portrait)
         navigationTitle = "浏览"
         entryContext = .dynamic
         lastIssuedLoadURL = nil
         pendingOrientationSyncAfterPlayerReady = false
         lastHandledDeviceOrientation = .unknown
-        orientationTransitionTask?.cancel()
-        orientationTransitionTask = nil
+        orientationDebounceTask?.cancel()
+        orientationDebounceTask = nil
+        fullscreenTransitionTask?.cancel()
+        fullscreenTransitionTask = nil
         resetAppBackStack()
     }
 
@@ -2422,9 +2499,13 @@ final class FocusBrowserViewModel: ObservableObject {
         embeddedPlayerDetectionTask?.cancel()
         embeddedPlayerDetectionTask = nil
         pendingOrientationSyncAfterPlayerReady = false
-        orientationTransitionTask?.cancel()
-        orientationTransitionTask = nil
+        orientationDebounceTask?.cancel()
+        orientationDebounceTask = nil
+        fullscreenTransitionTask?.cancel()
+        fullscreenTransitionTask = nil
         lastHandledDeviceOrientation = .unknown
+        requestedInterfaceOrientationMask = .portrait
+        updateSupportedOrientations(to: .portrait)
         hasActiveVideoRoute = false
         hasDetectedPlayer = false
         isImmersiveVideo = false
@@ -4466,6 +4547,8 @@ fileprivate actor FocusNativePageAugmentService {
     }
 }
 
+private let focusNativeVideoAugmentComponentVersion = "2026-06-23-augment-stability-fix"
+
 private let focusNativeVideoAugmentMountHelpersJavaScript = #"""
               const ensureNativeVideoAugmentHelpers = () => {
                 const existingHelpers = window.__FOCUS_NATIVE_VIDEO_AUGMENT_HELPERS__;
@@ -4993,9 +5076,40 @@ private extension FocusNativeVideoAugmentPayload {
           const preservedScrollY = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
           const root = document.getElementById(rootId) || document.createElement('section');
           root.id = rootId;
-          mountNativeVideoAugmentRoot(root);
           const renderKey = `${payload.title || ''}::${payload.authorName || ''}::${(payload.groups || []).reduce((sum, group) => sum + ((group.items || []).length), 0)}::${(payload.comments || []).length}`;
           const loadingMaskId = 'focus-native-video-loading-mask';
+          const clearLoadingMask = () => {
+            if (window.__FOCUS_CLEAR_VIDEO_LOADING_MASK__) {
+              try {
+                window.__FOCUS_CLEAR_VIDEO_LOADING_MASK__(true);
+                return;
+              } catch (_) {}
+            }
+
+            const liveMask = document.getElementById(loadingMaskId);
+            if (!liveMask) {
+              return;
+            }
+            liveMask.style.transition = 'opacity 0.18s ease';
+            liveMask.style.opacity = '0';
+            setTimeout(() => {
+              if (liveMask.isConnected) {
+                liveMask.remove?.();
+              }
+            }, 220);
+          };
+
+          if (root.getAttribute('data-focus-render-key') === renderKey && checkExistingComponent(root)) {
+            hideOriginalSections();
+            root.removeAttribute('data-focus-placeholder');
+            mountNativeVideoAugmentRoot(root);
+            document.documentElement.classList.add('focus-native-video-ready');
+            document.body?.classList?.add('focus-native-video-ready');
+            clearLoadingMask();
+            return;
+          }
+
+          mountNativeVideoAugmentRoot(root);
           let loadingMask = document.getElementById(loadingMaskId);
           if (!loadingMask) {
             loadingMask = document.createElement('div');
@@ -5012,14 +5126,6 @@ private extension FocusNativeVideoAugmentPayload {
           loadingMask.style.zIndex = '20';
           loadingMask.style.opacity = '1';
           loadingMask.style.transition = 'opacity 0.18s ease';
-
-          if (root.getAttribute('data-focus-render-key') === renderKey && checkExistingComponent(root)) {
-            hideOriginalSections();
-            mountNativeVideoAugmentRoot(root);
-            document.documentElement.classList.add('focus-native-video-ready');
-            document.body?.classList?.add('focus-native-video-ready');
-            return;
-          }
 
           root.setAttribute('data-focus-version', componentVersion);
           root.setAttribute('data-focus-render-key', renderKey);
@@ -5062,10 +5168,7 @@ private extension FocusNativeVideoAugmentPayload {
           document.documentElement.classList.add('focus-native-video-ready');
           document.body?.classList?.add('focus-native-video-ready');
           requestAnimationFrame(() => {
-            if (loadingMask) {
-              loadingMask.style.opacity = '0';
-              setTimeout(() => loadingMask?.remove(), 220);
-            }
+            clearLoadingMask();
           });
 
           const restoreScroll = () => {
@@ -6329,10 +6432,12 @@ final class FocusDynamicAuthorSettingsViewModel: ObservableObject {
     @Published private(set) var state: State = .idle
 
     private let service: FocusFollowingAuthorsService
+    private let fallbackAuthors: [DynamicCard.Author]
     private var task: Task<Void, Never>?
 
-    init(service: FocusFollowingAuthorsService) {
+    init(service: FocusFollowingAuthorsService, fallbackAuthors: [DynamicCard.Author] = []) {
         self.service = service
+        self.fallbackAuthors = Self.deduplicatedAuthors(fallbackAuthors)
     }
 
     deinit {
@@ -6354,12 +6459,38 @@ final class FocusDynamicAuthorSettingsViewModel: ObservableObject {
             do {
                 let authors = try await service.fetchFollowingAuthors()
                 guard !Task.isCancelled else { return }
-                state = .loaded(authors)
+                state = .loaded(Self.mergedAuthors(primary: authors, fallback: fallbackAuthors))
             } catch {
                 guard !Task.isCancelled else { return }
-                state = .failed(error.localizedDescription)
+                if !fallbackAuthors.isEmpty {
+                    state = .loaded(fallbackAuthors)
+                } else {
+                    state = .failed(error.localizedDescription)
+                }
             }
         }
+    }
+
+    private static func mergedAuthors(primary: [DynamicCard.Author], fallback: [DynamicCard.Author]) -> [DynamicCard.Author] {
+        deduplicatedAuthors(primary + fallback)
+    }
+
+    private static func deduplicatedAuthors(_ authors: [DynamicCard.Author]) -> [DynamicCard.Author] {
+        var seen = Set<String>()
+        var result: [DynamicCard.Author] = []
+        result.reserveCapacity(authors.count)
+
+        for author in authors {
+            let normalizedName = author.name.nilIfBlank ?? "UP主"
+            let normalized = DynamicCard.Author(mid: author.mid, name: normalizedName, avatarURL: author.avatarURL)
+            let key = normalized.filterIdentity
+            guard seen.insert(key).inserted else {
+                continue
+            }
+            result.append(normalized)
+        }
+
+        return result
     }
 }
 
@@ -6399,8 +6530,64 @@ final class FocusFollowingAuthorsService: @unchecked Sendable {
             throw ServiceError.loginRequired
         }
 
+        var aggregated: [DynamicCard.Author] = []
+        var seen = Set<String>()
+
+        if let allFollowings = try? await fetchAllFollowingAuthors(mid: mid), !allFollowings.isEmpty {
+            for author in allFollowings {
+                let key = author.filterIdentity
+                guard seen.insert(key).inserted else {
+                    continue
+                }
+                aggregated.append(author)
+            }
+        }
+
+        let pageSize = 100
+        let maxPages = 200
+        var page = 1
+        var expectedTotal: Int?
+
+        while page <= maxPages {
+            let root = try await requestObject(
+                urlString: "https://api.bilibili.com/x/relation/followings?vmid=\(mid)&pn=\(page)&ps=\(pageSize)&order=desc&order_type=attention",
+                referer: "https://space.bilibili.com/\(mid)/fans/follow"
+            )
+            if root.intValue(at: "code") == -101 {
+                throw ServiceError.loginRequired
+            }
+            guard root.intValue(at: "code") == 0 else {
+                throw ServiceError.message(root.stringValue(at: "message") ?? "关注列表加载失败")
+            }
+
+            if expectedTotal == nil {
+                expectedTotal = root.intValue(at: "data", "total")
+            }
+
+            let pageAuthors = (root.arrayValue(at: "data", "list") ?? []).compactMap(Self.makeAuthor(from:))
+            for author in pageAuthors {
+                let key = author.filterIdentity
+                guard seen.insert(key).inserted else {
+                    continue
+                }
+                aggregated.append(author)
+            }
+
+            if pageAuthors.isEmpty || pageAuthors.count < pageSize {
+                break
+            }
+            if let expectedTotal, aggregated.count >= expectedTotal {
+                break
+            }
+            page += 1
+        }
+
+        return aggregated
+    }
+
+    private func fetchAllFollowingAuthors(mid: Int64) async throws -> [DynamicCard.Author] {
         let root = try await requestObject(
-            urlString: "https://api.bilibili.com/x/relation/followings?vmid=\(mid)&pn=1&ps=100&order=desc&order_type=attention",
+            urlString: "https://api.bilibili.com/x/web-interface/attentions?mid=\(mid)",
             referer: "https://space.bilibili.com/\(mid)/fans/follow"
         )
         if root.intValue(at: "code") == -101 {
@@ -6410,13 +6597,21 @@ final class FocusFollowingAuthorsService: @unchecked Sendable {
             throw ServiceError.message(root.stringValue(at: "message") ?? "关注列表加载失败")
         }
 
-        let list = root.arrayValue(at: "data", "list") ?? []
-        return list.compactMap { item in
-            let itemMid = item.int64Value(at: "mid") ?? 0
-            let name = item.stringValue(at: "uname")?.nilIfBlank ?? item.stringValue(at: "name")?.nilIfBlank ?? "UP主"
-            let avatarURL = URL(string: FocusMyDataService.normalizedURLString(item.stringValue(at: "face")) ?? "")
-            return DynamicCard.Author(mid: itemMid, name: name, avatarURL: avatarURL)
+        let list = root.arrayValue(at: "data", "list")
+            ?? root.arrayValue(at: "data")
+            ?? root.arrayValue(at: "list")
+            ?? []
+        return list.compactMap(Self.makeAuthor(from:))
+    }
+
+    private static func makeAuthor(from item: [String: Any]) -> DynamicCard.Author? {
+        let itemMid = item.int64Value(at: "mid") ?? item.int64Value(at: "uid") ?? 0
+        let name = item.stringValue(at: "uname")?.nilIfBlank ?? item.stringValue(at: "name")?.nilIfBlank ?? "UP主"
+        let avatarURL = URL(string: FocusMyDataService.normalizedURLString(item.stringValue(at: "face")) ?? "")
+        if itemMid <= 0, name == "UP主" {
+            return nil
         }
+        return DynamicCard.Author(mid: itemMid, name: name, avatarURL: avatarURL)
     }
 
     private func requestObject(urlString: String, referer: String) async throws -> [String: Any] {
@@ -6442,6 +6637,12 @@ final class FocusFollowingAuthorsService: @unchecked Sendable {
             throw ServiceError.invalidResponse
         }
         return object
+    }
+}
+
+extension DynamicCard.Author {
+    var filterIdentity: String {
+        mid > 0 ? "mid:\(mid)" : "name:\(name)"
     }
 }
 
